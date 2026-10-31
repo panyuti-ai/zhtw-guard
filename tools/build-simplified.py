@@ -14,13 +14,14 @@ in Traditional text, out of the list.
 OpenCC's Traditional forms are the older orthodox ones (羣, 祕). Taiwan's
 standard forms (群) come from TWVariants.txt and are removed too, as is
 TAIWAN_IN_USE: characters OpenCC treats as Simplified that Taiwan's own
-official term list (NAER 電子計算機名詞, 2026-08-21) uses often (秘: 21 entries).
+official term list (NAER 電子計算機名詞, 2026-08-21) uses often (秘: 21 entries), and 霉,
+common in Taiwan writing (倒霉, 發霉; author's judgment).
 """
 import json
 import pathlib
 import sys
 
-TAIWAN_IN_USE = {"秘"}
+TAIWAN_IN_USE = {"秘", "霉"}
 
 OUT = pathlib.Path(__file__).resolve().parent.parent / "plugins/zhtw-guard/lib/simplified-chars.js"
 

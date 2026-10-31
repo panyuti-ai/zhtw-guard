@@ -68,7 +68,7 @@ test('clean reply produces no output', () => {
 });
 
 test('Taiwan standard forms that OpenCC writes differently are not flagged', () => {
-  assert.deepEqual(froms('請把群組設定好，秘書會把床單送到山峰上的小屋，痴痴等待粽子和灶台。'), []);
+  assert.deepEqual(froms('請把群組設定好，秘書會把床單送到山峰上的小屋，痴痴等待粽子和灶台，真倒霉。'), []);
 });
 
 test('Simplified or Japanese-only forms Taiwan does not use are still flagged', () => {
