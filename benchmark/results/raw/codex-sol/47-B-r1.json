@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。\n\n請用繁體中文回答。",
+ "answer": "在 Kubernetes 中，三者分工如下：\n\n- **Pod：實際執行應用程式的單位。** 一個 Pod 可以包含一個或多個容器，共享網路與儲存資源。Pod 可能被刪除或重建，因此 IP 不保證固定。\n- **Deployment：管理 Pod 的數量與更新。** 你宣告需要的副本數與容器映像，Deployment 會透過 ReplicaSet 維持指定數量的 Pod，並支援滾動更新與回復版本。\n- **Service：提供存取 Pod 的穩定入口。** Service 通常透過標籤選擇器（label selector）找到符合條件的 Pod，提供穩定的 DNS 名稱與虛擬 IP，將流量導向可用的 Pod。\n\n例如，一個網站需要執行三份副本：\n\n```text\nDeployment\n    │ 透過 ReplicaSet 管理\n    ├── Pod A（網站容器）\n    ├── Pod B（網站容器）\n    └── Pod C（網站容器）\n          ▲\n          │ 將流量導向符合標籤的 Pod\n       Service\n          ▲\n          │\n        用戶端\n```\n\n當 Pod B 故障時，Deployment 所管理的 ReplicaSet 會建立新的 Pod 補足副本數。新 Pod 的 IP 即使不同，用戶端仍可透過相同的 Service 名稱存取網站。\n\n**關鍵是：Deployment 管理 Pod，Service 將流量導向 Pod。** Service 並不是連到 Deployment；兩者通常靠 Pod 的標籤對應起來。預設的 Service 僅供叢集內存取，若要對外提供網站，通常會搭配 LoadBalancer 類型的 Service、Ingress 或 Gateway。",
+ "finished_at": "2026-10-31T15:54:18+00:00",
+ "seconds": 17.4
+}

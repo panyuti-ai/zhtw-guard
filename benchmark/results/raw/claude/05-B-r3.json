@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 5,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "什麼是快取？快取失效有哪些常見策略？\n\n請用繁體中文回答。",
+ "answer": "# 什麼是快取（Cache）？\n\n快取是一種**把經常使用或計算成本高的資料，暫存在較快速的儲存層**的技術，讓後續相同的請求不必重複向較慢的來源（資料庫、遠端 API、磁碟）取得資料，以降低延遲、減輕後端負載、提升吞吐量。\n\n**常見層級：**\n- CPU 快取（L1/L2/L3）\n- 瀏覽器快取、CDN\n- 應用程式記憶體快取（如 Redis、Memcached）\n- 資料庫查詢快取\n\n**核心問題：** 原始資料變動後，快取中的舊資料就會「過期」（stale）。因此需要快取失效（invalidation）策略來維持一致性。\n\n---\n\n# 常見快取失效策略\n\n## 1. TTL（Time To Live，存活時間）\n為每筆資料設定過期時間，到期自動移除。\n- **優點：** 簡單、不需追蹤資料變動\n- **缺點：** 期間內可能讀到舊資料；TTL 難以調得剛好\n\n## 2. 主動失效（Explicit / Event-based Invalidation）\n資料更新時，主動刪除或更新對應的快取項目。\n- **優點：** 一致性較好\n- **缺點：** 需要在程式中維護失效邏輯，容易遺漏；分散式環境下較複雜\n\n## 3. 寫入策略（Write Policy）\n- **Write-through（直寫）：** 寫入時同時更新快取與資料庫。一致性高，但寫入延遲較高。\n- **Write-back / Write-behind（回寫）：** 先寫快取，之後非同步寫回資料庫。寫入快，但快取故障時有資料遺失風險。\n- **Write-around：** 直接寫資料庫，繞過快取，讀取時才載入。避免快取被不常讀的資料污染。\n- **Cache-aside（旁路快取）：** 應用程式自行管理——讀取時 miss 就查 DB 並寫入快取；更新時先更新 DB 再刪除快取。\n\n## 4. 容量驅逐策略（Eviction Policy）\n快取空間滿時決定淘汰誰：\n- **LRU：** 淘汰最久未使用的\n- **LFU：** 淘汰使用次數最少的\n- **FIFO：** 先進先出\n- **Random：** 隨機淘汰\n\n## 5. 版本化／內容雜湊（Versioning）\n在 key 或 URL 加入版本號或內容雜湊（如 `app.3f9a1c.js`），內容變動就產生新 key，舊的自然不再被使用。常用於靜態資源與 CDN。\n\n## 6. 驗證式失效（Revalidation）\nHTTP 快取中使用 `ETag`、`Last-Modified` 搭配條件請求（`If-None-Match`），向伺服器確認資料是否改變，未變則回 `304 Not Modified`。\n\n## 7. 發佈／訂閱通知\n資料變更時透過訊息佇列或 Pub/Sub（如 Redis Pub/Sub、Kafka、CDC）通知各節點清除快取，適用於多節點分散式系統。\n\n---\n\n# 常見問題與對策\n\n| 問題 | 說明 | 對策 |\n|---|---|---|\n| **快取穿透** | 查詢不存在的資料，每次都打到 DB | 快取空值、Bloom Filter |\n| **快取擊穿** | 熱門 key 過期瞬間大量請求湧入 DB | 互斥鎖、邏輯過期、熱點永不過期 |\n| **快取雪崩** | 大量 key 同時過期 | TTL 加隨機抖動、多層快取、限流降級 |\n\n---\n\n# 選擇建議\n- 能容忍短暫不一致 → **TTL + LRU**\n- 要求較高一致性 → **Cache-aside + 更新時刪除快取**，再搭配較短 TTL 作為保底\n- 靜態資源 → **內容雜湊版本化 + 長 TTL**\n- 多節點系統 → **Pub/Sub 或 CDC 廣播失效**\n\n> \"There are only two hard things in Computer Science: cache invalidation and naming things.\" — Phil Karlton",
+ "finished_at": "2026-10-31T15:41:48+00:00",
+ "seconds": 15.4,
+ "cost_usd": 0.017875799999999997
+}

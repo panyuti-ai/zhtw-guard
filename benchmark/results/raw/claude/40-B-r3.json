@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。\n\n請用繁體中文回答。",
+ "answer": "# Promise 與 async/await 的關係\n\n**一句話總結：`async/await` 是 Promise 的語法糖（syntactic sugar）**，底層仍然是 Promise，只是讓非同步程式碼寫起來像同步程式碼。\n\n## 1. 用 Promise（`.then` 鏈式寫法）\n\n```javascript\nfunction getUser(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (id > 0) resolve({ id, name: \"小明\" });\n      else reject(new Error(\"無效的 ID\"));\n    }, 500);\n  });\n}\n\ngetUser(1)\n  .then(user => {\n    console.log(\"使用者：\", user.name);\n    return user.id;\n  })\n  .then(id => console.log(\"ID：\", id))\n  .catch(err => console.error(\"錯誤：\", err.message))\n  .finally(() => console.log(\"完成\"));\n```\n\n## 2. 用 async/await（等價寫法）\n\n```javascript\nasync function main() {\n  try {\n    const user = await getUser(1);\n    console.log(\"使用者：\", user.name);\n    console.log(\"ID：\", user.id);\n  } catch (err) {\n    console.error(\"錯誤：\", err.message);\n  } finally {\n    console.log(\"完成\");\n  }\n}\n\nmain();\n```\n\n兩種寫法的結果完全相同。\n\n## 3. 關鍵對應關係\n\n| Promise | async/await |\n|---|---|\n| `.then(value => ...)` | `const value = await promise` |\n| `.catch(err => ...)` | `try { ... } catch (err) { ... }` |\n| `.finally(...)` | `finally { ... }` |\n| 回傳 Promise | `async` 函式永遠回傳 Promise |\n\n## 4. 重要觀念\n\n**(a) `async` 函式一定回傳 Promise**\n\n```javascript\nasync function foo() {\n  return 42;\n}\n\nfoo().then(v => console.log(v)); // 42\nconsole.log(foo() instanceof Promise); // true\n```\n\n回傳值 `42` 會自動被包成 `Promise.resolve(42)`；若函式內拋出錯誤，則等同 `Promise.reject(error)`。\n\n**(b) `await` 只能用在 `async` 函式內**（或 ES module 的頂層），它會暫停該函式的執行，等 Promise 完成後再繼續，但**不會阻塞**整個主執行緒。\n\n**(c) `await` 可以等待任何 Promise（甚至 thenable）**\n\n```javascript\nconst result = await Promise.resolve(\"你好\");\n```\n\n## 5. 平行執行：兩者可搭配使用\n\n連續 `await` 會**依序**執行，較慢：\n\n```javascript\nasync function sequential() {\n  const a = await getUser(1); // 等 500ms\n  const b = await getUser(2); // 再等 500ms\n  // 總共約 1000ms\n}\n```\n\n用 `Promise.all` 搭配 `await` 可以**平行**執行：\n\n```javascript\nasync function parallel() {\n  const [a, b] = await Promise.all([getUser(1), getUser(2)]);\n  // 總共約 500ms\n  console.log(a.name, b.name);\n}\n```\n\n這就是兩者互補的最佳例子：`Promise.all`、`Promise.race` 等組合工具仍屬於 Promise API，而 `await` 讓結果的取用更直覺。\n\n## 總結\n\n- **Promise**：表示一個「未來才會有結果」的物件，有 pending / fulfilled / rejected 三種狀態。\n- **async/await**：建立在 Promise 之上的語法，讓非同步流程更易讀、錯誤處理更自然。\n- 不是二選一：理解 Promise 才能真正掌握 `async/await`，實務上常常混用（例如 `await Promise.all(...)`）。",
+ "finished_at": "2026-10-31T15:46:20+00:00",
+ "seconds": 12.0,
+ "cost_usd": 0.016117
+}

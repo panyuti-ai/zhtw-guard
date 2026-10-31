@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "## 核心差異\n\n| | list | tuple |\n|---|---|---|\n| 可變性 | 可變 (mutable) | 不可變 (immutable) |\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可增刪改元素 | ✅ | ❌ |\n| 可當 dict 的 key / 放進 set | ❌(不可雜湊) | ✅(元素也都可雜湊時) |\n| 記憶體與速度 | 稍多、稍慢 | 稍省、稍快 |\n\n```python\na = [1, 2, 3]\na[0] = 99          # OK\na.append(4)        # OK\n\nt = (1, 2, 3)\nt[0] = 99          # TypeError\nt.append(4)        # AttributeError\n```\n\n## 什麼時候用哪個\n\n**用 list:**\n- 元素數量會變動(新增、刪除、排序)\n- 存放**同質**資料的集合,例如一堆使用者名稱、一批數字\n- 需要原地修改,如 `sort()`、`append()`\n\n**用 tuple:**\n- 資料固定、不該被修改,例如座標 `(x, y)`、RGB 顏色 `(255, 0, 0)`\n- 表示**異質**資料的一筆記錄,例如 `(\"Alice\", 30, \"Taipei\")`\n- 需要當 dict 的 key 或放進 set:`{(0, 0): \"origin\"}`\n- 函式回傳多個值:`return min_v, max_v`\n\n## 補充觀點\n\n- **語意上的慣例**:list 通常是「很多個同類的東西」,tuple 通常是「幾個位置有意義的欄位」。\n- **淺層不可變**:tuple 本身不可變,但如果裡面放了 list,那個 list 仍可修改:\n  ```python\n  t = (1, [2, 3])\n  t[1].append(4)   # OK → (1, [2, 3, 4])\n  ```\n  這種 tuple 也因此不可雜湊。\n- **單元素 tuple 要加逗號**:`(1,)`,而 `(1)` 只是整數 1。\n- 如果 tuple 欄位多、需要名稱,考慮 `namedtuple` 或 `dataclass`,可讀性更好。\n\n**簡單判斷:** 會變就用 list,不該變(或要當 key)就用 tuple。",
+ "finished_at": "2026-10-31T15:47:09+00:00",
+ "seconds": 10.1,
+ "cost_usd": 0.0114057
+}

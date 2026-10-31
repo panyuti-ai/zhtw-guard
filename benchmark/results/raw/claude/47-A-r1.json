@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。",
+ "answer": "# Pod、Deployment、Service 的關係\n\n## 一句話總結\n- **Pod**:實際跑容器的最小單位\n- **Deployment**:負責「管理」Pod(數量、更新、自我修復)\n- **Service**:負責讓 Pod「被找到、被存取」(穩定的網路入口)\n\n## 各自的角色\n\n### Pod\n- Kubernetes 最小的部署單位,包含一個或多個容器,共享網路(同一個 IP)與儲存。\n- Pod 是**短暫的**:掛掉後不會自己復活,重建後 IP 也會改變。\n- 很少直接建立 Pod,通常交給上層控制器管理。\n\n### Deployment\n- 宣告式地描述「我要 N 個副本、用哪個 image」。\n- 背後透過 **ReplicaSet** 維持 Pod 數量:Pod 掛了會自動補上。\n- 支援滾動更新(rolling update)與回滾(rollback)。\n\n### Service\n- 因為 Pod 的 IP 會變動,Service 提供**固定的 IP / DNS 名稱**。\n- 透過 **label selector** 找到對應的 Pod,並做負載平衡。\n- 常見類型:`ClusterIP`(叢集內部)、`NodePort`、`LoadBalancer`(對外)。\n\n## 關係圖\n\n```\n          Service (固定入口,selector: app=web)\n              │  負載平衡\n      ┌───────┼───────┐\n      ▼       ▼       ▼\n    Pod     Pod     Pod      ← label: app=web\n      ▲       ▲       ▲\n      └───────┼───────┘\n        ReplicaSet\n              ▲\n         Deployment (replicas: 3)\n```\n\n重點:**Deployment 和 Service 之間沒有直接關聯**,它們都是透過 **label** 與 Pod 連結。\n\n## 範例\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web        # Pod 的標籤\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  type: ClusterIP\n  selector:\n    app: web            # 對應上面 Pod 的標籤\n  ports:\n  - port: 80\n    targetPort: 80\n```\n\n## 運作流程\n1. 你建立 Deployment → 它建立 ReplicaSet → ReplicaSet 建立 3 個 Pod。\n2. 你建立 Service → 它依 `app: web` 找到這 3 個 Pod,並提供穩定入口 `web-svc`。\n3. 某個 Pod 掛掉 → ReplicaSet 補一個新的,Service 自動把新 Pod 加入、移除舊的,使用者完全無感。\n4. 更新 image → Deployment 滾動替換 Pod,Service 持續把流量導向健康的 Pod。",
+ "finished_at": "2026-10-31T15:33:30+00:00",
+ "seconds": 12.4,
+ "cost_usd": 0.0160524
+}

@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 36,
+ "category": "simplified_source",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "請把這則公告改寫得更正式：「明天下午两点停电，请大家提前保存好电脑里的资料。」\n\n請用繁體中文回答。",
+ "answer": "公告：明日下午二時將暫停供電，敬請各位提前儲存電腦中的資料，以免資料遺失。造成不便，敬請見諒。",
+ "finished_at": "2026-10-31T16:07:31+00:00",
+ "seconds": 6.2
+}

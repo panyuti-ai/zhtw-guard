@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。",
+ "answer": "```python\nimport csv\n\n\ndef column_averages(path, encoding=\"utf-8\"):\n    \"\"\"讀取 CSV 檔，回傳每一欄的平均值 {欄名: 平均值}。\n    非數值的欄位（例如姓名）會被略過；空白或無法轉成數字的儲存格不列入計算。\n    \"\"\"\n    sums = {}    # 每欄的總和\n    counts = {}  # 每欄的有效數值筆數\n    non_numeric = set()\n\n    with open(path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        for row in reader:\n            for col, value in row.items():\n                if value is None or value.strip() == \"\":\n                    continue\n                try:\n                    num = float(value)\n                except ValueError:\n                    non_numeric.add(col)\n                    continue\n                sums[col] = sums.get(col, 0.0) + num\n                counts[col] = counts.get(col, 0) + 1\n\n    return {\n        col: sums[col] / counts[col]\n        for col in sums\n        if col not in non_numeric\n    }\n\n\nif __name__ == \"__main__\":\n    result = column_averages(\"data.csv\")\n    for col, avg in result.items():\n        print(f\"{col}: {avg:.2f}\")\n```\n\n## 程式碼說明\n\n1. **`csv.DictReader`**：把第一列當作欄名，每一列變成 `{欄名: 值}` 的字典，不必自己處理欄位索引。\n2. **`newline=\"\"`**：這是官方建議的開檔方式，可以正確處理儲存格內含換行的情況。\n3. **`sums` 與 `counts`**：逐列累加每欄的總和與有效筆數。這樣只需掃過檔案一次，不用把整個檔案載入記憶體，大檔案也適用。\n4. **略過空值**：空白儲存格不計入，避免平均值被拉低。分母用的是該欄的有效筆數，而不是總列數。\n5. **`float(value)` 搭配 `try/except`**：能轉成數字就計算，轉不了（例如文字）就拋出 `ValueError`，並把該欄記入 `non_numeric`。\n6. **回傳結果**：最後用字典推導式算出 `總和 / 筆數`，並排除含有文字的欄位。\n\n## 使用範例\n\n假設 `data.csv` 內容如下：\n\n```csv\nname,math,english\nAmy,90,80\nBob,70,\nCathy,80,90\n```\n\n輸出：\n\n```\nmath: 80.00\nenglish: 85.00\n```\n\n`name` 是文字欄，所以被排除；`english` 有一格空白，因此是 (80+90)/2 = 85。\n\n## 補充\n\n- 若檔案是 Excel 匯出的 Big5 或帶 BOM 的 UTF-8，可傳入 `encoding=\"big5\"` 或 `encoding=\"utf-8-sig\"`。\n- 如果資料量大或需要更多統計功能，用 pandas 會更簡潔：`pd.read_csv(path).mean(numeric_only=True)`。",
+ "finished_at": "2026-10-31T15:32:17+00:00",
+ "seconds": 13.0,
+ "cost_usd": 0.0166764
+}

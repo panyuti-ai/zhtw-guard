@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 20,
+ "category": "daily",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "颱風天前要準備什麼？",
+ "answer": "颱風來之前，優先做好 **備物資、整理住家、充電、確認避難方式**：\n\n- **飲水和食物**：至少備妥全家 **3 天份**，選可常溫保存、開封即食的食品，也另外儲備清潔、沖廁用水。[消防署防颱檢核表](https://www.tfdp.com.tw/typhoon_check/typhoon_check.pdf)\n- **照明與電力**：手機、行動電源充飽；準備手電筒、備用電池，放在停電時容易拿到的位置。\n- **藥品與生活用品**：常用藥、急救包、衛生紙、濕紙巾；家有嬰幼兒、長輩或寵物，要一起備妥所需用品。[臺北市消防局物資建議](https://www.disasterlearning.gov.taipei/tw/Knowledge/ugC_Knowledge_Detail.aspx?CID=20&ID=125&TID=7)\n- **整理住家**：收進陽台盆栽及容易被吹走的物品、確認門窗關妥，趁風雨來前清理排水孔；低窪處預備擋水設備。[官方防颱提醒](https://www.klcg.gov.tw/tw/klcg1/3168-318635.html)\n- **準備隨身避難包**：放入證件影本、少量現金、藥品、飲水、食物、雨衣及手電筒，並與家人約好聯絡方式和會合地點。[全民安全指引](https://prepare.mnd.gov.tw/emergency-supplies/go-bag)\n- **留意警報與撤離通知**：住在低窪、山坡或土石流風險區，要提早確認避難地點；收到撤離通知就配合離開，別等淹水才行動。[內政部防颱提醒](https://www.moi.gov.tw/News_toggle3.aspx?PageSize=30&_Query=8aad0325-4cff-40ef-8903-22b6257c01a1&n=174&page=31&sms=9015)\n\n**風雨開始後就盡量待在室內，避免到海邊、河邊或山區。**",
+ "finished_at": "2026-10-31T15:47:25+00:00",
+ "seconds": 24.3
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？\n\n請用繁體中文回答。",
+ "answer": "# Git rebase 與 merge\n\n## Merge（合併）\n\n**做法**：把兩條分支的歷史結合，產生一個新的「合併提交（merge commit）」。\n\n```\n      A---B---C  feature\n     /         \\\nD---E---F---G---H  main  (H 為 merge commit)\n```\n\n**特點**\n- 保留完整的歷史與分支結構\n- 不改寫既有提交，安全\n- 歷史圖會出現分岔與合併點，較雜亂\n\n**適合情況**\n- 合併功能分支進 `main`／`develop` 等共用分支\n- 想保留「這個功能何時合進來」的紀錄\n- 多人協作、分支已推送到遠端\n- 不確定時，merge 是較安全的選擇\n\n## Rebase（變基）\n\n**做法**：把你的提交「搬」到目標分支最新提交之後，重新產生新的提交（hash 會改變）。\n\n```\n之前：\n      A---B---C  feature\n     /\nD---E---F---G  main\n\nrebase 後：\n              A'--B'--C'  feature\n             /\nD---E---F---G  main\n```\n\n**特點**\n- 歷史是一條直線，乾淨易讀\n- 會改寫提交歷史（產生新 hash）\n- 衝突可能要逐個提交解決\n\n**適合情況**\n- 個人的功能分支，想先同步 `main` 最新變更\n- 合併前整理提交（`git rebase -i` 可 squash、reword、重排）\n- 想維持線性歷史的團隊規範\n- 尚未推送、或只有自己使用的分支\n\n## 黃金法則\n\n> **不要對已公開（已推送且他人可能使用）的分支做 rebase。**\n\n因為改寫歷史會讓其他人的本地分支與遠端不一致，造成混亂與重複提交。\n\n## 比較表\n\n| 項目 | Merge | Rebase |\n|---|---|---|\n| 歷史 | 保留分岔，非線性 | 線性 |\n| 是否改寫歷史 | 否 | 是 |\n| 安全性 | 高 | 需謹慎 |\n| 衝突處理 | 一次解決 | 可能每個提交都要處理 |\n| 可追溯性 | 清楚記錄合併時點 | 較難看出分支來源 |\n\n## 常見工作流程\n\n1. 在 feature 分支開發時，定期 `git rebase main`（或 `git pull --rebase`）同步最新程式碼\n2. 合併前用 `git rebase -i` 整理提交\n3. 最後在 `main` 上用 `git merge`（或 GitHub 的 squash merge）把功能併入\n\n**一句話總結**：**rebase 用來整理自己的私有歷史，merge 用來整合共用的歷史。**",
+ "finished_at": "2026-10-31T15:28:03+00:00",
+ "seconds": 13.5,
+ "cost_usd": 0.0145724
+}

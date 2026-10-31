@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "以下腳本會將**目前資料夾中的所有一般 `.log` 檔案**打包成一個 `.tar.gz` 壓縮檔，不包含子資料夾，原始檔案會保留。\n\n```bash\n#!/usr/bin/env bash\nshopt -s nullglob\nlogs=()\nfor file in ./*.log; do\n    [[ -f \"$file\" ]] && logs+=(\"$file\")\ndone\nif (( ${#logs[@]} == 0 )); then\n    echo \"目前資料夾中沒有 .log 檔案。\"\n    exit 0\nfi\narchive=$(mktemp ./logs-XXXXXXXX.tar.gz) || exit 1\nif tar -czf \"$archive\" -- \"${logs[@]}\"; then\n    printf '壓縮完成：%s\\n' \"$archive\"\nelse\n    rm -f -- \"$archive\"\n    echo \"壓縮失敗。\" >&2\n    exit 1\nfi\n```\n\n逐行解釋：\n\n| 行 | 說明 |\n|---|---|\n| 1 | 使用環境中的 Bash 執行腳本。 |\n| 2 | 沒有符合萬用字元的檔案時，讓結果為空，避免把 `./*.log` 當成檔名。 |\n| 3 | 建立空陣列 `logs`，存放要壓縮的檔案路徑。 |\n| 4 | 逐一走訪目前資料夾內名稱以 `.log` 結尾的項目。 |\n| 5 | 確認項目是一般檔案，再加入陣列；引號可正確處理含空白的檔名。 |\n| 6 | 結束迴圈。 |\n| 7 | 檢查陣列是否沒有任何檔案。 |\n| 8 | 顯示找不到檔案的訊息。 |\n| 9 | 正常結束腳本，回傳狀態碼 `0`。 |\n| 10 | 結束這個條件判斷。 |\n| 11 | 建立名稱不重複的壓縮檔；建立失敗則以狀態碼 `1` 結束。 |\n| 12 | 執行壓縮並判斷是否成功：`-c` 建立封存、`-z` 使用 gzip、`-f` 指定輸出檔；`--` 表示後面都是檔名。 |\n| 13 | 成功時顯示壓縮檔路徑。 |\n| 14 | 開始處理壓縮失敗的情況。 |\n| 15 | 刪除未完成的壓縮檔。 |\n| 16 | 將失敗訊息輸出到標準錯誤。 |\n| 17 | 以狀態碼 `1` 表示執行失敗。 |\n| 18 | 結束條件判斷。 |\n\n將腳本儲存為 `compress_logs.sh`，在要壓縮的資料夾中執行：\n\n```bash\nbash compress_logs.sh\n```\n\n此版本只匹配小寫 `.log`，不包含名稱以 `.` 開頭的隱藏檔。",
+ "finished_at": "2026-10-31T16:09:35+00:00",
+ "seconds": 28.3
+}

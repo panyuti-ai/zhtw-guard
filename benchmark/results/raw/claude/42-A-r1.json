@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 42,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "解釋 SQL 的 LEFT JOIN 和 INNER JOIN，附一個例子。",
+ "answer": "## INNER JOIN vs LEFT JOIN\n\n**INNER JOIN**：只回傳兩張表中**都有匹配**的資料列。\n**LEFT JOIN**：回傳**左表的所有資料列**；右表沒有匹配時，右表欄位填 `NULL`。\n\n### 範例\n\n**customers（客戶）**\n\n| id | name  |\n|----|-------|\n| 1  | Alice |\n| 2  | Bob   |\n| 3  | Carol |\n\n**orders（訂單）**\n\n| order_id | customer_id | amount |\n|----------|-------------|--------|\n| 101      | 1           | 500    |\n| 102      | 1           | 300    |\n| 103      | 2           | 200    |\n\nCarol 沒有任何訂單。\n\n### INNER JOIN\n\n```sql\nSELECT c.name, o.order_id, o.amount\nFROM customers c\nINNER JOIN orders o ON c.id = o.customer_id;\n```\n\n| name  | order_id | amount |\n|-------|----------|--------|\n| Alice | 101      | 500    |\n| Alice | 102      | 300    |\n| Bob   | 103      | 200    |\n\nCarol 沒出現，因為她在 orders 中沒有匹配。\n\n### LEFT JOIN\n\n```sql\nSELECT c.name, o.order_id, o.amount\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id;\n```\n\n| name  | order_id | amount |\n|-------|----------|--------|\n| Alice | 101      | 500    |\n| Alice | 102      | 300    |\n| Bob   | 103      | 200    |\n| Carol | NULL     | NULL   |\n\nCarol 被保留，訂單欄位為 `NULL`。\n\n### 使用時機\n\n- **INNER JOIN**：只想要「有關聯」的資料，例如列出所有有下單的客戶及其訂單。\n- **LEFT JOIN**：要保留主表全部資料，或找出「沒有關聯」的資料。例如找出沒下過單的客戶：\n\n```sql\nSELECT c.name\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nWHERE o.order_id IS NULL;\n```\n\n結果：`Carol`。",
+ "finished_at": "2026-10-31T15:32:41+00:00",
+ "seconds": 10.5,
+ "cost_usd": 0.0128724
+}

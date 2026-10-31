@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 5,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "什麼是快取？快取失效有哪些常見策略？\n\n請用繁體中文回答。",
+ "answer": "## 什麼是快取（Cache）？\n\n快取是把「計算成本高或讀取速度慢」的資料，暫時存放在「速度更快的儲存層」，讓之後相同的請求能直接取用，不必重新計算或回到原始資料來源（如資料庫、遠端 API）查詢。\n\n**常見位置**：CPU L1/L2/L3 快取、瀏覽器快取、CDN、應用程式記憶體（如 Redis、Memcached）、資料庫查詢快取。\n\n**主要好處**：降低延遲、減輕後端負載、提升吞吐量、節省成本。\n\n**代價**：資料可能過時（一致性問題）、佔用額外記憶體、系統複雜度增加。\n\n> 電腦科學名言：「There are only two hard things in Computer Science: cache invalidation and naming things.」\n\n---\n\n## 快取失效（Cache Invalidation）的常見策略\n\n### 1. TTL（Time To Live，存活時間）\n為每筆資料設定過期時間，到期自動失效。\n- 優點：簡單、可靠，有上限的資料過時時間\n- 缺點：TTL 內可能讀到舊資料；設太短命中率低\n- 技巧：加入隨機抖動（jitter），避免大量 key 同時過期\n\n### 2. 主動失效／寫入時刪除（Write-Invalidate）\n資料更新時，主動刪除或更新對應的快取。\n- 優點：一致性較好\n- 缺點：需要在所有寫入路徑都處理，容易遺漏\n- 常見做法：先更新資料庫，再刪除快取（Cache-Aside）\n\n### 3. 寫入策略\n- **Write-Through**：寫入時同步寫快取與資料庫，一致性高，但寫入較慢\n- **Write-Back（Write-Behind）**：先寫快取，之後非同步寫回資料庫，寫入快，但有資料遺失風險\n- **Write-Around**：直接寫資料庫，不寫快取，讀取時才載入\n\n### 4. 容量淘汰策略（Eviction）\n快取滿了時，決定移除誰：\n- **LRU**（最近最少使用）\n- **LFU**（最不常使用）\n- **FIFO**（先進先出）\n- **Random**／**ARC** 等\n\n### 5. 版本號／內容雜湊（Versioning）\n在 key 或 URL 中帶入版本或 hash（如 `app.a1b2c3.js`），內容改變就產生新 key，舊的自然不再被使用。前端靜態資源與 CDN 最常用。\n\n### 6. 事件驅動失效\n透過訊息佇列、資料庫變更日誌（CDC，如 Debezium、binlog）或 Pub/Sub，在資料變動時通知各節點清除快取。適合分散式、多層快取的環境。\n\n### 7. HTTP 驗證機制\n用 `ETag`／`If-None-Match`、`Last-Modified`／`If-Modified-Since` 向伺服器確認內容是否改變，未變則回傳 304，節省頻寬。搭配 `Cache-Control: max-age`、`no-cache`、`stale-while-revalidate` 使用。\n\n---\n\n## 常見問題與對策\n\n| 問題 | 說明 | 對策 |\n|---|---|---|\n| 快取穿透 | 查詢不存在的資料，每次都打到資料庫 | 快取空值、布隆過濾器 |\n| 快取擊穿 | 熱點 key 過期瞬間大量請求湧入 | 互斥鎖、邏輯過期、永不過期＋背景更新 |\n| 快取雪崩 | 大量 key 同時過期或快取服務掛掉 | TTL 加隨機值、多層快取、高可用叢集、限流降級 |\n| 雙寫不一致 | 資料庫與快取更新順序競爭 | 先更新 DB 再刪快取、延遲雙刪、CDC |\n\n---\n\n## 如何選擇？\n\n- **一致性要求低、讀多寫少**：TTL ＋ LRU 即可\n- **一致性要求高**：寫入時失效 ＋ 較短 TTL 當保險\n- **靜態資源**：版本號／hash ＋ 長效快取\n- **分散式系統**：事件驅動／CDC ＋ TTL 兜底\n\n實務上通常會**組合多種策略**：用主動失效追求即時性，再用 TTL 作為最後防線，避免失效邏輯遺漏造成資料永久過時。",
+ "finished_at": "2026-10-31T15:34:54+00:00",
+ "seconds": 15.9,
+ "cost_usd": 0.0187178
+}

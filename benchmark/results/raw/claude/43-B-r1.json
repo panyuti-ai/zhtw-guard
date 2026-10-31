@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？\n\n請用繁體中文回答。",
+ "answer": "# Goroutine 與 Channel 的搭配使用\n\n**核心概念**：goroutine 負責「並行執行」，channel 負責「goroutine 之間的溝通與同步」。Go 的哲學是：*不要用共享記憶體來溝通，而要用溝通來共享記憶體。*\n\n## 1. 基本用法：傳遞結果\n\n```go\nfunc main() {\n    ch := make(chan int)\n\n    go func() {\n        ch <- 42 // 傳送\n    }()\n\n    v := <-ch // 接收（會阻塞直到有資料）\n    fmt.Println(v)\n}\n```\n\n無緩衝 channel 的傳送與接收會互相等待，因此天然具有同步效果。\n\n## 2. 等待完成（done channel）\n\n```go\ndone := make(chan struct{})\n\ngo func() {\n    // 做事情...\n    close(done) // 關閉 channel 通知完成\n}()\n\n<-done\n```\n\n## 3. Worker Pool（常見模式）\n\n```go\nfunc worker(id int, jobs <-chan int, results chan<- int) {\n    for j := range jobs {\n        results <- j * 2\n    }\n}\n\nfunc main() {\n    jobs := make(chan int, 100)\n    results := make(chan int, 100)\n\n    for w := 1; w <= 3; w++ {\n        go worker(w, jobs, results)\n    }\n\n    for i := 1; i <= 5; i++ {\n        jobs <- i\n    }\n    close(jobs) // 關閉後 worker 的 range 會結束\n\n    for i := 1; i <= 5; i++ {\n        fmt.Println(<-results)\n    }\n}\n```\n\n注意 `<-chan`（只讀）與 `chan<-`（只寫）能在型別層面限制用途，增加安全性。\n\n## 4. 搭配 sync.WaitGroup\n\n當需要等多個 goroutine 結束後再關閉 channel：\n\n```go\nvar wg sync.WaitGroup\nresults := make(chan int)\n\nfor i := 0; i < 3; i++ {\n    wg.Add(1)\n    go func(n int) {\n        defer wg.Done()\n        results <- n * n\n    }(i)\n}\n\ngo func() {\n    wg.Wait()\n    close(results) // 所有生產者結束後才關閉\n}()\n\nfor r := range results {\n    fmt.Println(r)\n}\n```\n\n## 5. select：同時處理多個 channel\n\n```go\nselect {\ncase msg := <-ch1:\n    fmt.Println(msg)\ncase ch2 <- 1:\n    fmt.Println(\"sent\")\ncase <-time.After(time.Second):\n    fmt.Println(\"timeout\")\n}\n```\n\n搭配 `context` 可以優雅地取消：\n\n```go\nfunc work(ctx context.Context, out chan<- int) {\n    for i := 0; ; i++ {\n        select {\n        case <-ctx.Done():\n            return\n        case out <- i:\n        }\n    }\n}\n```\n\n## 常見注意事項\n\n| 問題 | 說明 |\n|---|---|\n| **Deadlock** | 沒有人接收/傳送時，goroutine 永遠阻塞 |\n| **Goroutine 洩漏** | goroutine 卡在 channel 操作上無法結束，要用 `context` 或 `done` 確保能退出 |\n| **只有傳送方關閉** | 由生產者 `close`，接收方關閉或重複關閉會 panic |\n| **向已關閉 channel 傳送** | 會 panic；但從已關閉的 channel 接收會得到零值 |\n| **緩衝 vs 無緩衝** | 無緩衝 = 同步交接；有緩衝 = 容量內不阻塞 |\n\n## 選擇建議\n\n- **傳遞資料／任務分派** → channel\n- **保護共享狀態（如計數器）** → `sync.Mutex` 或 `atomic` 通常更簡單\n- **等待一組 goroutine** → `sync.WaitGroup`（或 `errgroup`）\n- **取消與逾時** → `context`\n\n如果你想要，我可以針對某個情境（例如 pipeline、fan-in/fan-out、限流）再給更完整的範例。",
+ "finished_at": "2026-10-31T15:32:55+00:00",
+ "seconds": 13.9,
+ "cost_usd": 0.0191004
+}

@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "先確認：**是哪一種記憶體在增加，以及垃圾回收（GC）後是否仍持續增加。** 只看作業系統顯示的記憶體用量，還不能判定有洩漏。\n\n可以照下面順序排查。\n\n**1. 先記錄記憶體指標**\n\n在程式中暫時加入：\n\n```js\nconst timer = setInterval(() => {\n  const usage = process.memoryUsage();\n\n  console.log({\n    time: new Date().toISOString(),\n    ...Object.fromEntries(\n      Object.entries(usage).map(([key, bytes]) => [\n        `${key}MB`,\n        Number((bytes / 1024 / 1024).toFixed(1)),\n      ])\n    ),\n  });\n}, 10_000);\n\ntimer.unref();\n```\n\n觀察數值時，搭配請求量、執行中的工作數及佇列長度：\n\n| 指標／現象 | 優先調查方向 |\n|---|---|\n| `heapUsed` 在 GC 後的低點持續升高 | JavaScript 物件被持續保留 |\n| `external`、`arrayBuffers` 持續增加 | `Buffer`、二進位資料、原生模組 |\n| `rss` 增加，但其他指標大致穩定 | 原生配置、記憶體碎片等 |\n| 隨負載增加，負載下降後趨於穩定 | 工作積壓、快取或正常容量需求 |\n\n`rss` 是整個程序的常駐記憶體；`arrayBuffers` 已包含在 `external`，不要把它們相加。Linux 上也可能因配置器碎片化，出現 heap 穩定但 RSS 上升的情況。[Node.js 官方說明](https://nodejs.org/api/process.html#processmemoryusage)\n\n**2. 用固定負載，確認 GC 後的趨勢**\n\n在本機或測試環境，重複相同操作，例如每輪送出 1,000 個請求，等待工作完成，再跑下一輪。需要觀察 GC 時可使用：\n\n```bash\nnode --trace-gc app.js\n```\n\n記憶體呈鋸齒狀、GC 後會下降是正常現象；更值得懷疑的是每輪操作完成後，**GC 後的基準線仍持續上移**。啟動預熱及快取建立也會造成初期成長，需觀察是否最後趨於穩定。[Node.js 記憶體診斷文件](https://github.com/nodejs/learn/blob/main/pages/diagnostics/memory/understanding-and-tuning-memory.md)\n\n**3. 如果是 heap 成長，比較 Heap Snapshot**\n\n在測試環境啟動：\n\n```bash\nnode --inspect=127.0.0.1:9229 app.js\n```\n\n用 Chrome 開啟 `chrome://inspect`，進入 DevTools 的 **Memory**：\n\n1. 程式預熱完成後，拍快照 A。\n2. 執行一輪固定操作，等待工作結束，拍快照 B。\n3. 再做相同操作，拍快照 C。\n4. 在 **Comparison** 比較持續增加的物件。\n5. 選取可疑物件，查看 **Retainers**，追出誰仍持有它。\n\n重點是找出「**本來應該釋放的物件，為什麼還被引用**」。`Retained Size` 能協助判斷某個物件保留了多少相關記憶體。[Heap Snapshot 官方指南](https://github.com/nodejs/learn/blob/main/pages/diagnostics/memory/using-heap-snapshot.md)\n\n拍快照會暫停主執行緒，並需要大量額外記憶體，可能使程序崩潰；優先在測試環境或可承受中斷的副本執行。快照也可能含有應用程式中的敏感資料。\n\n**4. 優先檢查這幾種程式碼**\n\n- **無上限的集合或快取**：全域 `Map`、陣列、session 持續新增，沒有淘汰機制。\n- **未清理的 listener 或 timer**：每次請求都註冊，結束時沒有移除。\n- **閉包保留大型物件**：長期存在的 callback 引用了整份請求或大量資料。\n- **非同步工作積壓**：無限制 `Promise.all()`、佇列成長、下游服務變慢。\n- **Buffer／串流累積**：把整個檔案讀進記憶體，或沒有處理 backpressure。\n\n修正後，使用相同負載重測，確認記憶體基準線能趨於穩定。單純提高 `--max-old-space-size` 只會增加可用 heap，無法修復物件持續被保留的原因。\n\n你可以貼上 **Node.js 版本、上述指標的幾筆紀錄，以及記憶體增加時正在執行的操作**，我可以協助判斷下一步該追 heap、Buffer，還是工作積壓。",
+ "finished_at": "2026-10-31T16:11:13+00:00",
+ "seconds": 39.5
+}

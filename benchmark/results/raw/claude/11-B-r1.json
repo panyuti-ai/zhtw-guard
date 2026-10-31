@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 11,
+ "category": "tech",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "什麼是負載平衡？常見的分配演算法有哪些？\n\n請用繁體中文回答。",
+ "answer": "# 負載平衡（Load Balancing）\n\n## 什麼是負載平衡？\n\n負載平衡是將進來的網路流量或請求，**分散到多台後端伺服器**的技術。目的在於：\n\n- **提高效能**：避免單一伺服器過載，降低回應時間\n- **提高可用性**：某台伺服器故障時，自動將流量導向健康的節點（搭配健康檢查）\n- **易於擴充**：可水平擴展，增加伺服器即可提升容量\n- **方便維運**：可滾動更新、灰度發布，不中斷服務\n\n## 常見類型\n\n| 類型 | 運作層級 | 特色 |\n|------|----------|------|\n| **L4 負載平衡** | 傳輸層（TCP/UDP） | 依 IP 與連接埠轉發，速度快（如 LVS、AWS NLB） |\n| **L7 負載平衡** | 應用層（HTTP/HTTPS） | 可依 URL、Header、Cookie 路由（如 Nginx、HAProxy、AWS ALB） |\n\n## 常見分配演算法\n\n### 靜態演算法（不考慮伺服器即時狀態）\n\n1. **輪詢（Round Robin）**\n   依序輪流分配請求。簡單，適合伺服器效能相近、請求成本相似的情境。\n\n2. **加權輪詢（Weighted Round Robin）**\n   依伺服器權重分配，效能強的機器分到較多請求。\n\n3. **來源 IP 雜湊（IP Hash）**\n   對客戶端 IP 做雜湊決定目標伺服器，同一用戶通常落在同一台，可達到簡易的 session 黏著。\n\n4. **一致性雜湊（Consistent Hashing）**\n   增減節點時只有少部分請求需重新映射，常用於快取叢集（如 CDN、Memcached）。\n\n5. **隨機（Random）**\n   隨機挑選伺服器，實作簡單；在大量請求下分佈趨近均勻。\n\n### 動態演算法（參考伺服器即時狀態）\n\n6. **最少連線（Least Connections）**\n   選擇當前連線數最少的伺服器，適合請求處理時間差異大或長連線的場景。\n\n7. **加權最少連線（Weighted Least Connections）**\n   結合權重與連線數，兼顧伺服器能力差異。\n\n8. **最短回應時間（Least Response Time）**\n   選擇平均回應時間最短、且連線較少的伺服器。\n\n9. **二選一（Power of Two Choices）**\n   隨機挑兩台，再選負載較低者。以極低成本達到接近最少連線的效果，大規模系統常用。\n\n10. **資源基礎（Resource-based）**\n    依伺服器回報的 CPU、記憶體等指標決定。\n\n## 如何選擇？\n\n- 伺服器規格一致、請求輕量 → **輪詢**\n- 規格不一 → **加權輪詢 / 加權最少連線**\n- 請求耗時差異大、長連線（WebSocket、資料庫連線）→ **最少連線**\n- 需要 session 黏著或快取命中率 → **IP Hash / 一致性雜湊**\n- 節點數量大且需低開銷 → **Power of Two Choices**\n\n## 補充：高可用性\n\n負載平衡器本身也可能成為單點故障，通常會以 **主備（Active-Standby）** 或 **雙主（Active-Active）**，搭配 Keepalived、VRRP 或 DNS 方式做備援。",
+ "finished_at": "2026-10-31T15:28:46+00:00",
+ "seconds": 13.1,
+ "cost_usd": 0.0172664
+}

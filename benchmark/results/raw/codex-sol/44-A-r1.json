@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。",
+ "answer": "以下腳本會把**目前資料夾中的所有 `.log` 檔案**打包並壓縮成 `logs.tar.gz`，不包含子資料夾，原始檔案會保留。\n\n```bash\n#!/usr/bin/env bash\nshopt -s nullglob dotglob\nlogs=( *.log )\nif (( ${#logs[@]} == 0 )); then\n    echo \"目前資料夾沒有 .log 檔案。\"\n    exit 0\nfi\ntar -czf logs.tar.gz -- \"${logs[@]}\"\n```\n\n每一行的意思：\n\n1. `#!/usr/bin/env bash`：使用 Bash 執行腳本。\n2. `shopt -s nullglob dotglob`：找不到符合的檔案時產生空清單，並讓比對包含隱藏檔。\n3. `logs=( *.log )`：把所有以 `.log` 結尾的名稱存進陣列，可以正確處理含空白的檔名。\n4. `if (( ${#logs[@]} == 0 )); then`：檢查陣列是否為空。\n5. `echo ...`：沒有符合項目時顯示提示。\n6. `exit 0`：正常結束腳本。\n7. `fi`：結束 `if` 判斷。\n8. `tar -czf ...`：建立 gzip 壓縮封存檔；`-c` 表示建立、`-z` 表示 gzip 壓縮、`-f` 指定輸出檔名。`--` 結束選項解析，`\"${logs[@]}\"` 將每個名稱分別傳入。\n\n將腳本存成 `compress_logs.sh`，在要壓縮的資料夾執行：\n\n```bash\nbash compress_logs.sh\n```\n\n注意：已存在的 `logs.tar.gz` 會被覆寫；若有名稱以 `.log` 結尾的資料夾，也會一起被打包。",
+ "finished_at": "2026-10-31T15:53:10+00:00",
+ "seconds": 22.0
+}

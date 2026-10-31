@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。\n\n請用繁體中文回答。",
+ "answer": "`Promise` 用來表示非同步操作的結果；`async/await` 則是建立在 Promise 之上的語法，讓非同步程式更容易閱讀。\n\n例如，以下函式會在一秒後回傳資料：\n\n```javascript\nfunction fetchUser() {\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      resolve({ name: \"小明\" });\n    }, 1000);\n  });\n}\n```\n\n使用 **Promise 的 `.then()`** 取得結果：\n\n```javascript\nfetchUser()\n  .then((user) => {\n    console.log(user.name); // 一秒後印出「小明」\n  })\n  .catch((error) => {\n    console.error(\"讀取失敗：\", error);\n  });\n```\n\n使用 **`async/await`**，可以寫出相同效果：\n\n```javascript\nasync function showUser() {\n  try {\n    const user = await fetchUser();\n    console.log(user.name); // 一秒後印出「小明」\n  } catch (error) {\n    console.error(\"讀取失敗：\", error);\n  }\n}\n\nshowUser();\n```\n\n兩者的關係有三個重點：\n\n- **`async` 函式一定回傳 Promise**，即使直接 `return` 一般值，也會自動包裝成 Promise。\n- **`await` 等待 Promise 完成**：成功時取得結果，失敗時拋出錯誤，因此可以用 `try/catch` 處理。\n- **`await` 暫停的是目前函式的執行，不會阻塞 JavaScript 主執行緒**，其他工作仍可繼續執行。\n\n例如，這個函式看起來回傳數字，實際上回傳的是 Promise：\n\n```javascript\nasync function getNumber() {\n  return 42;\n}\n\ngetNumber().then(console.log); // 42\n```\n\n因此，`async/await` 並沒有取代 Promise，而是提供更接近同步程式寫法的方式來使用它。",
+ "finished_at": "2026-10-31T16:08:15+00:00",
+ "seconds": 14.4
+}

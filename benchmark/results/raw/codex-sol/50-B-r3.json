@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。\n\n請用繁體中文回答。",
+ "answer": "單元測試的目的是確認一小段程式（通常是一個函式）在不同輸入下，是否產生預期結果。\n\n寫單元測試時，可以遵循這些原則：\n\n- **測試對外行為**：驗證輸入與輸出，避免依賴內部實作，讓重構不會輕易弄壞測試。\n- **每個測試聚焦一種情境**：測試名稱清楚描述條件與預期結果，失敗時容易定位問題。\n- **涵蓋正常、邊界與錯誤情境**：例如一般數值、零、上限，以及無效輸入。\n- **保持獨立且可重複**：不依賴執行順序、真實網路、目前時間或隨機結果。\n- **只替換必要的外部依賴**：例如用 mock 取代 API 呼叫，避免過度 mock 而只測到 mock 本身。\n- **保持簡單易讀**：採用 Arrange（準備）、Act（執行）、Assert（驗證）的結構，避免在測試裡重寫業務邏輯。\n\n例如，測試一個「依折扣率計算價格」的函式。以下使用 CommonJS 語法，假設專案已安裝並設定 Jest。\n\n`price.js`：\n\n```javascript\nfunction calculatePrice(price, discountRate) {\n  if (!Number.isFinite(price) || price < 0) {\n    throw new Error('價格必須是非負的有限數字');\n  }\n\n  if (\n    !Number.isFinite(discountRate) ||\n    discountRate < 0 ||\n    discountRate > 1\n  ) {\n    throw new Error('折扣率必須介於 0 到 1');\n  }\n\n  return price * (1 - discountRate);\n}\n\nmodule.exports = { calculatePrice };\n```\n\n`price.test.js`：\n\n```javascript\nconst { calculatePrice } = require('./price');\n\ndescribe('calculatePrice', () => {\n  test('價格為 100、折扣率為 0.2 時，應回傳 80', () => {\n    // Arrange：準備資料\n    const price = 100;\n    const discountRate = 0.2;\n\n    // Act：執行受測函式\n    const result = calculatePrice(price, discountRate);\n\n    // Assert：驗證結果\n    expect(result).toBeCloseTo(80);\n  });\n\n  test.each([\n    [100, 0, 100], // 無折扣\n    [100, 1, 0],   // 全額折扣\n    [0, 0.2, 0],   // 零元商品\n  ])('價格 %p、折扣率 %p 時，應回傳 %p', (price, rate, expected) => {\n    expect(calculatePrice(price, rate)).toBeCloseTo(expected);\n  });\n\n  test.each([-1, NaN, Infinity, '100'])(\n    '價格為 %p 時，應拋出錯誤',\n    (price) => {\n      expect(() => calculatePrice(price, 0.2))\n        .toThrow('價格必須是非負的有限數字');\n    }\n  );\n\n  test.each([-0.1, 1.1, NaN, Infinity, '0.2'])(\n    '折扣率為 %p 時，應拋出錯誤',\n    (rate) => {\n      expect(() => calculatePrice(100, rate))\n        .toThrow('折扣率必須介於 0 到 1');\n    }\n  );\n});\n```\n\n這裡有兩個細節：浮點數計算使用 `toBeCloseTo`，避免精度誤差；驗證例外時，必須將呼叫包成 `() => ...` 傳給 `expect`，才能讓 Jest 捕捉錯誤。",
+ "finished_at": "2026-10-31T16:27:18+00:00",
+ "seconds": 22.9
+}

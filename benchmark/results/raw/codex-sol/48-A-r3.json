@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "先確認「哪一類記憶體在增加」，再找是誰把它留住。**記憶體上升不一定是洩漏；更有力的線索是：相同負載下，垃圾回收後的最低用量持續升高。**\n\n可以按以下順序查。\n\n**1. 記錄記憶體趨勢**\n\n先把這段加入程式，每 10 秒記錄一次，並一起觀察請求量、進行中的任務數：\n\n```js\nconst timer = setInterval(() => {\n  const m = process.memoryUsage();\n  const mb = n => Math.round(n / 1024 / 1024);\n\n  console.log({\n    time: new Date().toISOString(),\n    rssMB: mb(m.rss),\n    heapUsedMB: mb(m.heapUsed),\n    externalMB: mb(m.external),\n    arrayBuffersMB: mb(m.arrayBuffers),\n  });\n}, 10_000);\n\ntimer.unref();\n```\n\n| 趨勢 | 優先調查 |\n|---|---|\n| `heapUsed` 回收後仍持續增加 | JavaScript 物件被長期引用 |\n| `external`／`arrayBuffers` 增加 | Buffer、ArrayBuffer 或原生模組 |\n| 只有 `rss` 增加 | 原生配置、記憶體碎片等；不能直接認定 JS 洩漏 |\n| 流量上升時增加，任務完成後穩定 | 並行任務或佇列堆積 |\n\n`rss` 是整個行程的常駐記憶體；`arrayBuffers` 已包含在 `external` 中，別重複相加。[Node.js 記憶體指標說明](https://nodejs.org/api/process.html#processmemoryusage)\n\n**2. 如果是 JS heap 成長，比較快照**\n\n在本機或測試環境啟動：\n\n```bash\nnode --inspect app.js\n```\n\n打開 Chrome 的 `chrome://inspect`，進入 DevTools → **Memory → Heap snapshot**：\n\n1. 程式暖機完成、請求結束後，拍快照 A。\n2. 執行固定的一批操作，等任務完成，再拍 B。\n3. 重複同一批操作，再拍 C。\n4. 用 **Comparison** 找 B、C 都持續增加的物件。\n5. 點進可疑物件的 **Retainers**，沿引用鏈找出誰仍持有它；同時看 **Retained Size**，判斷它連帶保留多少記憶體。\n\n快照可能暫停主執行緒並消耗大量額外記憶體，應先在可重現的測試環境操作。[官方快照診斷指南](https://github.com/nodejs/learn/blob/main/pages/diagnostics/memory/using-heap-snapshot.md)\n\n**3. 優先檢查常見累積點**\n\n- 無容量上限或過期機制的 `Map`、陣列、快取。\n- 每次請求都新增的事件 listener、`setInterval`，結束時未清除。\n- 閉包或全域變數保留整個 request、response 或大型物件。\n- 未完成的 Promise、無上限的佇列，以及缺少背壓的串流。\n- Buffer 或大型檔案內容被持續保留。\n\n修正後用同樣負載重測，確認**回收後的用量逐漸穩定**。只調大 `--max-old-space-size` 會延後耗盡，無法證明原因已解決。\n\n你可以貼上 **Node.js 版本、上述指標的幾筆時間序列，以及程式主要工作類型**（例如 API、檔案處理、背景任務），我就能幫你縮小下一步的調查範圍。",
+ "finished_at": "2026-10-31T16:26:41+00:00",
+ "seconds": 33.5
+}

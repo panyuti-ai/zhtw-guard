@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 32,
+ "category": "simplified_source",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "請把這段會議紀錄整理成待辦事項：「下周一之前完成需求文档，周三和设计部门开会，周五前提交测试报告。」",
+ "answer": "- [ ] 下週一前完成需求文件。\n- [ ] 下週三與設計部門開會。\n- [ ] 下週五前提交測試報告。",
+ "finished_at": "2026-10-31T16:22:53+00:00",
+ "seconds": 6.0
+}

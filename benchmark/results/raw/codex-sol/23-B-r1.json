@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 23,
+ "category": "daily",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "失眠的時候可以做什麼幫助入睡？\n\n請用繁體中文回答。",
+ "answer": "睡不著時，可以先把目標放在「放鬆」，不用逼自己立刻入睡。今晚可以試試：\n\n- **躺了一陣子仍很清醒，就先離開床。** 大約感覺過了 20 分鐘即可，不必盯著時鐘；到光線昏暗的地方讀紙本書、聽輕柔音樂，等有睡意再回床，必要時重複。這能幫助重新建立床與睡眠的連結。[美國 NIH 建議](https://www.nhlbi.nih.gov/health/insomnia/treatment)\n- **讓身體慢慢鬆下來。** 用舒服的節奏緩慢呼吸，或從腳到頭逐一放鬆肌肉；不必憋氣，也不用追求特定次數。[美國 NIH 建議](https://www.nhlbi.nih.gov/health/insomnia/treatment)\n- **減少刺激。** 暫停滑手機、工作及看時間，讓房間保持安靜、昏暗、舒適偏涼。若腦中一直想事情，可以先把擔心的事和明天要辦的事寫下來。[英國 NHS 建議](https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/how-to-fall-asleep-faster-and-sleep-better/)\n\n接下來幾天，**固定起床時間、等有睡意才上床**；即使前晚沒睡好，也盡量避免賴床或長時間補眠。白天適度活動，睡前至少 6 小時避免咖啡、濃茶等含咖啡因飲品，也別用酒精助眠。[英國 NHS 建議](https://www.nhs.uk/conditions/insomnia/)\n\n如果已持續數月，或白天精神、工作、情緒明顯受影響，建議看家醫科或睡眠門診；若有大聲打鼾、睡覺喘醒或被發現呼吸暫停，也應評估。持續性失眠的第一線治療通常是**失眠認知行為治療（CBT-I）**。[NHS](https://www.nhs.uk/conditions/insomnia/)、[NIH](https://health.nih.gov/health-topics-a-z/healthy-sleep)",
+ "finished_at": "2026-10-31T15:49:25+00:00",
+ "seconds": 25.3
+}

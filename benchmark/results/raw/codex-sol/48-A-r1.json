@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "先確認是**哪一種記憶體在增加**，再追查誰持有它。只看到作業系統的記憶體上升，還不能確定是洩漏。\n\n**1. 每隔幾秒記錄記憶體**\n\n先加上這段：\n\n```js\nconst timer = setInterval(() => {\n  const m = process.memoryUsage();\n  const mb = value => +(value / 1024 / 1024).toFixed(1);\n\n  console.log({\n    time: new Date().toISOString(),\n    rssMB: mb(m.rss),\n    heapUsedMB: mb(m.heapUsed),\n    externalMB: mb(m.external),\n    arrayBuffersMB: mb(m.arrayBuffers),\n  });\n}, 10_000);\n\ntimer.unref();\n```\n\n觀察固定流量下的趨勢：\n\n| 指標 | 用途 |\n|---|---|\n| `heapUsed` | JavaScript 物件使用的記憶體 |\n| `external` | 與 JS 物件相關、由原生程式碼配置的記憶體 |\n| `arrayBuffers` | 包含 `Buffer` 的底層資料；已包含在 `external` 裡 |\n| `rss` | 整個程序實際佔用的實體記憶體 |\n\n`heapUsed` 上升後下降是正常 GC 行為；**每次回收後的低點持續升高**，才更值得懷疑。若只有 `rss` 上升，需考慮原生模組或配置器碎片等原因。[官方記憶體說明](https://github.com/nodejs/learn/blob/main/pages/diagnostics/memory/understanding-and-tuning-memory.md)\n\n**2. 如果是 `heapUsed` 增長，比較 heap snapshot**\n\n在測試環境啟動：\n\n```bash\nnode --inspect=127.0.0.1:9229 app.js\n```\n\n用 Chrome 開啟 `chrome://inspect`，進入程式的 DevTools → **Memory**：\n\n1. 暖機後，按垃圾回收，再拍快照 A。\n2. 執行固定一批操作，例如 1,000 次 API 請求。\n3. 等請求完成，垃圾回收後拍快照 B。\n4. 重複一次，拍快照 C，確認是否持續累積。\n\n在 **Comparison** 查看哪些物件的數量、大小持續增加，再看 **Retainers**，追出「誰還引用它」。`Retained size` 能協助找出持有大量記憶體的物件。\n\n**快照會暫停主執行緒，並可能需要約兩倍 heap 的記憶體**，因此先在測試環境或可中斷的副本操作。[官方快照指南](https://github.com/nodejs/learn/blob/main/pages/diagnostics/memory/using-heap-snapshot.md)\n\n**3. 按線索檢查常見原因**\n\n- **陣列、`Map`、快取一直增加**：有新增，卻沒有刪除、容量上限或過期機制。\n- **請求物件一直存活**：閉包、事件監聽器或計時器仍引用 `req`、`res` 或大型資料。\n- **Promise／工作佇列累積**：下游變慢，新增速度超過處理速度；可能是堆積而非洩漏。\n- **`external`／`arrayBuffers` 增長**：優先查 `Buffer`、檔案讀取、串流背壓，以及是否把完整內容留在記憶體。\n- **只有 `rss` 增長**：JS heap 快照可能無法直接定位，需再查原生依賴與程序層級的記憶體。\n\n修正後，用相同負載重跑，確認記憶體低點能穩定。單純調大 `--max-old-space-size` 只會延後到達上限。\n\n你目前看到的是 `rss` 還是 `heapUsed` 增加？貼上 Node.js 版本、啟動指令，以及幾筆上述紀錄，就能先縮小範圍。",
+ "finished_at": "2026-10-31T15:54:48+00:00",
+ "seconds": 35.7
+}

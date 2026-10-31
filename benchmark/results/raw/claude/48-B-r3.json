@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "# 排查 Node.js 記憶體持續增長的步驟\n\n## 1. 先確認是真的洩漏\n- 觀察 `process.memoryUsage()`（`rss`、`heapUsed`、`external`、`arrayBuffers`）。\n- 看 **heapUsed** 在 GC 後是否仍持續上升：\n  - `heapUsed` 上升 → JS 物件洩漏\n  - `rss` / `external` / `arrayBuffers` 上升、heap 平穩 → Buffer、原生模組、stream 洩漏\n- 注意：heap 到達上限前 V8 本來就不太積極 GC，鋸齒狀（升了又降）是正常的，**只升不降**才可疑。\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log(Object.fromEntries(\n    Object.entries(m).map(([k, v]) => [k, (v / 1024 / 1024).toFixed(1) + 'MB'])\n  ));\n}, 10000);\n```\n\n## 2. 用 Heap Snapshot 比對（最有效）\n1. 啟動時加 `--inspect`，用 Chrome 開 `chrome://inspect` 連線。\n2. 在 **Memory** 分頁：\n   - 程式穩定後拍 **Snapshot 1**\n   - 執行一段會觸發洩漏的負載\n   - 拍 **Snapshot 2**、**Snapshot 3**\n3. 選 Snapshot 3，檢視模式選 **「Objects allocated between Snapshot 1 and 2」** 或用 **Comparison**，看哪些類別的數量/大小持續增加。\n4. 展開物件，看 **Retainers**（保留路徑）找到是誰抓著它不放。\n\n不方便連 inspector（例如正式環境）：\n```js\nconst v8 = require('v8');\nv8.writeHeapSnapshot(); // 產生 .heapsnapshot 檔\n```\n或啟動時加 `--heapsnapshot-signal=SIGUSR2`，之後 `kill -USR2 <pid>` 即可。\n> 注意：拍快照會暫停程式並暫時耗用大量記憶體，正式環境請先從流量中摘除該實例。\n\n## 3. 用 Allocation Sampling / Timeline\nChrome DevTools 的 **Allocation sampling** 或 **Allocation instrumentation on timeline** 能顯示是哪段程式碼分配了仍存活的記憶體，可直接定位到函式與行號。\n\n## 4. 其他工具\n- `clinic.js`（`clinic heapprofiler` / `clinic doctor`）\n- `node --heap-prof` 產生 `.heapprofile`\n- `memlab`（Meta 出品，可自動化找洩漏）\n- 監控：Prometheus + `prom-client` 蒐集 heap 指標看趨勢\n\n## 5. 常見洩漏原因檢查清單\n| 類型 | 說明 |\n|---|---|\n| 全域變數/模組層級快取 | `Map`、`Array`、物件只增不減，沒有上限或 TTL（改用 LRU，如 `lru-cache`） |\n| 事件監聽器 | 重複 `on()` 沒 `off()`；出現 `MaxListenersExceededWarning` 要特別注意 |\n| 計時器 | `setInterval` 沒有 `clearInterval` |\n| Closure | 閉包意外保留大物件 |\n| Promise / 請求 | 永遠不 resolve 的 Promise、未結束的請求/連線 |\n| Stream | 沒處理 backpressure、沒有 `destroy()` |\n| 資料庫/HTTP 連線 | 沒關閉或連線池設定不當 |\n| 日誌/指標 | 動態 label（如 user id、URL）造成指標基數爆炸 |\n| `WeakMap` 替代 | 以物件為 key 的快取可改用 `WeakMap` / `WeakRef` |\n\n## 6. 實務流程建議\n1. 記錄 `process.memoryUsage()` 確認趨勢與類型\n2. 重現問題（壓測，如 `autocannon`、`k6`）\n3. 拍 3 次快照做比對，找出數量暴增的類別\n4. 看 Retainers 找到持有者，對應回程式碼\n5. 修正後再壓測，驗證曲線是否平穩\n\n## 7. 暫時緩解（非根治）\n- 調整上限：`node --max-old-space-size=4096 app.js`\n- 容器設記憶體限制並自動重啟（K8s、PM2 `max_memory_restart`）\n\n---\n\n如果你願意提供以下資訊，我可以幫你更具體地分析：\n- 哪個指標在增長（`rss` 還是 `heapUsed`）？\n- 使用的框架（Express、Koa、NestJS…）與主要依賴\n- 程式碼片段或 heap snapshot 中增長最多的物件類型\n\n也可以把專案放在目前的工作目錄，我可以直接幫你檢查程式碼中可能的洩漏點。",
+ "finished_at": "2026-10-31T15:47:38+00:00",
+ "seconds": 18.7,
+ "cost_usd": 0.0208087
+}

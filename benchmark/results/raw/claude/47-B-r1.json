@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。\n\n請用繁體中文回答。",
+ "answer": "# Pod、Deployment、Service 的關係\n\n## 一句話概括\n- **Pod**:實際跑容器的最小單位\n- **Deployment**:負責「管理」Pod(數量、更新、自我修復)\n- **Service**:負責讓 Pod「被找到、被存取」(穩定的網路入口)\n\n## 各自的角色\n\n### 1. Pod\n- Kubernetes 最小的部署單位,內含一個或多個容器,共享網路(同一個 IP)與儲存。\n- Pod 是**短暫的**:掛了不會自己復活,重建後 IP 也會改變。\n- 直接建立裸 Pod 很少見,因為沒人幫你維持它。\n\n### 2. Deployment\n- 宣告式地描述「我要幾個副本、用哪個映像檔」。\n- 底層透過 **ReplicaSet** 確保 Pod 數量符合期望。\n- 提供:\n  - **自我修復**:Pod 掛掉自動補上\n  - **水平擴縮**:改 `replicas` 即可\n  - **滾動更新與回滾**:更新映像檔時逐步替換 Pod\n\n### 3. Service\n- 因為 Pod IP 會變,Service 提供**固定的虛擬 IP 與 DNS 名稱**。\n- 透過 **label selector** 找到對應的 Pod,並做負載平衡。\n- 常見類型:`ClusterIP`(叢集內部)、`NodePort`、`LoadBalancer`。\n\n## 三者關係圖\n\n```\n          Service (固定入口, selector: app=web)\n              │  負載平衡\n      ┌───────┼───────┐\n      ▼       ▼       ▼\n    Pod 1   Pod 2   Pod 3   ← label: app=web\n      ▲       ▲       ▲\n      └───────┴───────┘\n         ReplicaSet\n              ▲\n         Deployment (replicas: 3)\n```\n\n**關鍵點**:Deployment 和 Service **彼此不直接認識**,它們是靠 **label** 間接連結——Deployment 建出帶有 `app=web` 標籤的 Pod,Service 的 selector 也選 `app=web`,就能對上。\n\n## 範例 YAML\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web          # Pod 的標籤\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  selector:\n    app: web              # 對應上面的 Pod 標籤\n  ports:\n  - port: 80\n    targetPort: 80\n  type: ClusterIP\n```\n\n## 運作流程總結\n1. 你建立 **Deployment** → 產生 ReplicaSet → 建立 3 個 **Pod**\n2. 你建立 **Service** → 依 label 找到這 3 個 Pod,提供統一入口\n3. 某個 Pod 掛了 → Deployment 自動補一個新的 → Service 自動把新 Pod 納入、移除舊的,使用者完全無感",
+ "finished_at": "2026-10-31T15:33:38+00:00",
+ "seconds": 12.5,
+ "cost_usd": 0.0166264
+}

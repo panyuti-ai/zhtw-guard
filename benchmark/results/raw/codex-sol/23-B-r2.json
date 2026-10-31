@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 23,
+ "category": "daily",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "失眠的時候可以做什麼幫助入睡？\n\n請用繁體中文回答。",
+ "answer": "睡不著時，可以先把目標放在「讓身體放鬆」，不用逼自己立刻睡著。今晚可以試試：\n\n- **清醒一陣子就先離床**：感覺約 20 分鐘仍睡不著，或越躺越焦躁時，到昏暗的地方讀紙本書、聽輕柔音樂，等有睡意再回床。不必盯著時鐘計時。這有助於重新建立床與睡眠的連結。[NIH 睡眠建議](https://www.nhlbi.nih.gov/health/insomnia/treatment)\n- **做幾分鐘溫和放鬆**：自然、緩慢地呼吸，或依序放鬆肩膀、手臂和雙腿；不需憋氣，也不用追求一定有效。\n- **把環境調暗、安靜、涼爽**：先放下手機，避免在床上工作或看刺激的內容。[NHS 失眠建議](https://www.nhs.uk/conditions/insomnia/)\n\n接下來幾天，**固定起床時間**，即使前晚睡不好，也盡量避免睡到很晚或長時間補眠。白天規律活動，睡前至少 6 小時避免咖啡、濃茶與尼古丁，也別用酒助眠。[NHS 睡眠指引](https://www.nhs.uk/every-mind-matters/mental-health-issues/sleep/)\n\n如果已持續數月，或已影響白天精神、工作與情緒，建議找家醫科或睡眠門診評估，不必等到很嚴重才求助。持續性失眠的首選治療通常是**失眠認知行為治療（CBT-I）**；安眠藥、褪黑激素等則適合先與醫師或藥師討論。[NIH 治療說明](https://www.nhlbi.nih.gov/health/insomnia/treatment)\n\n你比較常是「一開始睡不著」，還是「半夜醒來後睡不回去」？",
+ "finished_at": "2026-10-31T16:05:44+00:00",
+ "seconds": 24.8
+}

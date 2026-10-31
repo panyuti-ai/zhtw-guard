@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。",
+ "answer": "# Pod、Deployment、Service 的關係\n\n## 一句話概括\n- **Pod**:實際運行容器的最小單位\n- **Deployment**:管理「一組 Pod」的控制器(負責數量、更新、自我修復)\n- **Service**:為這組 Pod 提供「穩定的網路入口」與負載平衡\n\n## 各自的角色\n\n### Pod\n- 包含一個或多個容器,共用網路(同一 IP)與儲存卷。\n- 是**短暫的**:被刪除或節點故障後,不會自己回來,IP 也會變。\n- 直接建立 Pod 很少見,因為沒有自癒能力。\n\n### Deployment\n- 透過 **ReplicaSet** 確保指定數量(`replicas`)的 Pod 持續運行。\n- 提供滾動更新(rolling update)與回滾(rollback)。\n- Pod 掛掉時自動補新的。\n- 關係鏈:`Deployment → ReplicaSet → Pod`\n\n### Service\n- 因為 Pod IP 會變動,Service 提供固定的 **ClusterIP / DNS 名稱**。\n- 用 **label selector** 找到符合條件的 Pod,並把流量分配給它們。\n- 常見類型:`ClusterIP`(叢集內部)、`NodePort`、`LoadBalancer`。\n\n## 三者如何串起來\n\n```\n            ┌────────────── Service ──────────────┐\n 請求 ───▶  │ selector: app=web (穩定 IP / DNS)   │\n            └───────┬─────────┬─────────┬─────────┘\n                    ▼         ▼         ▼\n                  Pod A     Pod B     Pod C   ← label: app=web\n                    ▲         ▲         ▲\n                    └─────────┴─────────┘\n                    由 Deployment(ReplicaSet)建立與維護\n```\n\n**關鍵連結是 label**:Deployment 在 Pod 模板裡打上 `app: web` 標籤,Service 用 `selector: app: web` 選中它們。兩者之間沒有直接引用,只靠 label 配對。\n\n## 範例\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web          # Pod 標籤\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  selector:\n    app: web              # 對應上面的 Pod 標籤\n  ports:\n  - port: 80\n    targetPort: 80\n```\n\n## 運作情境\n1. 你建立 Deployment → 它產生 3 個 Pod。\n2. 你建立 Service → 它自動找出這 3 個 Pod 當作後端(Endpoints)。\n3. 某個 Pod 當機 → Deployment 補一個新的 → Service 自動把新 Pod 加入、移除舊的。\n4. 更新映像檔 → Deployment 滾動替換 Pod,Service 持續對外服務不中斷。\n\n**總結**:Deployment 負責「Pod 要有幾個、長什麼樣」,Service 負責「怎麼穩定地連到這些 Pod」,Pod 則是真正幹活的執行單位。",
+ "finished_at": "2026-10-31T15:40:25+00:00",
+ "seconds": 12.8,
+ "cost_usd": 0.0151218
+}

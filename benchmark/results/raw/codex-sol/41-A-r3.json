@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？",
+ "answer": "React 元件重複 render 不一定是錯誤。常見原因有：\n\n- **State 或 props 改變**：呼叫 `setState`，或父元件傳入新的 props，都可能觸發 render。\n- **父元件重新 render**：子元件通常也會跟著 render，即使 props 的內容看起來沒變。\n- **Context 更新**：元件使用的 Context 值改變時，會重新 render。\n- **`useEffect` 形成循環**：effect 更新 state，而這個 state 又是 effect 的依賴。\n  ```jsx\n  useEffect(() => {\n    setCount(count + 1);\n  }, [count]); // 更新 count → effect 再執行 → 繼續更新\n  ```\n- **物件或函式每次都是新參照**：例如 `options={{ ... }}` 或 inline callback，可能讓 `React.memo` 無法跳過 render，或讓 effect 反覆執行。\n- **在 render 中直接更新 state**：例如在元件函式內無條件呼叫 `setCount(...)`，會造成無限循環。\n- **開發環境的 `StrictMode`**：可能讓元件函式額外執行一次，協助找出副作用；不代表正式環境也會如此。\n\n可以先看現象：**只有開發時多執行一次**，優先檢查 `StrictMode`；**持續不停執行**，優先檢查 `setState` 和 `useEffect`。\n\n貼上元件程式碼，尤其是 `useEffect`、state 更新，以及父元件傳入的 props，我可以幫你定位原因。",
+ "finished_at": "2026-10-31T16:24:12+00:00",
+ "seconds": 16.1
+}

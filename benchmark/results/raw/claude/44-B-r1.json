@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "# 壓縮資料夾內所有 .log 檔的 Bash 腳本\n\n## 腳本內容（`compress_logs.sh`）\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\ndir=\"${1:-.}\"\ntimestamp=$(date +%Y%m%d_%H%M%S)\narchive=\"logs_${timestamp}.tar.gz\"\n\nshopt -s nullglob\nfiles=(\"$dir\"/*.log)\n\nif [ ${#files[@]} -eq 0 ]; then\n    echo \"在 $dir 找不到 .log 檔\" >&2\n    exit 1\nfi\n\ntar -czf \"$archive\" -C \"$dir\" \"${files[@]##*/}\"\necho \"已壓縮 ${#files[@]} 個檔案 -> $archive\"\n```\n\n## 逐行解釋\n\n| 行 | 說明 |\n|---|---|\n| `#!/usr/bin/env bash` | Shebang，指定用 `bash` 執行。用 `env` 可在不同系統找到 bash 的位置。 |\n| `set -euo pipefail` | 嚴格模式：`-e` 指令失敗就立刻結束；`-u` 使用未定義變數時報錯；`-o pipefail` 管線中任一段失敗即視為失敗。 |\n| `dir=\"${1:-.}\"` | 取第一個參數作為目標資料夾；沒給就預設為目前目錄 `.`。 |\n| `timestamp=$(date +%Y%m%d_%H%M%S)` | 取得目前時間（如 `20261031_153000`），用來避免壓縮檔名稱重複。 |\n| `archive=\"logs_${timestamp}.tar.gz\"` | 組成輸出檔名，例如 `logs_20261031_153000.tar.gz`。 |\n| `shopt -s nullglob` | 若萬用字元沒有任何符合的檔案，就展開成「空」，而不是保留字面上的 `*.log`。 |\n| `files=(\"$dir\"/*.log)` | 把資料夾中所有 `.log` 檔放進陣列 `files`。變數加引號可正確處理含空格的路徑。 |\n| `if [ ${#files[@]} -eq 0 ]; then` | `${#files[@]}` 是陣列元素數量，為 0 代表沒有找到 log 檔。 |\n| `echo \"在 $dir 找不到 .log 檔\" >&2` | 輸出錯誤訊息到 stderr（標準錯誤）。 |\n| `exit 1` | 以非 0 狀態碼結束，表示失敗，方便其他腳本判斷。 |\n| `fi` | 結束 `if` 區塊。 |\n| `tar -czf \"$archive\" -C \"$dir\" \"${files[@]##*/}\"` | 建立壓縮檔：`c` 建立、`z` 用 gzip 壓縮、`f` 指定檔名。`-C \"$dir\"` 先切換到該資料夾，這樣壓縮檔內不會帶有長路徑。`${files[@]##*/}` 把每個元素的路徑前綴去掉，只留檔名。 |\n| `echo \"已壓縮 ${#files[@]} 個檔案 -> $archive\"` | 顯示壓縮了幾個檔案以及輸出檔名。 |\n\n## 使用方式\n\n```bash\nchmod +x compress_logs.sh      # 賦予執行權限\n./compress_logs.sh             # 壓縮目前資料夾的 .log\n./compress_logs.sh /var/log/myapp   # 壓縮指定資料夾的 .log\n```\n\n## 補充\n\n- 壓縮檔會輸出在**執行腳本時所在的目錄**，不是 `$dir`。\n- 只處理該資料夾的第一層，不含子資料夾。需要遞迴的話可改用 `find \"$dir\" -name '*.log'`。\n- 腳本不會刪除原始 log 檔。若想壓縮後刪除，可在 `tar` 加上 `--remove-files`，但請先確認壓縮檔沒問題再使用。",
+ "finished_at": "2026-10-31T15:33:07+00:00",
+ "seconds": 17.2,
+ "cost_usd": 0.0236944
+}

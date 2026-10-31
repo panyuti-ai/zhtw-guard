@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 8,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "雜湊表怎麼做到平均 O(1) 查詢？碰撞怎麼處理？",
+ "answer": "## 為什麼平均 O(1)\n\n核心想法：**用雜湊函數把 key 直接轉成陣列索引**，不用逐一比對。\n\n1. 準備一個長度 `m` 的陣列（桶，bucket）。\n2. 計算 `index = hash(key) % m`。\n3. 直接跳到 `array[index]` 存取，陣列隨機存取是 O(1)。\n\n要維持「平均」O(1)，需要三個條件：\n\n- **雜湊函數分布均勻**：key 平均散到各個桶，不會集中在少數幾個。\n- **負載因子（load factor）受控**：α = n / m（元素數 ÷ 桶數）。每個桶平均只有 α 個元素，所以查詢期望成本是 O(1 + α)。只要 α 維持在常數以內，就是 O(1)。\n- **動態擴容（rehash）**：當 α 超過門檻（例如 0.75），把陣列擴成兩倍並重新插入所有元素。單次擴容是 O(n)，但攤銷後每次插入仍是 O(1)。\n\n最壞情況（所有 key 都碰撞）會退化成 O(n)，所以是「平均」而非「保證」。\n\n## 碰撞處理\n\n不同 key 算出相同索引就是碰撞，主要有兩大類做法：\n\n### 1. 鏈結法（Separate Chaining）\n每個桶存一個串列（鏈結串列或動態陣列）。碰撞的元素直接接在同一個桶裡。\n\n- 優點：實作簡單，刪除容易，α 超過 1 也能運作。\n- 缺點：額外指標開銷，cache 局部性較差。\n- 優化：Java 8 的 `HashMap` 在單桶過長（≥ 8）時轉成紅黑樹，最壞情況降為 O(log n)。\n\n### 2. 開放定址法（Open Addressing）\n所有元素都存在陣列本身，碰撞時按某種規則找下一個空位：\n\n- **線性探測**：`i, i+1, i+2, ...`。cache 友善，但容易產生「聚集」（clustering）。\n- **二次探測**：`i + 1², i + 2², ...`，減輕一次聚集。\n- **雙重雜湊**：`i + k·h2(key)`，分布最均勻。\n\n注意事項：\n- α 必須 < 1，通常要更低（約 0.5–0.7）才能維持效能。\n- 刪除不能直接清空，要放「墓碑（tombstone）」標記，否則會截斷探測序列。\n- 現代實作如 Python 的 `dict`、Rust 的 `hashbrown`（SwissTable）都採開放定址，因為 cache 表現好。\n\n### 其他進階方法\n- **Cuckoo hashing**：用兩個雜湊函數，查詢最壞 O(1)，插入可能觸發搬移。\n- **Robin Hood hashing**：讓探測距離較短的元素讓位，降低變異度。\n\n## 簡單範例（鏈結法）\n\n```python\nclass HashMap:\n    def __init__(self, m=8):\n        self.buckets = [[] for _ in range(m)]\n        self.n = 0\n\n    def _idx(self, key):\n        return hash(key) % len(self.buckets)\n\n    def put(self, key, val):\n        b = self.buckets[self._idx(key)]\n        for i, (k, _) in enumerate(b):\n            if k == key:\n                b[i] = (key, val)\n                return\n        b.append((key, val))\n        self.n += 1\n        if self.n / len(self.buckets) > 0.75:\n            self._resize()\n\n    def get(self, key):\n        for k, v in self.buckets[self._idx(key)]:\n            if k == key:\n                return v\n        raise KeyError(key)\n\n    def _resize(self):\n        old = self.buckets\n        self.buckets = [[] for _ in range(len(old) * 2)]\n        for b in old:\n            for k, v in b:\n                self.buckets[self._idx(k)].append((k, v))\n```\n\n## 小結\n\n| 項目 | 鏈結法 | 開放定址法 |\n|---|---|---|\n| 儲存位置 | 桶外的串列 | 陣列本身 |\n| α 上限 | 可 > 1 | 必須 < 1 |\n| 刪除 | 簡單 | 需墓碑 |\n| Cache 表現 | 較差 | 較好 |\n\n重點：**好的雜湊函數 + 低負載因子 + 自動擴容**，三者共同讓平均查詢維持 O(1)。",
+ "finished_at": "2026-10-31T15:42:18+00:00",
+ "seconds": 17.7,
+ "cost_usd": 0.0187841
+}

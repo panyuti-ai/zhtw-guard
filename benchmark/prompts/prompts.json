@@ -1,0 +1,252 @@
+[
+ {
+  "id": 1,
+  "category": "tech",
+  "text": "TCP 三向交握在做什麼？為什麼不是兩次就好？"
+ },
+ {
+  "id": 2,
+  "category": "tech",
+  "text": "什麼是資料庫索引？什麼情況下加索引反而變慢？"
+ },
+ {
+  "id": 3,
+  "category": "tech",
+  "text": "解釋 HTTP 和 HTTPS 的差別，憑證在中間扮演什麼角色？"
+ },
+ {
+  "id": 4,
+  "category": "tech",
+  "text": "Docker 容器和虛擬機器差在哪裡？"
+ },
+ {
+  "id": 5,
+  "category": "tech",
+  "text": "什麼是快取？快取失效有哪些常見策略？"
+ },
+ {
+  "id": 6,
+  "category": "tech",
+  "text": "解釋 Git 的 rebase 和 merge，各適合什麼情況？"
+ },
+ {
+  "id": 7,
+  "category": "tech",
+  "text": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？"
+ },
+ {
+  "id": 8,
+  "category": "tech",
+  "text": "雜湊表怎麼做到平均 O(1) 查詢？碰撞怎麼處理？"
+ },
+ {
+  "id": 9,
+  "category": "tech",
+  "text": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？"
+ },
+ {
+  "id": 10,
+  "category": "tech",
+  "text": "微服務架構有什麼好處和壞處？小團隊適合嗎？"
+ },
+ {
+  "id": 11,
+  "category": "tech",
+  "text": "什麼是負載平衡？常見的分配演算法有哪些？"
+ },
+ {
+  "id": 12,
+  "category": "tech",
+  "text": "解釋一下大型語言模型的「上下文長度」是什麼意思。"
+ },
+ {
+  "id": 13,
+  "category": "tech",
+  "text": "公司內部系統要做備份，應該怎麼規劃？"
+ },
+ {
+  "id": 14,
+  "category": "daily",
+  "text": "第一次去日本自助旅行，行前要準備哪些東西？"
+ },
+ {
+  "id": 15,
+  "category": "daily",
+  "text": "怎麼煮出好吃的滷肉飯？"
+ },
+ {
+  "id": 16,
+  "category": "daily",
+  "text": "租房子簽約前要注意哪些事？"
+ },
+ {
+  "id": 17,
+  "category": "daily",
+  "text": "新手想開始跑步，第一個月該怎麼安排？"
+ },
+ {
+  "id": 18,
+  "category": "daily",
+  "text": "怎麼跟主管提加薪比較好？"
+ },
+ {
+  "id": 19,
+  "category": "daily",
+  "text": "家裡的貓一直亂抓沙發，有什麼辦法？"
+ },
+ {
+  "id": 20,
+  "category": "daily",
+  "text": "颱風天前要準備什麼？"
+ },
+ {
+  "id": 21,
+  "category": "daily",
+  "text": "第一次買二手機車要檢查哪些地方？"
+ },
+ {
+  "id": 22,
+  "category": "daily",
+  "text": "怎麼存第一桶金？月薪四萬可以怎麼分配？"
+ },
+ {
+  "id": 23,
+  "category": "daily",
+  "text": "失眠的時候可以做什麼幫助入睡？"
+ },
+ {
+  "id": 24,
+  "category": "daily",
+  "text": "推薦三本適合大學生讀的書，並說明理由。"
+ },
+ {
+  "id": 25,
+  "category": "daily",
+  "text": "怎麼寫一封得體的離職信？"
+ },
+ {
+  "id": 26,
+  "category": "simplified_source",
+  "text": "請把下面這段話整理成三個重點：「我们公司今年推出了新的云端服务，用户可以在手机上直接管理文件，系统会自动备份数据，安全性也比以前更高。」"
+ },
+ {
+  "id": 27,
+  "category": "simplified_source",
+  "text": "下面是一則產品說明，請改寫成適合台灣讀者的版本：「这款软件支持多种视频格式，默认保存在桌面的文件夹里，内存占用很低。」"
+ },
+ {
+  "id": 28,
+  "category": "simplified_source",
+  "text": "請摘要這段新聞：「据报道，该市地铁将在下个月开通新线路，预计每天可以运送十万名乘客，缓解交通压力。」"
+ },
+ {
+  "id": 29,
+  "category": "simplified_source",
+  "text": "請把這段錯誤訊息的意思解釋給我聽：「连接服务器失败，请检查网络设置后重试。」"
+ },
+ {
+  "id": 30,
+  "category": "simplified_source",
+  "text": "這是一段讀者留言，請幫我寫一段客氣的回覆：「你们的快递太慢了，我等了一个星期还没收到，客服电话也打不通。」"
+ },
+ {
+  "id": 31,
+  "category": "simplified_source",
+  "text": "請把這段食譜整理成步驟清單：「先把土豆切块，用水煮十分钟，然后加入盐和黑胡椒，最后撒上葱花就可以了。」"
+ },
+ {
+  "id": 32,
+  "category": "simplified_source",
+  "text": "請把這段會議紀錄整理成待辦事項：「下周一之前完成需求文档，周三和设计部门开会，周五前提交测试报告。」"
+ },
+ {
+  "id": 33,
+  "category": "simplified_source",
+  "text": "下面是一段履歷自我介紹，請幫我潤飾：「本人性格开朗，擅长团队合作，熟悉各种办公软件，有三年项目管理经验。」"
+ },
+ {
+  "id": 34,
+  "category": "simplified_source",
+  "text": "請解釋這段話在說什麼：「人工智能的发展给教育行业带来了很大的变化，老师需要学习新的技能。」"
+ },
+ {
+  "id": 35,
+  "category": "simplified_source",
+  "text": "請把這段旅遊介紹縮短成一句話：「这座古城有八百多年的历史，街道两旁都是传统建筑，晚上还有夜市可以逛。」"
+ },
+ {
+  "id": 36,
+  "category": "simplified_source",
+  "text": "請把這則公告改寫得更正式：「明天下午两点停电，请大家提前保存好电脑里的资料。」"
+ },
+ {
+  "id": 37,
+  "category": "simplified_source",
+  "text": "這段話的語氣是正面還是負面？為什麼？「这家餐厅的服务态度很差，但是菜的味道还不错。」"
+ },
+ {
+  "id": 38,
+  "category": "simplified_source",
+  "text": "請把這段使用說明改成問答形式：「首次使用时，请先下载应用程序，注册账号，然后绑定手机号码。」"
+ },
+ {
+  "id": 39,
+  "category": "code",
+  "text": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。"
+ },
+ {
+  "id": 40,
+  "category": "code",
+  "text": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。"
+ },
+ {
+  "id": 41,
+  "category": "code",
+  "text": "我的 React 元件一直重複 render，可能是什麼原因？"
+ },
+ {
+  "id": 42,
+  "category": "code",
+  "text": "解釋 SQL 的 LEFT JOIN 和 INNER JOIN，附一個例子。"
+ },
+ {
+  "id": 43,
+  "category": "code",
+  "text": "Go 語言的 goroutine 和 channel 怎麼搭配使用？"
+ },
+ {
+  "id": 44,
+  "category": "code",
+  "text": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。"
+ },
+ {
+  "id": 45,
+  "category": "code",
+  "text": "什麼是 REST API？設計 API 時有哪些好習慣？"
+ },
+ {
+  "id": 46,
+  "category": "code",
+  "text": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？"
+ },
+ {
+  "id": 47,
+  "category": "code",
+  "text": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。"
+ },
+ {
+  "id": 48,
+  "category": "code",
+  "text": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？"
+ },
+ {
+  "id": 49,
+  "category": "code",
+  "text": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。"
+ },
+ {
+  "id": 50,
+  "category": "code",
+  "text": "寫單元測試有什麼原則？請用 Jest 舉一個例子。"
+ }
+]

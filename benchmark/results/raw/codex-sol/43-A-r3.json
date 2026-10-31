@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？",
+ "answer": "在 Go 裡，**goroutine 負責並行執行工作，channel 負責在 goroutine 之間傳遞資料與同步**。\n\n用 `go` 啟動函式，用 `ch <- value` 傳送資料，用 `<-ch` 接收資料。\n\n下面是可以直接執行的例子：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n\tch := make(chan int) // 建立傳遞 int 的 channel\n\n\tgo func() {\n\t\tfor i := 1; i <= 3; i++ {\n\t\t\tch <- i // 傳送資料\n\t\t}\n\t\tclose(ch) // 傳送完成，由傳送方關閉\n\t}()\n\n\t// 持續接收，直到 channel 關閉且資料讀完\n\tfor value := range ch {\n\t\tfmt.Println(value)\n\t}\n}\n```\n\n輸出：\n\n```text\n1\n2\n3\n```\n\n這個例子的配合方式是：\n\n1. `go func()` 啟動另一個 goroutine。\n2. 該 goroutine 把數字送進 `ch`。\n3. `main` 透過 `range ch` 接收數字。\n4. 傳送方呼叫 `close(ch)`，讓接收迴圈在資料讀完後結束。\n\n**無緩衝與有緩衝的差別**\n\n```go\nch := make(chan int)    // 無緩衝\nch := make(chan int, 3) // 有緩衝，最多暫存 3 筆\n```\n\n| 類型 | 傳送何時會阻塞？ |\n|---|---|\n| 無緩衝 | 必須等到接收方準備好 |\n| 有緩衝 | 緩衝區滿時 |\n\n兩者在沒有資料可接收、且 channel 尚未關閉時，接收都會阻塞。因此 channel 也能用來協調工作順序。\n\n幾個常見注意事項：\n\n- 通常由**傳送方關閉 channel**；多個傳送方時，要等所有傳送工作完成才關閉。\n- 向已關閉的 channel 傳送，或重複關閉，都會造成 panic。\n- channel 不一定要關閉；需要告訴接收方「資料已送完」時才關閉。\n- `main` 結束時，其他 goroutine 也會一起結束，不會自動等它們完成。\n\n例如，下面會卡住，因為無緩衝 channel 的傳送正在等待接收者，程式卻還走不到下一行：\n\n```go\nch := make(chan int)\nch <- 1\nfmt.Println(<-ch)\n```\n\n把傳送放進另一個 goroutine，就能互相配合：\n\n```go\nch := make(chan int)\n\ngo func() {\n\tch <- 1\n}()\n\nfmt.Println(<-ch)\n```",
+ "finished_at": "2026-10-31T16:24:44+00:00",
+ "seconds": 21.7
+}

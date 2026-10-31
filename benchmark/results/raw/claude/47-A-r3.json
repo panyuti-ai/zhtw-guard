@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。",
+ "answer": "# Pod、Deployment、Service 的關係\n\n**一句話總結:** Pod 是實際跑容器的單位,Deployment 負責「管理」Pod,Service 負責讓 Pod「能被找到和存取」。\n\n## 1. Pod:最小運行單位\n- 一個 Pod 包含一個或多個容器,共享網路(同一個 IP)與儲存。\n- Pod 是**短暫的**:掛掉後不會自己復活,重建後 IP 也會改變。\n- 直接建立 Pod 沒有自我修復、擴縮容、滾動更新的能力。\n\n## 2. Deployment:管理 Pod 的生命週期\n- 透過 **ReplicaSet** 維持指定數量的 Pod 副本(`replicas: 3`)。\n- 提供自我修復:Pod 掛了會自動補上。\n- 支援滾動更新(rolling update)與回滾(rollback)。\n- 用 `template` 定義 Pod 的樣子,用 `selector` 找到自己管理的 Pod。\n\n關係鏈:`Deployment → ReplicaSet → Pod`\n\n## 3. Service:提供穩定的存取入口\n- 因為 Pod 的 IP 會變,Service 提供固定的虛擬 IP(ClusterIP)與 DNS 名稱。\n- 透過 **label selector** 找到對應的 Pod,並做負載平衡。\n- 常見類型:\n  - `ClusterIP`:叢集內部存取(預設)\n  - `NodePort`:透過節點 Port 對外\n  - `LoadBalancer`:對接雲端負載平衡器\n\n## 三者如何串起來\n\n```\n            Client\n              │\n        ┌─────▼─────┐\n        │  Service  │  固定 IP / DNS,負載平衡\n        └─────┬─────┘\n              │ label selector (app: web)\n     ┌────────┼────────┐\n  ┌──▼──┐  ┌──▼──┐  ┌──▼──┐\n  │ Pod │  │ Pod │  │ Pod │   ← label: app=web\n  └──▲──┘  └──▲──┘  └──▲──┘\n     └────────┼────────┘\n        ┌─────┴─────┐\n        │Deployment │  維持 3 個副本、滾動更新\n        └───────────┘\n```\n\n**關鍵:Deployment 和 Service 彼此之間沒有直接關聯**,它們是透過 **label** 與同一批 Pod 產生連結。\n\n## 範例\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web          # Pod 的 label\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  selector:\n    app: web              # 匹配上面 Pod 的 label\n  ports:\n  - port: 80\n    targetPort: 80\n```\n\n## 類比\n- **Pod** = 一位員工\n- **Deployment** = 人資主管:確保永遠有 3 位員工在崗,有人離職就補人\n- **Service** = 公司總機:外界只撥一個號碼,由總機轉給任一位在線員工",
+ "finished_at": "2026-10-31T15:47:19+00:00",
+ "seconds": 13.2,
+ "cost_usd": 0.015017800000000001
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。",
+ "answer": "# Promise 與 async/await 的關係\n\n**一句話總結：`async/await` 是建立在 Promise 之上的語法糖（syntactic sugar）**，讓非同步程式碼讀起來像同步程式碼。底層仍然是 Promise。\n\n## 核心對應關係\n\n1. `async` 函式**一定回傳 Promise**（回傳值會被自動包成 Promise）。\n2. `await` 後面接 Promise，會暫停該函式的執行，直到 Promise 完成，然後取出結果值。\n3. `await` 遇到 rejected 的 Promise 會拋出例外，可用 `try/catch` 捕捉（對應 `.catch()`）。\n\n## 範例：同一件事的兩種寫法\n\n先定義一個回傳 Promise 的函式：\n\n```js\nfunction fetchUser(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (id > 0) resolve({ id, name: \"Alice\" });\n      else reject(new Error(\"無效的 ID\"));\n    }, 500);\n  });\n}\n```\n\n### 1. 使用 Promise（`.then` / `.catch`）\n\n```js\nfetchUser(1)\n  .then(user => {\n    console.log(\"使用者：\", user.name);\n    return fetchUser(2);\n  })\n  .then(user2 => console.log(\"第二位：\", user2.name))\n  .catch(err => console.error(\"錯誤：\", err.message))\n  .finally(() => console.log(\"完成\"));\n```\n\n### 2. 使用 async/await\n\n```js\nasync function main() {\n  try {\n    const user = await fetchUser(1);\n    console.log(\"使用者：\", user.name);\n\n    const user2 = await fetchUser(2);\n    console.log(\"第二位：\", user2.name);\n  } catch (err) {\n    console.error(\"錯誤：\", err.message);\n  } finally {\n    console.log(\"完成\");\n  }\n}\n\nmain();\n```\n\n兩者行為相同，但 async/await 版本沒有鏈式回呼，更容易閱讀與除錯。\n\n## 證明 async 函式回傳 Promise\n\n```js\nasync function hello() {\n  return \"你好\";\n}\n\nconsole.log(hello());          // Promise { '你好' }\nhello().then(console.log);     // 你好\n```\n\n等同於 `return Promise.resolve(\"你好\")`。\n\n## 平行執行：仍需要 Promise 方法\n\n`await` 會依序等待，若多個任務互不相依，應搭配 `Promise.all` 以平行執行：\n\n```js\nasync function loadAll() {\n  // 依序：約 1000ms\n  const a = await fetchUser(1);\n  const b = await fetchUser(2);\n\n  // 平行：約 500ms\n  const [c, d] = await Promise.all([fetchUser(1), fetchUser(2)]);\n}\n```\n\n這說明了兩者是**互補**而非互斥：async/await 負責讓流程易讀，Promise 的靜態方法（`all`、`race`、`allSettled`、`any`）負責組合多個非同步任務。\n\n## 常見陷阱\n\n- **忘了 `await`**：拿到的是 Promise 物件而不是結果。\n- **在 `forEach` 中使用 `await`**：`forEach` 不會等待，應改用 `for...of` 或 `Promise.all(arr.map(...))`。\n- **`await` 只能用在 `async` 函式內**（或 ES module 的頂層）。\n\n## 總結\n\n| 項目 | Promise | async/await |\n|---|---|---|\n| 本質 | 表示未來結果的物件 | 操作 Promise 的語法 |\n| 錯誤處理 | `.catch()` | `try/catch` |\n| 流程寫法 | 鏈式 `.then()` | 類同步的由上而下 |\n| 回傳值 | Promise | 一定是 Promise（async 函式） |",
+ "finished_at": "2026-10-31T15:32:21+00:00",
+ "seconds": 12.1,
+ "cost_usd": 0.0181564
+}

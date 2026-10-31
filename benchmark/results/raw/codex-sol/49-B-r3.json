@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。\n\n請用繁體中文回答。",
+ "answer": "可以用泛型 `T` 表示陣列的元素型別：\n\n```ts\nfunction last<T>(items: readonly T[]): T | undefined {\n  return items.length === 0 ? undefined : items[items.length - 1];\n}\n```\n\n回傳型別是 `T | undefined`，因為空陣列沒有最後一個元素。\n\nTypeScript 會根據傳入的陣列推導 `T`：\n\n```ts\nconst a = last([1, 2, 3]);\n// T 推導為 number\n// a：number | undefined\n\nconst b = last([\"甲\", \"乙\"]);\n// T 推導為 string\n// b：string | undefined\n\nconst c = last([1, \"乙\"]);\n// T 推導為 number | string\n// c：number | string | undefined\n\nconst d = last([\"甲\", \"乙\"] as const);\n// T 推導為 \"甲\" | \"乙\"\n// d：\"甲\" | \"乙\" | undefined\n```\n\n參數使用 `readonly T[]`，因此一般陣列與唯讀陣列都能傳入，也能避免函式內修改陣列。這個版本推導的是「所有元素的共同型別」，不會精確推導 tuple 最後一個位置的型別。",
+ "finished_at": "2026-10-31T16:26:56+00:00",
+ "seconds": 8.4
+}

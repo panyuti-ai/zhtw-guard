@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？\n\n請用繁體中文回答。",
+ "answer": "# OAuth 是什麼？\n\n**OAuth（目前主流為 OAuth 2.0）是一種「授權」協定**：讓你在不把密碼交給第三方網站的情況下，允許它在有限範圍內存取你在另一個服務（如 Google、GitHub）上的資料。\n\n> 常見誤解：OAuth 本身是「授權」(authorization)，不是「驗證」(authentication)。「用 Google 登入」的身分驗證部分，通常是建立在 OAuth 之上的 **OpenID Connect (OIDC)**。\n\n## 四個角色\n\n| 角色 | 範例 |\n|---|---|\n| **資源擁有者** (Resource Owner) | 你 |\n| **客戶端** (Client) | 第三方網站／App |\n| **授權伺服器** (Authorization Server) | Google 的登入與授權系統 |\n| **資源伺服器** (Resource Server) | 存放你資料的 API（如 Google API） |\n\n## 登入時背後的流程（Authorization Code Flow）\n\n1. **點擊「用 Google 登入」**\n   第三方網站把你導向 Google 的授權頁面，網址帶有參數：\n   `client_id`（網站身分）、`redirect_uri`（授權後回跳位置）、`scope`（要求的權限，如 email、profile）、`state`（防 CSRF 的隨機值）。\n\n2. **你在 Google 登入並同意授權**\n   你的密碼只輸入給 Google，第三方網站完全看不到。\n\n3. **Google 導回網站，附上「授權碼」(authorization code)**\n   `https://site.com/callback?code=abc123&state=xyz`\n   網站檢查 `state` 是否與先前一致。\n\n4. **網站後端用授權碼換取 Token**\n   網站伺服器向 Google 發送請求，帶上 `code`、`client_id`、`client_secret`，取得：\n   - **Access Token**：短效，用來呼叫 API\n   - **Refresh Token**（可選）：長效，用來換新的 access token\n   - **ID Token**（OIDC）：JWT 格式，內含你的身分資訊（如 `sub`、`email`）\n\n5. **網站取得身分並建立登入狀態**\n   網站驗證 ID Token，或用 access token 呼叫 Google 的 userinfo API，得知你是誰，然後在自己的系統建立 session，你就登入了。\n\n```\n使用者        第三方網站          Google\n  |--點擊登入-->|                   |\n  |<--導向 Google 授權頁----------->|\n  |------登入並同意---------------->|\n  |<--帶 code 導回網站--|           |\n  |            |--code+secret----->|\n  |            |<--access/ID token-|\n  |<--登入成功--|                   |\n```\n\n## 為什麼這樣設計？\n\n- **不分享密碼**：網站拿不到你的 Google 密碼。\n- **最小權限**：透過 scope 只授權必要範圍。\n- **可撤銷**：可隨時在 Google 帳號設定中撤銷某網站的授權。\n- **Token 短效**：即使外洩，影響時間有限。\n- **授權碼經後端交換**：Token 不會暴露在瀏覽器網址列中。\n\n## 常見安全機制\n\n- **`state` 參數**：防止 CSRF 攻擊。\n- **PKCE**：針對手機 App／SPA 等無法保管 secret 的客戶端，防止授權碼被攔截後濫用，現在建議所有客戶端都使用。\n- **嚴格比對 `redirect_uri`**：避免授權碼被導向惡意網址。\n- **只用 HTTPS**。\n\n## 小結\n\nOAuth 就像「飯店房卡」：你不用把家裡的萬用鑰匙（密碼）交給飯店，而是由櫃台（授權伺服器）發一張只能開特定房間、限時有效的房卡（token）。\n\n想深入的話，可以再聊 PKCE、JWT 結構，或其他 flow（如 Client Credentials、Device Code）。",
+ "finished_at": "2026-10-31T15:35:10+00:00",
+ "seconds": 15.4,
+ "cost_usd": 0.0171566
+}

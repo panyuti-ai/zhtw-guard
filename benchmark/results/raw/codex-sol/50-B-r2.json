@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。\n\n請用繁體中文回答。",
+ "answer": "單元測試的重點是：**驗證一小段程式的行為，並讓失敗原因容易判斷。**\n\n幾個實用原則：\n\n- **測試對外行為**：檢查輸入與輸出，避免依賴內部實作，讓重構時不必跟著修改測試。\n- **每個測試聚焦一種情境**：例如正常輸入、邊界值或錯誤輸入。可以有多個斷言，但應服務同一個目的。\n- **保持獨立且可重複**：測試不依賴執行順序，也不受目前時間、隨機數或外部服務影響。\n- **涵蓋重要邊界與失敗情境**：除了正常流程，也考慮空值、零、上限與非法輸入。\n- **只在必要時使用 Mock**：通常用來隔離網路、資料庫等外部依賴，避免把實際邏輯全部模擬掉。\n- **名稱清楚、結構簡單**：採用 Arrange（準備）、Act（執行）、Assert（驗證）的結構。\n\n例如，一個計算購物車總金額的函式，輸入金額以「分」為單位：\n\n```js\n// calculateTotal.js\nfunction calculateTotal(prices, discountPercent = 0) {\n  if (discountPercent < 0 || discountPercent > 100) {\n    throw new RangeError('折扣百分比必須介於 0 到 100');\n  }\n\n  const subtotal = prices.reduce((sum, price) => sum + price, 0);\n  return Math.round(subtotal * (1 - discountPercent / 100));\n}\n\nmodule.exports = { calculateTotal };\n```\n\n對應的 Jest 測試：\n\n```js\n// calculateTotal.test.js\nconst { calculateTotal } = require('./calculateTotal');\n\ndescribe('calculateTotal', () => {\n  test('未提供折扣時，回傳商品金額總和', () => {\n    // Arrange：準備資料\n    const prices = [1000, 2000];\n\n    // Act：執行待測函式\n    const total = calculateTotal(prices);\n\n    // Assert：驗證結果\n    expect(total).toBe(3000);\n  });\n\n  test('折扣為 20% 時，回傳原價的 80%', () => {\n    expect(calculateTotal([1000, 2000], 20)).toBe(2400);\n  });\n\n  test('購物車為空時，回傳 0', () => {\n    expect(calculateTotal([])).toBe(0);\n  });\n\n  test('折扣為 100% 時，回傳 0', () => {\n    expect(calculateTotal([1000], 100)).toBe(0);\n  });\n\n  test('計算結果不足一分時，四捨五入', () => {\n    expect(calculateTotal([105], 10)).toBe(95);\n  });\n\n  test.each([-1, 101])('折扣為 %s%% 時，拋出 RangeError', (discount) => {\n    expect(() => calculateTotal([1000], discount))\n      .toThrow(RangeError);\n  });\n});\n```\n\n這些測試涵蓋正常流程、邊界與錯誤情境，而且只驗證結果。即使之後把 `reduce` 改成迴圈，只要行為一致，測試仍然有效。",
+ "finished_at": "2026-10-31T16:11:43+00:00",
+ "seconds": 20.2
+}

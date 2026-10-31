@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？",
+ "answer": "React 元件重複 render 常見原因如下，由最常見到較少見排列：\n\n## 1. 無限 render 迴圈（最嚴重）\n- **在 render 階段直接呼叫 setState**\n  ```jsx\n  function Comp() {\n    const [n, setN] = useState(0);\n    setN(n + 1); // ❌ 每次 render 都觸發新的 render\n  }\n  ```\n- **`onClick={handle()}` 寫成立即執行**，應為 `onClick={handle}` 或 `onClick={() => handle(x)}`。\n- **`useEffect` 內 setState 但依賴陣列有問題**\n  ```jsx\n  useEffect(() => {\n    setData(fetchData());\n  }); // ❌ 沒有依賴陣列，每次 render 後都執行\n  ```\n\n## 2. 依賴陣列裡放了每次都會變的值\n```jsx\nconst options = { a: 1 };            // 每次 render 都是新物件\nuseEffect(() => { ... }, [options]); // ❌ 每次都觸發\n```\n物件、陣列、函式在每次 render 都會重新建立，參照不同。解法：\n- 移到元件外部\n- 用 `useMemo` / `useCallback`\n- 依賴改成原始值（例如 `options.a`）\n\n## 3. 父元件重新 render 導致子元件跟著 render\nReact 預設父元件 render 時，所有子元件都會 render。\n- 用 `React.memo` 包子元件\n- 傳給子元件的 props（物件／函式）要用 `useMemo`／`useCallback` 穩定參照，否則 `memo` 沒效果\n\n## 4. Context 值變動\n`<Ctx.Provider value={{ a, b }}>` 每次都建立新物件，所有 consumer 都會 render。解法：`useMemo` 包 value，或拆分 context。\n\n## 5. State 更新方式不當\n- 直接 mutate state（`arr.push(x); setArr(arr)`）會造成不更新或行為怪異；應使用 `setArr([...arr, x])`。\n- 每次都 set 一個新物件即使內容相同，也會觸發 render。\n\n## 6. key 不穩定\n`key={Math.random()}` 或用 index 且列表會變動，會導致元件被卸載再重新掛載。\n\n## 7. StrictMode（開發環境）\n`<React.StrictMode>` 在 dev 會**刻意 render 兩次**、effect 執行兩次，用來找副作用問題。這在 production 不會發生，不算 bug。\n\n## 8. 外部 store／hook 訂閱\nRedux `useSelector` 回傳新物件（如 `state => ({...})`）、或某些 custom hook 每次回傳新參照，都會導致重複 render。\n\n---\n\n## 如何排查\n1. **React DevTools Profiler**：勾選 \"Record why each component rendered\"，直接看是 props、state、hooks 還是 context 造成。\n2. **加 log 確認**：\n   ```jsx\n   useEffect(() => { console.log('deps changed', dep1, dep2); }, [dep1, dep2]);\n   ```\n3. **用 `why-did-you-render` 套件** 偵測不必要的 render。\n4. 確認是不是只有 dev 才出現（StrictMode）。\n\n---\n\n如果你貼上有問題的元件程式碼（或告訴我是「無限迴圈」還是「只是渲染次數偏多」），我可以幫你直接定位原因。",
+ "finished_at": "2026-10-31T15:46:27+00:00",
+ "seconds": 15.8,
+ "cost_usd": 0.015163000000000003
+}

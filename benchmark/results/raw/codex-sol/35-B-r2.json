@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 35,
+ "category": "simplified_source",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "請把這段旅遊介紹縮短成一句話：「这座古城有八百多年的历史，街道两旁都是传统建筑，晚上还有夜市可以逛。」\n\n請用繁體中文回答。",
+ "answer": "這座八百多年歷史的古城，白天可賞傳統建築，晚上可逛夜市。",
+ "finished_at": "2026-10-31T16:07:23+00:00",
+ "seconds": 5.0
+}

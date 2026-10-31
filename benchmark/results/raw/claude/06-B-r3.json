@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？\n\n請用繁體中文回答。",
+ "answer": "# Git 的 merge 與 rebase\n\n兩者都是把一個分支的變更整合進另一個分支，差別在於**歷史記錄的呈現方式**。\n\n## Merge（合併）\n\n```bash\ngit checkout main\ngit merge feature\n```\n\n- 建立一個新的 **merge commit**，有兩個父節點，把兩條分支的歷史接起來。\n- **不改寫既有 commit**，原本的歷史完整保留。\n- 歷史會呈現分叉與合流的樣子（非線性）。\n\n```\nA---B---C-------M   (main)\n         \\     /\n          D---E     (feature)\n```\n\n**優點**：安全、保留真實的開發脈絡、不會改動已存在的 commit。\n**缺點**：頻繁合併會讓歷史圖變得雜亂，出現很多 merge commit。\n\n## Rebase（變基）\n\n```bash\ngit checkout feature\ngit rebase main\n```\n\n- 把 feature 分支獨有的 commit「搬」到 main 最新的 commit 之後，**重新產生新的 commit**（hash 會改變）。\n- 結果是**線性歷史**，看起來像是一直在最新的 main 上開發。\n\n```\nA---B---C---D'---E'   (feature，重播在 main 之上)\n```\n\n**優點**：歷史乾淨、線性，方便閱讀與 `git bisect`。\n**缺點**：**改寫歷史**；若處理不當（尤其是已推送、他人正在使用的分支）會造成嚴重混亂；衝突可能需要逐個 commit 解決。\n\n## 適用情況\n\n| 情境 | 建議 |\n|---|---|\n| 把個人 feature 分支更新到最新的 main | **rebase** |\n| 整理自己尚未推送的 commit（`rebase -i` 合併、改寫訊息） | **rebase** |\n| 將完成的功能分支併入 main／保留功能開發的脈絡 | **merge**（常搭配 `--no-ff`） |\n| 多人共用的分支（如 `main`、`develop`） | **merge** |\n| 已推送到遠端且他人可能已基於它開發的分支 | **merge**（避免 rebase） |\n| 希望主線歷史保持線性乾淨 | **rebase** 後再 fast-forward merge，或使用 squash merge |\n| 需要保留「何時、由誰合併」的明確紀錄 | **merge** |\n\n## 黃金法則\n\n> **不要對已經公開（push 到共用遠端）且他人可能使用的 commit 做 rebase。**\n\n因為 rebase 會改變 commit hash，其他人的本地歷史會與遠端不一致，導致重複 commit 或難解的衝突。\n\n## 常見實務工作流程\n\n1. 在自己的 feature 分支開發時，定期 `git rebase main`，保持與主線同步。\n2. 推送前用 `git rebase -i` 整理雜亂的 commit。\n3. 透過 Pull Request 以 **merge**（或 squash merge）併回 `main`。\n\n## 小結\n\n- **Merge**：安全、保留完整歷史，適合共用分支與正式整合。\n- **Rebase**：歷史整潔，適合整理個人、尚未公開的工作。\n- 兩者並非互斥，常見做法是**本地用 rebase 整理，合併回主線時用 merge**。",
+ "finished_at": "2026-10-31T15:42:00+00:00",
+ "seconds": 14.2,
+ "cost_usd": 0.014658500000000003
+}

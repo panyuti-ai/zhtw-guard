@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "## 核心差異\n\n| | `list` | `tuple` |\n|---|---|---|\n| 可變性 | 可變 (mutable) | 不可變 (immutable) |\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可增刪改元素 | ✅ | ❌ |\n| 可當 dict 的 key / 放進 set | ❌ (不可雜湊) | ✅ (元素皆可雜湊時) |\n| 記憶體 / 速度 | 稍大、稍慢 | 稍小、建立較快 |\n\n```python\na = [1, 2, 3]\na[0] = 99        # OK\na.append(4)      # OK\n\nt = (1, 2, 3)\nt[0] = 99        # TypeError\nt.append(4)      # AttributeError\n```\n\n## 語意上的差別（更重要）\n\n- **list**：同質元素的「集合」，長度會變動，例如一串使用者、一批數字。\n- **tuple**：異質元素的「記錄」，位置有意義，長度固定，例如 `(x, y)` 座標、`(name, age, email)`。\n\n## 什麼時候用 list\n\n- 需要新增、刪除、排序、修改元素\n- 元素數量不固定\n- 蒐集結果，例如在迴圈中 `append`\n\n```python\nresults = []\nfor x in data:\n    results.append(process(x))\n```\n\n## 什麼時候用 tuple\n\n- 資料不該被改動（常數、設定值）\n- 需要當作 dict key 或放進 set\n- 函式回傳多個值\n- 固定結構的小記錄\n\n```python\n# 當 dict key\ngrid = {(0, 0): \"start\", (3, 4): \"end\"}\n\n# 回傳多個值\ndef min_max(nums):\n    return min(nums), max(nums)\n\nlo, hi = min_max([3, 1, 4])   # 解包\n\n# 常數\nWEEKDAYS = (\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\")\n```\n\n## 注意事項\n\n1. **單元素 tuple 要加逗號**：`(1,)`，`(1)` 只是整數 1。\n2. **tuple 的「不可變」是淺層的**：裡面若有 list，該 list 仍可修改。\n   ```python\n   t = ([1, 2], 3)\n   t[0].append(99)   # OK → ([1, 2, 99], 3)\n   hash(t)           # TypeError，因為含有不可雜湊的元素\n   ```\n3. 需要有名稱的欄位時，考慮 `namedtuple` 或 `dataclass(frozen=True)`，可讀性比純 tuple 好。\n\n## 簡單判斷法\n\n> 會變、數量不定 → `list`；不變、結構固定、或需要可雜湊 → `tuple`。",
+ "finished_at": "2026-10-31T15:33:18+00:00",
+ "seconds": 11.0,
+ "cost_usd": 0.014692400000000001
+}

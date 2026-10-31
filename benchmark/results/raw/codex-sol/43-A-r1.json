@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？",
+ "answer": "在 Go 裡，**goroutine 負責並行執行工作，channel 負責在 goroutine 之間傳遞資料與同步**。\n\n可以把 goroutine 想成各自工作的員工，channel 則是他們交接資料的管道。\n\n下面是一個完整範例：啟動 goroutine 計算，再透過 channel 把結果交回主程式。\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n    results := make(chan int)\n\n    go func() {\n        results <- 3 + 4 // 傳送結果\n    }()\n\n    result := <-results // 接收結果；尚無結果時會等待\n    fmt.Println(result) // 7\n}\n```\n\n`go func() { ... }()` 會啟動新的 goroutine。這裡的 channel 沒有緩衝區，因此傳送與接收雙方都準備好時，資料才會完成交接。這也讓主程式能等到計算結果，不需要用 `time.Sleep` 猜測工作時間。\n\n**連續傳送多筆資料時，可以用 `close` 搭配 `range`：**\n\n```go\npackage main\n\nimport \"fmt\"\n\n// chan<- int 表示這個函式只能往 channel 傳送資料。\nfunc produce(out chan<- int) {\n    defer close(out) // 所有資料送完後關閉\n\n    for i := 1; i <= 3; i++ {\n        out <- i\n    }\n}\n\nfunc main() {\n    numbers := make(chan int)\n\n    go produce(numbers)\n\n    // 持續接收，直到 channel 關閉且資料讀完。\n    for n := range numbers {\n        fmt.Println(n)\n    }\n}\n```\n\n這是常見的「生產者 → channel → 消費者」模式。通常由**傳送方負責關閉 channel**，告訴接收方不會再有資料。\n\n搭配使用時，掌握幾個重點：\n\n- **無緩衝 channel**：`make(chan int)`，傳送與接收必須互相等待。\n- **有緩衝 channel**：`make(chan int, 3)`，最多可暫存 3 筆資料；緩衝區滿時，傳送仍會等待。\n- **不一定需要 `close`**：只有需要通知「資料已送完」時才需要，並非用來釋放資源。\n- **避免 deadlock**：例如在同一個 goroutine 裡，先對無緩衝 channel 傳送，再接收，會卡在傳送那一步。\n- **`main` 結束，程式就結束**：其他 goroutine 不會自動被等待；可用 channel 或 `sync.WaitGroup` 等待工作完成。\n\n需要同時等待多個 channel，例如等待結果或取消訊號時，就可以再搭配 `select`。",
+ "finished_at": "2026-10-31T15:52:48+00:00",
+ "seconds": 22.8
+}

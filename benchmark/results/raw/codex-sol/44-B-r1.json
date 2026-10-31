@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "以下腳本會將指定資料夾內的所有 `.log` 檔，打包壓縮成一個 `logs.tar.gz`，並保留原始檔案。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\ncd -- \"${1:-.}\"\nshopt -s nullglob dotglob\n\nlogs=()\nfor file in *.log; do\n    [[ -f \"$file\" ]] && logs+=(\"$file\")\ndone\n\nif (( ${#logs[@]} == 0 )); then\n    echo \"找不到 .log 檔案。\"\n    exit 0\nfi\n\ntar -czf logs.tar.gz -- \"${logs[@]}\"\necho \"壓縮完成：$PWD/logs.tar.gz\"\n```\n\n儲存為 `compress_logs.sh`，執行方式：\n\n```bash\nbash compress_logs.sh /path/to/folder\n```\n\n省略資料夾路徑時，會處理目前的工作目錄：\n\n```bash\nbash compress_logs.sh\n```\n\n逐行說明：\n\n| 程式碼 | 說明 |\n|---|---|\n| `#!/usr/bin/env bash` | 指定使用 Bash 執行。 |\n| `set -euo pipefail` | 指令失敗、使用未設定的變數，或管線中任何指令失敗時，停止執行。 |\n| `cd -- \"${1:-.}\"` | 切換至第一個參數指定的資料夾；未提供時使用目前目錄。`--` 表示後面是路徑。 |\n| `shopt -s nullglob dotglob` | 沒有符合檔案時，讓萬用字元展開為空；同時納入隱藏的 `.log` 檔。 |\n| `logs=()` | 建立空陣列，存放檔案名稱。 |\n| `for file in *.log; do` | 逐一取得目前資料夾中以 `.log` 結尾的項目，不搜尋子資料夾。 |\n| `[[ -f \"$file\" ]] && logs+=(\"$file\")` | 確認項目是一般檔案後加入陣列，排除同名格式的資料夾。 |\n| `done` | 結束迴圈。 |\n| `if (( ${#logs[@]} == 0 )); then` | 檢查陣列是否為空。 |\n| `echo \"找不到 .log 檔案。\"` | 顯示沒有檔案可壓縮的訊息。 |\n| `exit 0` | 正常結束腳本。 |\n| `fi` | 結束條件判斷。 |\n| `tar -czf logs.tar.gz -- \"${logs[@]}\"` | 建立 tar 封存檔並用 gzip 壓縮。雙引號可正確處理含空白的檔名，`--` 可處理以 `-` 開頭的檔名。 |\n| `echo \"壓縮完成：$PWD/logs.tar.gz\"` | 顯示壓縮檔的完整路徑。 |\n\n注意：目標資料夾若已有 `logs.tar.gz`，執行時會覆寫。",
+ "finished_at": "2026-10-31T15:53:16+00:00",
+ "seconds": 22.3
+}

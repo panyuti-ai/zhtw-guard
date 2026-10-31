@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 23,
+ "category": "daily",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "失眠的時候可以做什麼幫助入睡？",
+ "answer": "睡不著時，可以先試試下面幾件事，**不用逼自己立刻睡著**：\n\n- **越躺越清醒，就先離開床。** 如果感覺約 20 分鐘仍睡不著，起身到昏暗的地方看紙本書、聽輕柔音樂，等有睡意再回床；不用盯著時鐘計時。\n- **讓身體慢慢放鬆。** 輕緩呼吸，把注意力放在呼吸上，或從腳到頭逐一放鬆肌肉。\n- **把手機放遠、燈光調暗。** 暫停滑社群、工作或看刺激的內容，讓房間保持安靜、舒適偏涼。這些都是 [NHS 建議的助眠方法](https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/how-to-fall-asleep-faster-and-sleep-better/)。\n\n接下來幾天，盡量**固定起床時間，有睡意才上床**；睡前至少 6 小時避免咖啡、濃茶等含咖啡因飲品，也別靠酒精助眠。睡不好後，避免隔天睡到很晚或長時間補眠。[參考 NHS 失眠建議](https://www.nhs.uk/conditions/insomnia/)\n\n如果持續睡不好、已影響白天精神或工作，或伴隨大聲打鼾、睡到喘醒，建議就醫評估。長期失眠的第一線治療是**失眠認知行為治療（CBT-I）**，能改善讓失眠持續的習慣與擔憂。[參考 NIH 治療資訊](https://www.nhlbi.nih.gov/health/insomnia/treatment)\n\n你比較常是「躺很久睡不著」，還是「半夜醒來後睡不回去」？",
+ "finished_at": "2026-10-31T16:21:26+00:00",
+ "seconds": 23.1
+}

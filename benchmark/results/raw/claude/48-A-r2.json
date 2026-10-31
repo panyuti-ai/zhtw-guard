@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "# 排查 Node.js 記憶體持續增長\n\n## 1. 先確認是不是真的洩漏\n\n用 `process.memoryUsage()` 定時記錄，看哪一項在漲：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1e6).toFixed(0),\n    heapUsed: (m.heapUsed / 1e6).toFixed(0),\n    external: (m.external / 1e6).toFixed(0),\n    arrayBuffers: (m.arrayBuffers / 1e6).toFixed(0),\n  });\n}, 10000).unref();\n```\n\n- **heapUsed 持續上升**（GC 後也不降）：JS 物件洩漏，用下面的 heap snapshot 查。\n- **rss / external / arrayBuffers 上升，但 heapUsed 平穩**：多半是 Buffer、native addon、stream 沒關閉。\n- **鋸齒狀但整體平穩**：正常 GC 行為，不是洩漏。\n\n## 2. 用 Heap Snapshot 比對（最有效）\n\n啟動時加上 `--inspect`，用 Chrome 開 `chrome://inspect` 連線：\n\n```bash\nnode --inspect app.js\n```\n\n步驟：\n1. 在 Memory 分頁拍第一張 snapshot（跑一陣子、記憶體穩定後）。\n2. 對程式施加負載，讓它漲一段時間。\n3. 拍第二張，並選擇 **Comparison** 檢視。\n4. 依 **Size Delta** 或 **# Delta** 排序，找增長最多的物件類型。\n5. 點進物件，看 **Retainers**，這會告訴你是誰持有它，無法被回收。\n\n線上環境不方便連 inspector 時，可以用程式產生：\n\n```js\nconst v8 = require('v8');\nv8.writeHeapSnapshot(); // 產生 .heapsnapshot，再拿到本機載入 DevTools\n```\n\n也可以用 `node --heapsnapshot-signal=SIGUSR2 app.js`，再 `kill -USR2 <pid>` 觸發。注意拍 snapshot 時程序會暫停，且需要約 2 倍於 heap 的記憶體。\n\n## 3. 輕量替代：Allocation Timeline\n\nDevTools Memory 分頁選 **Allocation instrumentation on timeline**，藍色長條代表尚未被釋放的配置，可直接定位到產生它們的程式碼行。\n\n## 4. 常見元凶，先對照檢查\n\n- **無上限的快取**：全域 `Map`/物件/陣列只增不刪。改用 LRU（如 `lru-cache`）並設 `max`/`ttl`。\n- **事件監聽器累積**：重複 `emitter.on(...)` 沒有 `off`。出現 `MaxListenersExceededWarning` 就是警訊。\n- **計時器未清除**：`setInterval` 沒 `clearInterval`。\n- **閉包持有大物件**：callback 或 Promise 鏈意外引用 request/response。\n- **全域變數或模組層級陣列**：例如把每個請求的 log 推進去。\n- **Stream / 連線未關閉**：資料庫連線、HTTP agent、檔案 handle、未消費的 response body。\n- **Promise 永不 resolve**：一直堆積的 pending promise。\n- **第三方套件**：APM、logger、ORM 的已知洩漏，查 issue 並確認版本。\n\n## 5. 輔助工具\n\n- `clinic.js`（`clinic heapprofiler` / `clinic doctor`）：自動化分析。\n- `node --trace-gc app.js`：觀察 GC 頻率與回收量。\n- `--max-old-space-size=512`：縮小上限，讓洩漏更快重現（測試用，不是修復）。\n\n## 建議流程\n\n先用 `memoryUsage()` 判斷是 heap 還是 external 增長，接著對 heap 增長的情況拍兩張 snapshot 做 Comparison，看 Retainers 就能找到持有者。\n\n如果你願意提供程式碼（或把專案放在工作目錄），或貼上 `memoryUsage()` 的輸出與使用的框架/套件，我可以幫你縮小範圍，直接檢查可疑的地方。",
+ "finished_at": "2026-10-31T15:40:40+00:00",
+ "seconds": 17.8,
+ "cost_usd": 0.018867599999999998
+}

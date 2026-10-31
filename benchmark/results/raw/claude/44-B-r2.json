@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "以下是一個簡單且安全的腳本，並附上逐行說明。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\nDIR=\"${1:-.}\"\nOUT=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"\n\nfind \"$DIR\" -maxdepth 1 -type f -name '*.log' -print0 \\\n  | tar --null -czf \"$OUT\" -T -\n\necho \"已建立壓縮檔：$OUT\"\n```\n\n## 逐行說明\n\n1. `#!/usr/bin/env bash`：指定用 bash 執行此腳本（透過 `env` 找到 bash，移植性較好）。\n\n2. `set -euo pipefail`：讓腳本更嚴謹。\n   - `-e`：任何指令失敗就立刻停止。\n   - `-u`：使用未定義變數時報錯。\n   - `-o pipefail`：管線中任一指令失敗，整條管線視為失敗。\n\n3. `DIR=\"${1:-.}\"`：取第一個參數作為目標資料夾；沒給參數就預設為目前目錄 `.`。\n\n4. `OUT=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"`：設定輸出檔名，加上時間戳記（例如 `logs_20261031_142530.tar.gz`），避免覆蓋舊檔。\n\n5. `find \"$DIR\" -maxdepth 1 -type f -name '*.log' -print0 \\`：\n   - 在 `$DIR` 中尋找檔案。\n   - `-maxdepth 1`：只找該資料夾本層，不進子資料夾（想包含子資料夾就拿掉）。\n   - `-type f`：只要一般檔案。\n   - `-name '*.log'`：副檔名為 `.log`。\n   - `-print0`：用 NUL 字元分隔結果，檔名含空白或特殊字元也不會出錯。\n   - 結尾的 `\\` 表示指令換行延續。\n\n6. `| tar --null -czf \"$OUT\" -T -`：把找到的檔案清單交給 tar。\n   - `--null`：以 NUL 分隔讀取清單（配合 `-print0`）。\n   - `-c`：建立壓縮檔；`-z`：用 gzip 壓縮；`-f \"$OUT\"`：指定輸出檔名。\n   - `-T -`：從標準輸入讀取要打包的檔案清單。\n\n7. `echo \"已建立壓縮檔：$OUT\"`：顯示完成訊息與檔名。\n\n## 使用方式\n\n```bash\nchmod +x compress_logs.sh\n./compress_logs.sh /var/log/myapp   # 指定資料夾\n./compress_logs.sh                  # 使用目前資料夾\n```\n\n## 注意事項\n\n- 若輸出檔放在同一個資料夾，因為副檔名是 `.tar.gz` 而不是 `.log`，不會被重複打包。\n- 若資料夾內沒有 `.log` 檔，tar 會產生空的壓縮檔；需要的話可以先加判斷。\n- 想壓縮後刪除原檔，可在 tar 成功後再另外加上刪除步驟（建議先確認壓縮檔無誤）。\n\n如果你希望我把它存成檔案，或加上「包含子資料夾」「壓縮後刪除原檔」等功能，告訴我即可。",
+ "finished_at": "2026-10-31T15:40:01+00:00",
+ "seconds": 14.4,
+ "cost_usd": 0.014950100000000001
+}

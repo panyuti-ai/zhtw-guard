@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 42,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "解釋 SQL 的 LEFT JOIN 和 INNER JOIN，附一個例子。",
+ "answer": "# INNER JOIN vs LEFT JOIN\n\n## 核心差異\n\n| | INNER JOIN | LEFT JOIN |\n|---|---|---|\n| 回傳結果 | 兩張表**都有匹配**的列 | **左表全部列**，右表沒匹配則補 `NULL` |\n| 左表無匹配的列 | 丟棄 | 保留 |\n| 常見用途 | 只想要有關聯的資料 | 想保留主表全部資料，包含沒有關聯的 |\n\n## 範例\n\n**customers（客戶）**\n\n| id | name |\n|----|------|\n| 1 | Alice |\n| 2 | Bob |\n| 3 | Carol |\n\n**orders（訂單）**\n\n| order_id | customer_id | amount |\n|----------|-------------|--------|\n| 101 | 1 | 500 |\n| 102 | 1 | 300 |\n| 103 | 2 | 200 |\n\nCarol 沒有任何訂單。\n\n### INNER JOIN\n\n```sql\nSELECT c.name, o.order_id, o.amount\nFROM customers c\nINNER JOIN orders o ON c.id = o.customer_id;\n```\n\n| name | order_id | amount |\n|------|----------|--------|\n| Alice | 101 | 500 |\n| Alice | 102 | 300 |\n| Bob | 103 | 200 |\n\nCarol 因為沒有訂單，**不會出現**。\n\n### LEFT JOIN\n\n```sql\nSELECT c.name, o.order_id, o.amount\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id;\n```\n\n| name | order_id | amount |\n|------|----------|--------|\n| Alice | 101 | 500 |\n| Alice | 102 | 300 |\n| Bob | 103 | 200 |\n| Carol | NULL | NULL |\n\nCarol **仍然保留**，訂單欄位為 `NULL`。\n\n## 實用技巧：找出「沒有訂單」的客戶\n\n利用 LEFT JOIN 加上 `IS NULL`：\n\n```sql\nSELECT c.name\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nWHERE o.order_id IS NULL;\n```\n\n結果：`Carol`\n\n## 如何選擇\n\n- **只要有關聯的資料** → `INNER JOIN`\n- **要保留主表全部資料**（如：列出所有客戶及其訂單，包含沒下單的）→ `LEFT JOIN`",
+ "finished_at": "2026-10-31T15:39:38+00:00",
+ "seconds": 10.0,
+ "cost_usd": 0.0117762
+}

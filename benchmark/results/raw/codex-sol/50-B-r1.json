@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。\n\n請用繁體中文回答。",
+ "answer": "單元測試的核心原則是：**驗證一小段程式的可觀察行為，讓失敗原因容易判斷。**\n\n幾個實用原則：\n\n- **測行為，不測實作細節**：確認輸入與輸出，避免因內部重構就需要改測試。\n- **每個案例聚焦一個情境**：名稱清楚描述「什麼條件下，應該發生什麼事」。\n- **測試彼此獨立、結果穩定**：不依賴執行順序、真實網路、目前時間或隨機值。\n- **涵蓋正常、邊界與錯誤情境**：別只測成功路徑。\n- **適度使用 mock**：隔離資料庫或外部 API，但不要把所有內部函式都 mock 掉。\n- **保持簡單易讀**：可用 Arrange、Act、Assert，也就是「準備、執行、驗證」組織測試。\n\n例如，有一個計算折扣後金額的函式，規定金額不可為負數，折扣率介於 0 到 1：\n\n```js\n// price.js\nfunction calculatePrice(amount, discountRate) {\n  if (!Number.isFinite(amount) || amount < 0) {\n    throw new Error('金額必須是非負有限數值');\n  }\n\n  if (\n    !Number.isFinite(discountRate) ||\n    discountRate < 0 ||\n    discountRate > 1\n  ) {\n    throw new Error('折扣率必須介於 0 到 1');\n  }\n\n  return Math.round(amount * (1 - discountRate));\n}\n\nmodule.exports = { calculatePrice };\n```\n\n使用 Jest 測試：\n\n```js\n// price.test.js\nconst { calculatePrice } = require('./price');\n\ndescribe('calculatePrice', () => {\n  test('折扣率為 0.2 時，回傳八折金額', () => {\n    // Arrange：準備\n    const amount = 100;\n    const discountRate = 0.2;\n\n    // Act：執行\n    const result = calculatePrice(amount, discountRate);\n\n    // Assert：驗證\n    expect(result).toBe(80);\n  });\n\n  test.each([\n    [0, 0.2, 0],   // 零元\n    [100, 0, 100], // 無折扣\n    [100, 1, 0],   // 全額折扣\n    [99, 0.15, 84] // 四捨五入\n  ])(\n    '金額為 %s、折扣率為 %s 時，回傳 %s',\n    (amount, discountRate, expected) => {\n      expect(calculatePrice(amount, discountRate)).toBe(expected);\n    }\n  );\n\n  test('金額為負數時，拋出錯誤', () => {\n    expect(() => calculatePrice(-1, 0.2))\n      .toThrow('金額必須是非負有限數值');\n  });\n\n  test.each([-0.1, 1.1, NaN, Infinity])(\n    '折扣率為 %s 時，拋出錯誤',\n    (discountRate) => {\n      expect(() => calculatePrice(100, discountRate))\n        .toThrow('折扣率必須介於 0 到 1');\n    }\n  );\n});\n```\n\n注意 `toThrow` 要接收**函式**：`expect(() => ...)`，才能捕捉執行時拋出的錯誤。這組測試直接驗證函式的公開行為，也不需要 mock。",
+ "finished_at": "2026-10-31T15:55:26+00:00",
+ "seconds": 23.4
+}

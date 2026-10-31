@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。\n\n請用繁體中文回答。",
+ "answer": "## 程式碼\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr[arr.length - 1];\n}\n```\n\n（TS 5.x 以上、target 支援 ES2022 時也可用 `arr.at(-1)`，回傳型別同樣是 `T | undefined`。）\n\n## 型別推導說明\n\n**1. `T` 是型別參數**\n`<T>` 宣告一個佔位型別，呼叫時由編譯器依引數推導，不需手動指定。\n\n**2. 從引數反推 `T`**\n參數型別是 `readonly T[]`，編譯器會把傳入陣列的元素型別對應到 `T`：\n\n```ts\nlast([1, 2, 3]);          // T = number         → number | undefined\nlast([\"a\", \"b\"]);         // T = string         → string | undefined\nlast([1, \"a\"]);           // T = string | number → string | number | undefined\nlast([] as boolean[]);    // T = boolean        → boolean | undefined\n```\n\n**3. 為什麼回傳 `T | undefined`**\n空陣列沒有最後一個元素，執行時會得到 `undefined`。把它寫進回傳型別，呼叫端就必須處理空陣列的情況，更安全：\n\n```ts\nconst x = last([1, 2, 3]);\nx.toFixed();     // ❌ 錯誤：x 可能是 undefined\nx?.toFixed();    // ✅\n```\n\n**4. 為什麼用 `readonly T[]`**\n這讓函式同時接受可變與唯讀陣列（`number[]` 可指派給 `readonly number[]`，反之不行），也表明函式不會修改陣列。\n\n**5. 字面值與 tuple 的進階版本**\n上面的版本遇到 tuple 會丟失位置資訊：\n\n```ts\nconst t = [1, \"a\", true] as const;\nlast(t);  // boolean | undefined（實際上一定是 true）\n```\n\n若想精確推導，可以用條件型別取出 tuple 的最後一個型別：\n\n```ts\ntype Last<A extends readonly unknown[]> =\n  A extends readonly [...unknown[], infer L] ? L : A[number] | undefined;\n\nfunction lastExact<const A extends readonly unknown[]>(arr: A): Last<A> {\n  return arr[arr.length - 1] as Last<A>;\n}\n\nlastExact([1, \"a\", true]);   // true（const 型別參數保留字面值與 tuple）\nlastExact([] as number[]);   // number | undefined\n```\n\n- `[...unknown[], infer L]` 比對「前面任意個元素、最後一個為 `L`」，並推導出 `L`。\n- `const A`（TS 5.0+）讓字面值陣列被推導為唯讀 tuple，而不是 `(string | number | boolean)[]`。\n- 一般陣列（非 tuple）不符合該模式，退回 `A[number] | undefined`。\n\n日常使用第一個簡單版本就足夠；需要 tuple 精確型別時再用進階版本。",
+ "finished_at": "2026-10-31T15:40:52+00:00",
+ "seconds": 12.2,
+ "cost_usd": 0.0135603
+}

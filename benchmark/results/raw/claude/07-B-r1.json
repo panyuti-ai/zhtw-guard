@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？\n\n請用繁體中文回答。",
+ "answer": "# OAuth 是什麼？\n\n**OAuth 2.0 是一個「授權」協定**：讓你在不交出密碼的情況下，允許第三方應用程式存取你在另一個服務（如 Google、GitHub）上的部分資料。\n\n> 比喻：像飯店的「房卡」。你不會把家裡鑰匙（密碼）給清潔人員，而是給一張只能開特定房間、有時效的房卡（access token）。\n\n## 四個角色\n\n| 角色 | 說明 | 例子 |\n|---|---|---|\n| Resource Owner | 資源擁有者 | 你 |\n| Client | 想存取資源的第三方網站 | 某個線上工具 |\n| Authorization Server | 驗證你並發放 token | Google 帳號系統 |\n| Resource Server | 存放資料的 API | Google API |\n\n## 「使用 Google 登入」時發生了什麼（Authorization Code Flow）\n\n1. **點擊按鈕**：你在第三方網站點「用 Google 登入」。\n2. **導向授權頁**：網站把瀏覽器導到 Google，網址帶有：\n   - `client_id`（網站的身分）\n   - `redirect_uri`（授權後要回哪裡）\n   - `scope`（要求的權限，如 email、profile）\n   - `state`（隨機值，防 CSRF）\n   - `response_type=code`\n3. **你登入並同意**：你在 Google 的頁面輸入密碼，並看到「此網站想存取你的 email」→ 按同意。**密碼只給 Google，第三方網站看不到。**\n4. **回傳授權碼**：Google 把瀏覽器導回 `redirect_uri?code=xxxx&state=...`。這個 `code` 是短效、一次性的。\n5. **換取 token**：第三方網站的**後端**拿 `code` + `client_secret` 向 Google 的 token 端點請求，換到 `access_token`（有時還有 `refresh_token`）。\n6. **呼叫 API**：網站用 `access_token` 向 Google API 取得你的基本資料。\n7. **建立登入狀態**：網站依資料建立或比對帳號，你就登入了。\n\n```\n使用者      第三方網站(Client)      Google(Auth Server)\n  | 點登入 ------> |                        |\n  | <--- 導向 Google 授權頁 ---------------> |\n  | ---- 登入並同意 ----------------------> |\n  | <--- 帶 code 導回網站 ------------------ |\n  |                | -- code+secret ------> |\n  |                | <---- access_token --- |\n  |                | -- 帶 token 取資料 --> |\n  | <-- 登入成功 -- |                        |\n```\n\n## 為什麼要多一步「code 換 token」？\ntoken 若直接出現在瀏覽器網址列，容易外洩（歷史紀錄、Referer、惡意腳本）。改用 code，再由後端憑 `client_secret` 交換，token 就不會暴露在前端。\n\n## OAuth vs. OpenID Connect（OIDC）\n- **OAuth 2.0**：處理「授權」（能不能存取資料）。\n- **OIDC**：建立在 OAuth 之上，加入 **ID Token（JWT）**，專門回答「這個人是誰」，也就是真正的「登入/驗證」。\n- 一般「用 Google 登入」實際上用的是 OIDC。\n\n## 常見安全重點\n- 使用 `state` 防 CSRF。\n- 嚴格比對 `redirect_uri`（白名單）。\n- 公開客戶端（手機 App、SPA）使用 **PKCE**，因為無法安全保存 `client_secret`。\n- Scope 遵循最小權限原則。\n- Access token 設短效期，用 refresh token 續期。\n\n## 好處\n- 不必把密碼交給第三方\n- 權限可細分、可隨時撤銷\n- 使用者可用既有帳號快速註冊/登入\n\n需要的話，我可以再補充 PKCE 流程或寫一個簡單的實作範例。",
+ "finished_at": "2026-10-31T15:28:11+00:00",
+ "seconds": 15.0,
+ "cost_usd": 0.019154400000000002
+}

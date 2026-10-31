@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。\n\n請用繁體中文回答。",
+ "answer": "以下是一個讀取 CSV 並計算每一欄平均值的函式：\n\n```python\nimport csv\n\n\ndef column_means(path, encoding=\"utf-8-sig\"):\n    \"\"\"讀取 CSV 檔，回傳 {欄位名稱: 平均值} 的字典。\n    非數值的儲存格會被略過；整欄都沒有數值的欄位，平均值為 None。\n    \"\"\"\n    sums = {}\n    counts = {}\n\n    with open(path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        for name in reader.fieldnames:\n            sums[name] = 0.0\n            counts[name] = 0\n\n        for row in reader:\n            for name, value in row.items():\n                try:\n                    sums[name] += float(value)\n                    counts[name] += 1\n                except (TypeError, ValueError):\n                    continue  # 空白或非數字，略過\n\n    return {\n        name: (sums[name] / counts[name] if counts[name] else None)\n        for name in sums\n    }\n\n\nif __name__ == \"__main__\":\n    for col, avg in column_means(\"data.csv\").items():\n        print(f\"{col}: {avg}\")\n```\n\n## 程式碼說明\n\n1. **`csv.DictReader`**：把第一列當作欄位名稱，之後每一列以字典形式讀取，所以可以直接用欄名存取。\n2. **`encoding=\"utf-8-sig\"`**：能處理 Excel 匯出時帶有 BOM 的 CSV，避免第一個欄名出現奇怪的字元。若是繁體中文的 Big5 檔案，可傳入 `encoding=\"big5\"`。\n3. **`newline=\"\"`**：`csv` 模組官方建議的開檔方式，可正確處理含換行的儲存格。\n4. **`sums` / `counts`**：每一欄各自累加總和與有效數值筆數，而不是一次把整個檔案載入記憶體，所以大檔案也能處理。\n5. **`try ... except`**：嘗試 `float(value)`；遇到空字串、文字（如姓名）或缺值（`None`）就跳過，因此文字欄位不會讓程式崩潰。\n6. **回傳值**：平均值 = 總和 ÷ 有效筆數。若某欄完全沒有數值（例如純文字欄），回傳 `None`，避免除以零。\n\n## 範例\n\n`data.csv`：\n```\nname,math,english\nAmy,90,80\nBob,70,\nCathy,80,90\n```\n\n輸出：\n```\nname: None\nmath: 80.0\nenglish: 85.0\n```\n\n`english` 欄有一個空值被略過，所以是 (80+90)÷2 = 85。\n\n如果你想要用 pandas，也可以更簡短：`pd.read_csv(path).mean(numeric_only=True)`，但上面的版本只依賴標準函式庫。",
+ "finished_at": "2026-10-31T15:32:21+00:00",
+ "seconds": 14.1,
+ "cost_usd": 0.0149324
+}

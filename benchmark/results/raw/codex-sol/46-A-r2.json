@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "Python 的 `list`（串列）和 `tuple`（元組）都能依序存放多個值，主要差別是：**`list` 可以修改，`tuple` 建立後不能修改其中的元素。**\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 寫法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 新增、刪除、替換元素 | 可以 | 不可以 |\n| 常見用途 | 會變動的資料集合 | 固定的一組資料 |\n| 作為字典的 key | 不可以 | 所有元素都可雜湊時可以 |\n\n```python\n# list：購物清單會變動\nshopping = [\"牛奶\", \"麵包\"]\nshopping.append(\"雞蛋\")\nshopping[0] = \"豆漿\"\n\n# tuple：固定的一組座標\npoint = (10, 20)\nx, y = point          # 拆解成兩個變數\n# point[0] = 30      # TypeError\n```\n\n**怎麼選？**\n\n- 用 `list`：資料需要新增、刪除、排序或替換，例如待辦事項、搜尋結果。\n- 用 `tuple`：資料是一組固定的值，例如座標、日期的年月日，或函式回傳的多個值。\n\n有兩個小細節：\n\n```python\nsingle = (42,)       # 單一元素的 tuple 必須有逗號；(42) 只是整數\n\nitem = ([1, 2], \"a\")\nitem[0].append(3)     # 可以：tuple 內的 list 本身仍可修改\n```\n\n所以，`tuple` 的「不能修改」是指不能替換、增加或刪除它直接存放的元素，並不保證裡面的物件也不能修改。",
+ "finished_at": "2026-10-31T16:10:10+00:00",
+ "seconds": 16.3
+}

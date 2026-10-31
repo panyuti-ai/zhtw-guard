@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？\n\n請用繁體中文回答。",
+ "answer": "# list 與 tuple 的差異\n\n## 核心差異\n\n| 特性 | list | tuple |\n|---|---|---|\n| 可變性 | 可變（mutable） | 不可變（immutable） |\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可新增／刪除／修改元素 | ✅ | ❌ |\n| 可作為 dict 的 key／放入 set | ❌（不可雜湊） | ✅（元素皆可雜湊時） |\n| 記憶體與速度 | 稍大、稍慢 | 較小、建立較快 |\n| 方法 | 多（`append`、`sort`…） | 少（`count`、`index`） |\n\n```python\nlst = [1, 2, 3]\nlst[0] = 99          # OK\nlst.append(4)        # OK\n\ntup = (1, 2, 3)\ntup[0] = 99          # TypeError\n```\n\n注意：單元素 tuple 要加逗號：`(1,)`，否則 `(1)` 只是整數 1。\n\n## 語意上的差別（更重要）\n\n- **list**：同質資料的**集合**，長度可能變動。例如：一串使用者名稱、一批待處理的任務。\n- **tuple**：異質資料的**固定結構**，像一筆記錄。例如：座標 `(x, y)`、`(\"Alice\", 30, \"Taipei\")`。\n\n## 什麼時候用哪個？\n\n**用 list：**\n- 需要增刪改元素（堆疊、佇列、累積結果）\n- 需要排序、原地修改\n- 元素數量不固定\n\n**用 tuple：**\n- 資料不應被修改（常數、設定值）\n- 需要當 dict 的 key 或放進 set，例如 `{(0, 0): \"原點\"}`\n- 函式回傳多個值：`return a, b`\n- 表示固定欄位的一筆記錄，解包很方便：`name, age, city = person`\n\n## 小提醒\n\ntuple 的不可變只是「容器本身」不可變，若內含可變物件，內容仍可改：\n\n```python\nt = ([1, 2], 3)\nt[0].append(99)   # OK → ([1, 2, 99], 3)\n```\n\n所以這種 tuple 也**不可雜湊**，不能當 dict 的 key。\n\n## 一句話總結\n\n**會變動就用 list，固定不變的一筆結構就用 tuple。**",
+ "finished_at": "2026-10-31T15:40:22+00:00",
+ "seconds": 11.9,
+ "cost_usd": 0.011448800000000002
+}

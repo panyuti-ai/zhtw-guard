@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "React 元件重複 render 不一定是問題；常見原因有以下幾種：\n\n1. **State 或 props 改變**\n   呼叫 `setState`，或父元件傳入新的 props，都可能觸發 render。父元件重新 render 時，子元件通常也會跟著 render。\n\n2. **在 render 過程中直接更新 state**\n   ```jsx\n   function Counter() {\n     const [count, setCount] = useState(0);\n     setCount(count + 1); // 每次 render 都更新，造成無限迴圈\n     return <div>{count}</div>;\n   }\n   ```\n   也要檢查是否誤寫成 `onClick={setCount(count + 1)}`，正確寫法是 `onClick={() => setCount(count + 1)}`。\n\n3. **`useEffect` 更新了自己的依賴**\n   ```jsx\n   useEffect(() => {\n     setCount(count + 1);\n   }, [count]); // count 改變 → effect 執行 → count 再改變\n   ```\n   若沒提供依賴陣列，effect 會在每次 commit 後執行；若它又更新 state，也可能形成循環。應檢查更新條件與資料流，而非直接刪除依賴。\n\n4. **物件、陣列或函式每次都是新參考**\n   ```jsx\n   const options = { limit: 10 };\n\n   useEffect(() => {\n     // 若這裡更新 state，就可能形成循環\n   }, [options]);\n   ```\n   每次 render 都會建立新的 `options`，因此 effect 會再次執行。可以把物件移進 effect，改依賴實際使用的基本值，或在適當時使用 `useMemo`／`useCallback`。\n\n5. **Context 或外部狀態更新**\n   元件訂閱的 Context、Redux、Zustand 等資料改變，也可能觸發 render。Context Provider 每次建立新的 `value` 物件，是常見原因。\n\n6. **開發環境的 `StrictMode`**\n   開啟 `StrictMode` 時，React 會額外呼叫元件，並檢查 effect 的設定與清理。如果只在開發時多執行幾次，可能是正常檢查；若持續不停執行，就需要排查更新循環。\n\n**先分辨是「多 render 幾次」還是「無限 render」**：前者可用 React DevTools 的 Profiler 找出觸發來源；後者優先檢查 render 中的 state 更新，以及會更新自身依賴的 `useEffect`。\n\n你可以貼上元件程式碼，尤其是 `useState`、`useEffect` 和父元件傳入 props 的部分，我可以幫你定位原因。",
+ "finished_at": "2026-10-31T15:52:24+00:00",
+ "seconds": 20.9
+}

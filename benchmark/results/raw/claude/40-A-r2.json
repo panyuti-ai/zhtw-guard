@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。",
+ "answer": "# Promise 與 async/await 的關係\n\n**一句話：`async/await` 是建立在 Promise 之上的語法糖（syntactic sugar）。** 它不是新的非同步機制，只是讓 Promise 的程式碼寫起來更像同步程式。\n\n## 核心對應關係\n\n| 概念 | 說明 |\n|---|---|\n| `async function` | 一定會回傳 Promise（回傳值會自動被包成 Promise） |\n| `await` | 暫停函式執行，等待 Promise 完成，並取出其結果 |\n| `try/catch` | 對應 Promise 的 `.catch()` |\n\n## 範例一：同一件事的兩種寫法\n\n先定義一個回傳 Promise 的函式：\n\n```javascript\nfunction delay(ms, value) {\n  return new Promise(resolve => setTimeout(() => resolve(value), ms));\n}\n```\n\n**Promise 鏈式寫法：**\n\n```javascript\nfunction getUser() {\n  return delay(500, { id: 1, name: \"小明\" })\n    .then(user => {\n      console.log(\"取得使用者：\", user.name);\n      return delay(500, [\"文章A\", \"文章B\"]);\n    })\n    .then(posts => {\n      console.log(\"取得文章：\", posts);\n      return posts.length;\n    })\n    .catch(err => {\n      console.error(\"發生錯誤：\", err);\n    });\n}\n```\n\n**async/await 寫法（效果完全相同）：**\n\n```javascript\nasync function getUser() {\n  try {\n    const user = await delay(500, { id: 1, name: \"小明\" });\n    console.log(\"取得使用者：\", user.name);\n\n    const posts = await delay(500, [\"文章A\", \"文章B\"]);\n    console.log(\"取得文章：\", posts);\n\n    return posts.length;\n  } catch (err) {\n    console.error(\"發生錯誤：\", err);\n  }\n}\n```\n\n## 範例二：async 函式本質上回傳 Promise\n\n```javascript\nasync function foo() {\n  return 42;\n}\n\n// 等同於\nfunction foo() {\n  return Promise.resolve(42);\n}\n\nfoo().then(v => console.log(v)); // 42\n```\n\n在 async 函式中 `throw` 錯誤，則等同於回傳一個 rejected 的 Promise：\n\n```javascript\nasync function fail() {\n  throw new Error(\"出錯了\");\n}\n\nfail().catch(e => console.log(e.message)); // 出錯了\n```\n\n## 範例三：平行處理仍然需要 Promise API\n\n`await` 會依序等待，若要同時執行多個任務，要搭配 `Promise.all`：\n\n```javascript\n// ❌ 依序執行，共約 1000ms\nasync function sequential() {\n  const a = await delay(500, \"A\");\n  const b = await delay(500, \"B\");\n  return [a, b];\n}\n\n// ✅ 平行執行，共約 500ms\nasync function parallel() {\n  const [a, b] = await Promise.all([\n    delay(500, \"A\"),\n    delay(500, \"B\"),\n  ]);\n  return [a, b];\n}\n```\n\n## 重點整理\n\n1. **`await` 只能等 Promise**（或 thenable）；若等的是一般值，會被當作已完成的 Promise。\n2. **async 函式永遠回傳 Promise**，所以外部呼叫時仍可用 `.then()` / `.catch()`，也可以再 `await`。\n3. **兩者可混用**，例如 `await Promise.all(...)`、`Promise.race(...)` 等 Promise 工具方法在 async/await 中依然常用。\n4. **錯誤處理**：Promise 用 `.catch()`，async/await 用 `try/catch`。\n5. `await` 不會阻塞整個程式，只會暫停所在的 async 函式，其他程式碼（事件迴圈）仍繼續運作。",
+ "finished_at": "2026-10-31T15:39:20+00:00",
+ "seconds": 13.3,
+ "cost_usd": 0.0160379
+}

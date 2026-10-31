@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？\n\n請用繁體中文回答。",
+ "answer": "在 Go 中，**goroutine 負責並行執行工作，channel 負責在 goroutine 之間傳遞資料與同步**。\n\n- `go 函式()`：啟動一個 goroutine。\n- `make(chan 型別)`：建立 channel。\n- `ch <- 值`：送出資料。\n- `值 := <-ch`：接收資料。\n\n例如，把計算交給 goroutine，再透過 channel 取得結果：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n\tresult := make(chan int)\n\n\tgo func() {\n\t\tsum := 0\n\t\tfor i := 1; i <= 5; i++ {\n\t\t\tsum += i\n\t\t}\n\t\tresult <- sum // 送出結果\n\t}()\n\n\tsum := <-result // 等到結果送達才繼續\n\tfmt.Println(sum) // 15\n}\n```\n\n這裡的 channel 沒有緩衝區，因此傳送與接收必須互相等待。`main` 在 `<-result` 等待，也能避免程式在工作完成前就結束。\n\n### 傳送多筆資料\n\n當 goroutine 要持續產生資料，可以由傳送端關閉 channel，接收端用 `range` 讀取：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc produce(out chan<- int) {\n\tdefer close(out)\n\n\tfor i := 1; i <= 3; i++ {\n\t\tout <- i\n\t}\n}\n\nfunc main() {\n\tnumbers := make(chan int)\n\n\tgo produce(numbers)\n\n\tfor n := range numbers {\n\t\tfmt.Println(n)\n\t}\n}\n```\n\n`chan<- int` 表示函式只能向 channel 傳送資料；`<-chan int` 則表示只能接收。`range` 會持續等待資料，直到 channel 關閉且資料讀完。\n\n### 有緩衝的 channel\n\n```go\nch := make(chan string, 2)\n\nch <- \"第一筆\"\nch <- \"第二筆\"\n\nfmt.Println(<-ch)\nfmt.Println(<-ch)\n```\n\n容量為 `2`，表示可以先放入兩筆資料，無須立即有接收者。緩衝區滿時，傳送仍會等待；空的時候，接收也會等待。\n\n實際使用時，注意幾個原則：\n\n- **通常由傳送端關閉 channel**，用來表示不會再有新資料；不必為了釋放資源而關閉每個 channel。\n- 對已關閉的 channel 傳送資料，或重複關閉，都會造成 panic。\n- 沒有其他 goroutine 能配對傳送或接收時，可能發生死鎖。\n- 要同時等待多個 channel，或搭配取消訊號，可以使用 `select`。\n\n常見的搭配方式就是：**用 goroutine 執行工作，用 channel 傳回結果，讓接收動作同時完成同步。**",
+ "finished_at": "2026-10-31T16:24:52+00:00",
+ "seconds": 23.7
+}

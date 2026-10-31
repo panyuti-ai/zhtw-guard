@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？",
+ "answer": "# OAuth 是什麼？\n\n**OAuth（目前主流是 OAuth 2.0）是一個「授權」協定**：讓你在不交出密碼的情況下，允許第三方應用程式存取你在另一個服務上的部分資料或功能。\n\n比喻：飯店房卡。你不會把自己家的鑰匙（密碼）給清潔人員，而是發一張只能開特定房間、有時效的房卡（access token）。\n\n> 注意：OAuth 本身是「授權」（能做什麼），不是「驗證」（你是誰）。「用 Google 登入」的身分驗證部分是建立在 OAuth 之上的 **OpenID Connect (OIDC)**。\n\n---\n\n## 四個角色\n\n| 角色 | 例子 |\n|---|---|\n| **Resource Owner**（資源擁有者） | 你 |\n| **Client**（第三方應用） | 某個網站或 App |\n| **Authorization Server**（授權伺服器） | Google 的登入/授權系統 |\n| **Resource Server**（資源伺服器） | Google API（存放你的資料） |\n\n---\n\n## 點「用 Google 登入」時發生了什麼（Authorization Code Flow）\n\n1. **你點擊按鈕**：第三方網站把你的瀏覽器導向 Google，網址帶有參數：\n   - `client_id`（網站的身分）\n   - `redirect_uri`（授權完要回到哪）\n   - `scope`（要求的權限，如 `openid email profile`）\n   - `state`（隨機值，防 CSRF）\n   - `response_type=code`\n\n2. **你在 Google 登入並同意**：密碼只輸入在 Google 的頁面，第三方網站看不到。畫面會顯示「此網站想存取你的 email 與基本資料」。\n\n3. **Google 回傳授權碼**：瀏覽器被導回 `redirect_uri?code=abc123&state=xyz`。這個 `code` 是短效、一次性的，**不是** token。\n\n4. **網站後端用 code 換 token**：網站伺服器直接（不經過瀏覽器）向 Google 的 token endpoint 發請求，附上 `code`、`client_id`、`client_secret`。\n\n5. **Google 回傳 token**：\n   - **Access Token**：呼叫 API 用，短效\n   - **Refresh Token**（選用）：換取新的 access token\n   - **ID Token**（OIDC）：一個 JWT，內含你是誰（`sub`、`email` 等）\n\n6. **網站取得你的身分/資料**：驗證 ID Token，或用 access token 呼叫 Google API，然後建立自己的登入 session。\n\n```\n你(瀏覽器)        第三方網站            Google\n   |--點登入-------->|                    |\n   |<--導向 Google---|                    |\n   |------------登入並同意--------------->|\n   |<----------redirect + code-----------|\n   |--帶 code------->|                    |\n   |                 |--code + secret---->|\n   |                 |<--access/ID token--|\n   |<--登入成功------|                    |\n```\n\n---\n\n## 為什麼這樣設計比較安全？\n\n- **密碼不外流**：第三方永遠拿不到你的密碼。\n- **權限最小化**：scope 限制能存取的範圍。\n- **可撤銷**：你可以到 Google 帳戶設定移除該應用的授權。\n- **token 短效**：即使外洩，損害時間有限。\n- **code 換 token 走後端**：token 不會暴露在瀏覽器網址列。\n\n## 常見的安全要點\n\n- 一定要驗證 `state`，防止 CSRF。\n- `redirect_uri` 必須與事先註冊的完全比對。\n- 無法保管 secret 的 App（手機、SPA）應使用 **PKCE**（`code_challenge` / `code_verifier`）。\n- 不要把 access token 放在 URL 或 localStorage 長期保存（視情況而定）。\n\n---\n\n如果你想深入，我可以進一步說明 PKCE、OIDC 與 OAuth 的差別，或用程式碼示範一個簡單的實作。",
+ "finished_at": "2026-10-31T15:28:06+00:00",
+ "seconds": 15.7,
+ "cost_usd": 0.0192144
+}

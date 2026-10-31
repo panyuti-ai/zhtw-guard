@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？\n\n請用繁體中文回答。",
+ "answer": "在 Go 中，**goroutine 負責並行執行工作，channel 負責在 goroutine 之間傳遞資料與同步**。\n\n- `go 函式()`：啟動一個 goroutine。\n- `ch <- value`：把資料送進 channel。\n- `value := <-ch`：從 channel 接收資料。\n\n例如，把計算工作交給另一個 goroutine，再接收結果：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc sum(nums []int, result chan<- int) {\n\ttotal := 0\n\tfor _, n := range nums {\n\t\ttotal += n\n\t}\n\tresult <- total // 傳送結果\n}\n\nfunc main() {\n\tresult := make(chan int)\n\n\tgo sum([]int{1, 2, 3, 4, 5}, result)\n\n\ttotal := <-result // 等待並接收結果\n\tfmt.Println(total) // 15\n}\n```\n\n這裡的 `chan<- int` 表示函式只能向這個 channel 傳送資料。`main` 執行到 `<-result` 時會等待，直到 `sum` 傳回結果，因此不會提早結束。\n\n### 無緩衝與有緩衝 channel\n\n**無緩衝 channel** 需要傳送方與接收方都準備好，才能完成傳遞：\n\n```go\nch := make(chan int)\n```\n\n**有緩衝 channel** 可以暫存指定數量的資料；緩衝區滿時，傳送才會等待：\n\n```go\nch := make(chan int, 2)\n\nch <- 10\nch <- 20\n\nfmt.Println(<-ch) // 10\nfmt.Println(<-ch) // 20\n```\n\n不論是否有緩衝，當 channel 沒有資料可讀且尚未關閉時，接收都會等待。\n\n### 傳送多筆資料：搭配 `close` 與 `range`\n\n傳送方完成工作後，可以關閉 channel，讓接收方知道不會再有新資料：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n\tjobs := make(chan int)\n\n\tgo func() {\n\t\tfor i := 1; i <= 3; i++ {\n\t\t\tjobs <- i\n\t\t}\n\t\tclose(jobs)\n\t}()\n\n\tfor job := range jobs {\n\t\tfmt.Println(\"收到工作：\", job)\n\t}\n}\n```\n\n`range` 會持續接收，直到 channel 關閉，而且裡面的資料都已讀完。\n\n使用時注意：\n\n- **通常由傳送方關閉 channel**；向已關閉的 channel 傳送資料會引發 panic。\n- 不必為每個 channel 呼叫 `close`；它主要用來表示「資料已傳完」。\n- 避免所有 goroutine 都在等待、卻沒有人能繼續傳送或接收，否則可能造成 deadlock。\n- `main` 結束時，程式也會結束，不會自動等待其他 goroutine；可用 channel 或 `sync.WaitGroup` 等待工作完成。",
+ "finished_at": "2026-10-31T15:52:54+00:00",
+ "seconds": 21.1
+}

@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 42,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "解釋 SQL 的 LEFT JOIN 和 INNER JOIN，附一個例子。",
+ "answer": "`INNER JOIN` 和 `LEFT JOIN` 的差別，在於**是否保留沒有配對成功的左表資料**。\n\n- **INNER JOIN**：只保留兩張表中配對成功的資料。\n- **LEFT JOIN**：保留左表的所有資料；右表若沒有配對資料，欄位會顯示 `NULL`。\n\n例如有兩張表：\n\n**顧客 `customers`**\n\n| id | name |\n|---|---|\n| 1 | 小明 |\n| 2 | 小華 |\n| 3 | 小美 |\n\n**訂單 `orders`**\n\n| id | customer_id | product |\n|---|---|---|\n| 101 | 1 | 鍵盤 |\n| 102 | 2 | 滑鼠 |\n\n使用 `INNER JOIN`：\n\n```sql\nSELECT c.name, o.product\nFROM customers AS c\nINNER JOIN orders AS o\n    ON c.id = o.customer_id;\n```\n\n結果只有有訂單的顧客：\n\n| name | product |\n|---|---|\n| 小明 | 鍵盤 |\n| 小華 | 滑鼠 |\n\n改成 `LEFT JOIN`：\n\n```sql\nSELECT c.name, o.product\nFROM customers AS c\nLEFT JOIN orders AS o\n    ON c.id = o.customer_id;\n```\n\n結果保留所有顧客，包括沒有訂單的小美：\n\n| name | product |\n|---|---|\n| 小明 | 鍵盤 |\n| 小華 | 滑鼠 |\n| 小美 | NULL |\n\n這裡的「左表」是 `customers`，也就是寫在 `LEFT JOIN` 左邊的表。",
+ "finished_at": "2026-10-31T16:08:37+00:00",
+ "seconds": 9.1
+}

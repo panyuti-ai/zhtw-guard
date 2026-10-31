@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "可以用泛型 `T` 表示陣列元素的型別：\n\n```ts\nfunction last<T>(items: readonly T[]): T | undefined {\n  return items.length === 0\n    ? undefined\n    : items[items.length - 1];\n}\n```\n\n使用時通常不必手動指定 `T`，TypeScript 會從傳入的陣列推導：\n\n```ts\nconst a = last([1, 2, 3]);\n// T 推導為 number，a 是 number | undefined\n\nconst b = last([\"a\", \"b\"]);\n// T 推導為 string，b 是 string | undefined\n\nconst c = last([1, \"hello\"]);\n// T 推導為 number | string\n// c 是 number | string | undefined\n```\n\n回傳型別包含 `undefined`，因為陣列可能是空的。參數使用 `readonly T[]`，因此一般陣列與唯讀陣列都能傳入，而且函式內不能修改陣列。\n\n這個版本推導的是**所有元素的型別**，不會精確推導最後一個位置的型別：\n\n```ts\nconst d = last([1, \"hello\"] as const);\n// d 是 1 | \"hello\" | undefined，而非只有 \"hello\"\n```",
+ "finished_at": "2026-10-31T16:11:18+00:00",
+ "seconds": 10.8
+}

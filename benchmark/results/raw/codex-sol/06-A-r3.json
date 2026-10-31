@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？",
+ "answer": "`merge` 和 `rebase` 都能把一個分支的變更整合到另一個分支，主要差別是：**merge 保留原本的分支歷史；rebase 把提交重新接到新的基底上，讓歷史更直線。**\n\n假設 `main` 和 `feature` 已經分岔：\n\n```text\nA──B──C  main\n    \\\n     D──E  feature\n```\n\n**Merge：保留歷史**\n\n在 `feature` 上執行 `git merge main`：\n\n```text\nA──B──C────┐\n    \\     │\n     D──E──M  feature\n```\n\nGit 會建立合併提交 `M`，保留兩邊原本的提交與分支關係。\n\n適合：\n\n- 多人共用的分支，尤其已經推送、有人基於它繼續開發時。\n- 希望保留完整整合過程，方便追查某個功能何時合併。\n- 不想改寫既有提交歷史。\n\n補充：如果兩個分支沒有分岔，merge 通常可以直接快轉（fast-forward），不必新增合併提交。\n\n**Rebase：重新排列基底**\n\n在 `feature` 上執行 `git rebase main`：\n\n```text\nA──B──C──D'──E'  feature\n      ↑\n     main\n```\n\nGit 把 `D`、`E` 的變更重新套用在 `C` 後面，產生新的提交 `D'`、`E'`。**提交的 hash 會改變**，因為歷史被改寫了。\n\n適合：\n\n- 整理自己的功能分支，讓它跟上最新的 `main`。\n- 在送出 PR 前整理提交，讓審查更容易。\n- 用 `git rebase -i` 合併零碎提交、修改提交訊息或調整順序。\n\n**怎麼選？**\n\n| 情況 | 通常選擇 |\n|---|---|\n| 自己尚未分享的功能分支，要同步 `main` | Rebase |\n| 多人共用的分支，要整合變更 | Merge |\n| 要保留分支與合併脈絡 | Merge |\n| 要整理提交、維持直線歷史 | Rebase |\n\n兩者遇到衝突都需要手動處理；rebase 因為逐筆重放提交，可能需要分次解決衝突。\n\n實務上常見的搭配是：**自己的分支用 rebase 整理，整合到共用分支時依團隊規範使用 merge。** 已分享的提交若要 rebase，先和協作者協調，避免他們的工作仍建立在舊歷史上。",
+ "finished_at": "2026-10-31T16:13:31+00:00",
+ "seconds": 20.3
+}

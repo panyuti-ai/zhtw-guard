@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？\n\n請用繁體中文回答。",
+ "answer": "# list 與 tuple 的差異\n\n## 核心差別\n\n| 特性 | list `[]` | tuple `()` |\n|---|---|---|\n| 可變性 | 可變（mutable） | 不可變（immutable） |\n| 新增/刪除/修改元素 | 可以 | 不行 |\n| 可作為 dict 的 key / set 元素 | 不行 | 可以（元素本身也須可雜湊） |\n| 記憶體與速度 | 稍大、稍慢 | 稍小、稍快 |\n| 常用方法 | `append`、`remove`、`sort` 等 | 只有 `count`、`index` |\n\n```python\nnums = [1, 2, 3]\nnums[0] = 99        # OK\nnums.append(4)      # OK\n\npoint = (1, 2)\npoint[0] = 99       # TypeError: 'tuple' object does not support item assignment\n```\n\n注意：tuple 的不可變只針對「元素的參照」。如果裡面放了 list，該 list 的內容還是可以改：\n\n```python\nt = (1, [2, 3])\nt[1].append(4)      # 可以，t 變成 (1, [2, 3, 4])\n```\n\n## 語意上的慣例\n\n- **list**：同質元素的「集合」，長度會變動。例如：一串使用者、一批訂單。\n- **tuple**：異質元素的「記錄」，結構固定。例如：座標 `(x, y)`、`(姓名, 年齡, 城市)`。\n\n## 什麼時候用哪個？\n\n**用 list：**\n- 需要增刪改元素（堆疊、佇列、收集結果）\n- 需要排序、反轉等原地操作\n- 元素數量事先不確定\n\n**用 tuple：**\n- 資料不該被改動（常數、設定值、座標）\n- 當作 dict 的 key 或放進 set\n  ```python\n  visited = {(0, 0), (1, 2)}\n  grid = {(0, 1): \"wall\"}\n  ```\n- 函式回傳多個值\n  ```python\n  def min_max(xs):\n      return min(xs), max(xs)   # 實際上回傳 tuple\n  lo, hi = min_max([3, 1, 4])\n  ```\n- 想向讀程式的人表達「這份資料不會變」\n\n## 小技巧\n\n- 單元素 tuple 需要逗號：`(1,)`，`(1)` 只是整數 1。\n- 兩者可互轉：`list(t)`、`tuple(l)`。\n- 不確定時，預設用 list；當你明確知道資料是固定結構、或需要可雜湊時，改用 tuple。",
+ "finished_at": "2026-10-31T15:47:13+00:00",
+ "seconds": 12.6,
+ "cost_usd": 0.0121268
+}

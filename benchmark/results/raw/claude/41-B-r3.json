@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "React 元件重複 render 常見原因如下，依出現頻率排序：\n\n## 1. 在 render 期間直接呼叫 setState\n```jsx\nfunction Comp() {\n  const [n, setN] = useState(0);\n  setN(n + 1); // ❌ 每次 render 都觸發新的 render，形成無限迴圈\n}\n```\n另一種常見寫法錯誤：`onClick={setN(1)}`，應改為 `onClick={() => setN(1)}`。\n\n## 2. useEffect 依賴陣列問題\n```jsx\nuseEffect(() => {\n  setData(fetchResult);\n}); // ❌ 沒有依賴陣列，每次 render 後都執行\n```\n- 沒寫依賴陣列 → 每次 render 都執行。\n- 依賴中放了每次都會新建的物件/陣列/函式 → 每次都被視為「變了」。\n- effect 內 setState，而該 state 又在依賴中 → 迴圈。\n\n## 3. 每次 render 都產生新的參照\n```jsx\nconst options = { a: 1 };          // 每次 render 都是新物件\nconst handler = () => {};          // 每次 render 都是新函式\nuseEffect(() => {...}, [options]); // 每次都觸發\n<Child options={options} />        // 即使有 React.memo 也會失效\n```\n解法：`useMemo`、`useCallback`，或把常數移到元件外面。\n\n## 4. 父元件重新 render\n父元件 render 時，子元件預設一定會跟著 render。可用 `React.memo` 搭配穩定的 props 避免。\n\n## 5. Context value 每次都是新物件\n```jsx\n<Ctx.Provider value={{ user, setUser }}> // ❌ 每次都是新物件\n```\n所有使用該 context 的元件都會重新 render。請用 `useMemo` 包起來。\n\n## 6. 在元件內定義子元件\n```jsx\nfunction Parent() {\n  const Child = () => <div/>; // ❌ 每次 render 都是新的元件型別，會被卸載再重新掛載\n}\n```\n請把 `Child` 移到 `Parent` 外面。\n\n## 7. State 更新時使用新參照但內容相同\n```jsx\nsetList(list.map(x => x)); // 新陣列 → 觸發 render\n```\nReact 用 `Object.is` 比較，內容相同但參照不同仍會 render。\n\n## 8. React.StrictMode（開發模式）\n開發環境下 StrictMode 會刻意讓元件 render 兩次以偵測副作用，這是正常行為，正式環境不會發生。\n\n## 9. 外部 store / key 變動\n- 使用 Redux、Zustand 等時，selector 每次回傳新物件（如 `useSelector(s => ({a: s.a}))`）會造成多餘 render。\n- `key={Math.random()}` 會讓元件每次都重新掛載。\n\n---\n\n## 除錯建議\n1. **React DevTools Profiler**：開啟「Record why each component rendered」，直接看出是 props、state、hooks 哪個改變。\n2. 在元件內加 `console.log('render')`，並在 effect 內 log 依賴值，看哪個每次都變。\n3. 使用 `why-did-you-render` 套件追蹤不必要的 render。\n\n如果你願意貼出元件程式碼（特別是 `useEffect`、`useState` 與 props 傳遞的部分），我可以幫你直接定位問題。",
+ "finished_at": "2026-10-31T15:46:28+00:00",
+ "seconds": 14.9,
+ "cost_usd": 0.0150581
+}

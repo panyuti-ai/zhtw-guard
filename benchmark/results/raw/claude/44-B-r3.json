@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "下面的腳本會把指定資料夾（預設為目前資料夾）裡的 `.log` 檔打包成一個帶時間戳記的 `.tar.gz`。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\ndir=\"${1:-.}\"\narchive=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"\n\nif [[ ! -d \"$dir\" ]]; then\n    echo \"錯誤：找不到資料夾 $dir\" >&2\n    exit 1\nfi\n\nshopt -s nullglob\nfiles=(\"$dir\"/*.log)\n\nif (( ${#files[@]} == 0 )); then\n    echo \"資料夾 $dir 裡沒有 .log 檔\"\n    exit 0\nfi\n\ntar -czf \"$archive\" -C \"$dir\" \"${files[@]##*/}\"\n\necho \"已壓縮 ${#files[@]} 個檔案 -> $archive\"\n```\n\n## 逐行說明\n\n1. `#!/usr/bin/env bash`：Shebang，指定用 `bash` 執行這個腳本。用 `env` 可以在不同系統上找到 bash。\n\n2. `set -euo pipefail`：讓腳本更嚴謹。\n   - `-e`：任何指令失敗就立刻停止。\n   - `-u`：使用未定義的變數時報錯。\n   - `-o pipefail`：管線中任一段失敗，整條管線就算失敗。\n\n3. `dir=\"${1:-.}\"`：取第一個命令列參數作為目標資料夾。沒給參數時用 `.`（目前資料夾）。\n\n4. `archive=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"`：產生壓縮檔名，例如 `logs_20261031_143000.tar.gz`。加時間戳記可避免覆蓋舊檔。\n\n5. `if [[ ! -d \"$dir\" ]]; then`：檢查 `$dir` 是否不是資料夾。\n\n6. `echo \"錯誤：找不到資料夾 $dir\" >&2`：把錯誤訊息輸出到標準錯誤（stderr）。\n\n7. `exit 1`：以非 0 的狀態碼結束，表示失敗。\n\n8. `fi`：結束 `if` 區塊。\n\n9. `shopt -s nullglob`：讓沒有符合的萬用字元展開成空，而不是保留字面上的 `*.log`。沒有這行的話，找不到檔案時陣列會裝著字串 `*.log`。\n\n10. `files=(\"$dir\"/*.log)`：把資料夾中所有 `.log` 檔的路徑放進陣列 `files`。\n\n11. `if (( ${#files[@]} == 0 )); then`：`${#files[@]}` 是陣列長度，這行判斷是否一個 `.log` 檔都沒有。\n\n12. `echo \"資料夾 $dir 裡沒有 .log 檔\"`：提示沒有檔案可壓縮。\n\n13. `exit 0`：正常結束。沒檔案不算錯誤，所以回傳 0。\n\n14. `fi`：結束第二個 `if`。\n\n15. `tar -czf \"$archive\" -C \"$dir\" \"${files[@]##*/}\"`：真正做壓縮的指令。\n    - `-c` 建立封存檔，`-z` 用 gzip 壓縮，`-f` 指定輸出檔名。\n    - `-C \"$dir\"` 先切換到目標資料夾，這樣壓縮檔內不會帶著長路徑。\n    - `${files[@]##*/}` 把每個路徑去掉前面的目錄，只留檔名。\n\n16. `echo \"已壓縮 ${#files[@]} 個檔案 -> $archive\"`：顯示壓縮了幾個檔案，以及輸出的檔名。\n\n## 使用方式\n\n```bash\nchmod +x compress_logs.sh\n./compress_logs.sh /var/log/myapp   # 指定資料夾\n./compress_logs.sh                  # 使用目前資料夾\n```\n\n- 壓縮檔會產生在你執行腳本時所在的資料夾，不是目標資料夾。\n- 腳本只處理該資料夾第一層的 `.log` 檔，不含子資料夾。需要遞迴的話，可改用 `find \"$dir\" -name '*.log'`。\n- 腳本不會刪除原始檔。想壓縮後清掉，可以在 `tar` 加上 `--remove-files`，但建議先確認壓縮檔正常。",
+ "finished_at": "2026-10-31T15:47:01+00:00",
+ "seconds": 19.0,
+ "cost_usd": 0.025512100000000003
+}

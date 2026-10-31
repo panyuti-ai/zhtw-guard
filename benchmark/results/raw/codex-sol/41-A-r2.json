@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？",
+ "answer": "React 元件重複 render 不一定是問題。常見原因有：\n\n- **State 或 props 改變**：React 會重新 render 元件。\n- **父元件重新 render**：子元件通常也會跟著 render，即使 props 的值看起來沒變。\n- **Context 的 value 改變**：使用該 Context 的元件會重新 render。\n- **開發模式的 `StrictMode`**：可能會額外呼叫 render，協助找出副作用；不代表正式環境也會如此。\n\n如果是**持續不停地 render**，優先檢查這幾種情況：\n\n**1. 在 render 過程直接更新 state**\n\n```jsx\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  setCount(count + 1); // 每次 render 都觸發下一次 render\n  return <div>{count}</div>;\n}\n```\n\n也留意事件處理器是否誤寫成直接呼叫：\n\n```jsx\n// 錯誤：render 時就執行\n<button onClick={setCount(count + 1)}>增加</button>\n\n// 正確：點擊時才執行\n<button onClick={() => setCount(c => c + 1)}>增加</button>\n```\n\n**2. `useEffect` 更新了自己的依賴**\n\n```jsx\nuseEffect(() => {\n  setCount(count + 1);\n}, [count]); // count 改變 → effect 執行 → count 再改變\n```\n\n要依照實際需求調整觸發條件，別只為了停止循環就刪除依賴。\n\n**3. Effect 依賴每次都新建的物件或函式**\n\n```jsx\nconst options = { roomId };\n\nuseEffect(() => {\n  setConnection(createConnection(options));\n}, [options]); // options 每次 render 都是新的參考\n```\n\n這個例子可以把物件移進 effect，直接依賴 `roomId`：\n\n```jsx\nuseEffect(() => {\n  const options = { roomId };\n  setConnection(createConnection(options));\n}, [roomId]);\n```\n\n**先分辨「開發時多 render 幾次」還是「無限循環」最有幫助。** 貼上元件的 `useState`、`useEffect` 和父元件傳入的 props，我可以幫你找出具體觸發點。",
+ "finished_at": "2026-10-31T16:08:28+00:00",
+ "seconds": 16.9
+}

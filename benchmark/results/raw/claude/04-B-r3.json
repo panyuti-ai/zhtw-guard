@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 4,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "Docker 容器和虛擬機器差在哪裡？\n\n請用繁體中文回答。",
+ "answer": "## 核心差異\n\n**虛擬機器（VM）** 虛擬化的是「硬體」；**Docker 容器** 虛擬化的是「作業系統層」。\n\n| 項目 | 虛擬機器 | Docker 容器 |\n|---|---|---|\n| 隔離層級 | 硬體層（透過 Hypervisor） | 作業系統層（共用主機 Kernel） |\n| 作業系統 | 每台 VM 都有完整的 Guest OS | 共用主機 Kernel，只含應用程式與相依套件 |\n| 映像檔大小 | 通常數 GB ～ 數十 GB | 通常數 MB ～ 數百 MB |\n| 啟動速度 | 數十秒到數分鐘 | 毫秒到數秒 |\n| 資源消耗 | 較高（每台都要配置 CPU、記憶體給 OS） | 較低，接近原生效能 |\n| 隔離強度 | 強（獨立 Kernel） | 較弱（Kernel 共用，有逃逸風險） |\n| 可跑的 OS | 可跑不同 OS（Windows、Linux 等） | Linux 容器需 Linux Kernel（Windows／macOS 上其實是在輕量 VM 內執行） |\n| 可攜性 | 較重、搬移不便 | 高，「一次建置，到處執行」 |\n\n## 架構示意\n\n```\n虛擬機器：                      容器：\n┌────────┐┌────────┐          ┌────────┐┌────────┐\n│ App A  ││ App B  │          │ App A  ││ App B  │\n│ Libs   ││ Libs   │          │ Libs   ││ Libs   │\n│Guest OS││Guest OS│          └────────┴┴────────┘\n├────────┴┴────────┤          ┌──────────────────┐\n│   Hypervisor     │          │ Container Engine │\n├──────────────────┤          ├──────────────────┤\n│   Host OS/硬體   │          │ Host OS（共用Kernel）│\n└──────────────────┘          └──────────────────┘\n```\n\n## 底層原理\n\n- **VM**：Hypervisor（如 KVM、VMware、Hyper-V）模擬出虛擬硬體，每台 VM 跑自己的完整 OS。\n- **容器**：利用 Linux 的 **namespace**（隔離行程、網路、檔案系統視圖）與 **cgroups**（限制 CPU、記憶體等資源），讓行程「以為」自己獨佔系統。\n\n## 如何選擇\n\n**適合用容器：**\n- 微服務、CI/CD、快速部署與水平擴展\n- 開發環境一致性（「在我電腦上可以跑」問題）\n\n**適合用 VM：**\n- 需要不同作業系統或不同 Kernel\n- 對安全隔離要求高（多租戶、不信任的程式碼）\n- 執行傳統、整體式（monolithic）的應用\n\n## 補充\n\n兩者並非互斥，實務上常見「在 VM 裡跑容器」（例如雲端的 EC2 上跑 Docker／Kubernetes），兼顧隔離性與彈性。另有 Kata Containers、Firecracker 等技術，嘗試結合容器的輕量與 VM 的強隔離。",
+ "finished_at": "2026-10-31T15:41:35+00:00",
+ "seconds": 13.3,
+ "cost_usd": 0.014555799999999999
+}
