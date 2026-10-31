@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 4,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "Docker 容器和虛擬機器差在哪裡？\n\n請用繁體中文回答。",
+ "answer": "Docker 容器和虛擬機器（VM）最根本的差異在於**隔離的層級**不同：\n\n## 1. 架構層級\n\n**虛擬機器**\n- 透過 **Hypervisor**（如 VMware ESXi、KVM、Hyper-V）在硬體之上模擬完整的電腦硬體。\n- 每台 VM 都有自己的**完整作業系統（Guest OS）**，包括自己的 kernel。\n- 架構：硬體 → Hypervisor → 多個 Guest OS → 應用程式\n\n**Docker 容器**\n- 容器與主機共用**同一個 Host OS 的 kernel**。\n- 利用 Linux 的 **Namespace**（隔離行程、網路、檔案系統等視角）和 **cgroups**（限制 CPU、記憶體等資源）來達成隔離。\n- 架構：硬體 → Host OS（kernel）→ Docker Engine → 多個容器 → 應用程式\n\n## 2. 主要差異比較\n\n| 面向 | 虛擬機器 | Docker 容器 |\n|---|---|---|\n| 隔離程度 | 強（硬體層級隔離） | 較弱（共用 kernel） |\n| 啟動時間 | 數十秒到數分鐘 | 通常在毫秒到數秒 |\n| 映像檔大小 | 數 GB（含完整 OS） | 通常數 MB 到數百 MB |\n| 資源開銷 | 較大（每台都要跑完整 OS） | 很小 |\n| 密度 | 同一主機通常跑數十台 | 同一主機可跑數百到上千個 |\n| 作業系統 | 可以跑不同的 OS（如 Linux 上跑 Windows） | 容器必須與主機 kernel 相容（Linux 容器需 Linux kernel） |\n| 可攜性 | 映像檔較大，搬移較慢 | 高，易於在不同環境部署 |\n| 安全性 | 攻擊面較小，隔離較可靠 | 若 kernel 有漏洞，可能影響所有容器 |\n\n## 3. 使用情境\n\n**適合 VM 的情況**\n- 需要執行不同作業系統（例如 Windows 應用跑在 Linux 主機上）\n- 多租戶環境，對安全隔離要求很高\n- 需要完整的 kernel 客製化或系統層級設定\n\n**適合容器的情況**\n- 微服務架構，需要快速部署與擴展\n- CI/CD 流程，要求環境一致、可重複\n- 開發與測試環境統一，避免「在我電腦上可以跑」的問題\n\n## 4. 補充說明\n\n- **兩者並非互斥**：實務上常見做法是在 VM 中再跑容器（例如 AWS EC2 上跑 Docker，或 Kubernetes 節點跑在 VM 上），兼顧隔離與效率。\n- **安全強化**：若需要更強的容器隔離，可以使用 **gVisor**、**Kata Containers** 或 **Firecracker** 等技術，在容器與 kernel 之間增加一層防護。\n- **Windows 上的 Docker**：Docker Desktop 在 Windows / macOS 上實際上是透過一個輕量 Linux VM 來執行 Linux 容器，因此兩者並非完全對立。\n\n**簡單總結**：VM 隔離的是「整台電腦」，容器隔離的是「應用程式的執行環境」。VM 較重但隔離強，容器較輕量、啟動快，適合大量部署。",
+ "finished_at": "2026-10-31T17:31:55+00:00",
+ "seconds": 9.8,
+ "cost_usd": 0.0007947
+}

@@ -1,0 +1,14 @@
+{
+ "provider": "claude_guard",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "Python 的 list 和 tuple 都是有序序列，可以用索引取值、切片，也能存放不同型別的元素。最主要的差別在於**可變性（mutability）**。\n\n## 主要差異\n\n| 特性 | list `[]` | tuple `()` |\n|---|---|---|\n| 可變性 | 可變，能增刪改 | 不可變，建立後不能改 |\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)`，單元素要寫 `(1,)` |\n| 方法 | 較多（`append`、`insert`、`remove`、`sort` 等） | 只有 `count`、`index` |\n| 可作為 dict 的 key | 不行（不可雜湊） | 可以（若元素也都可雜湊） |\n| 記憶體 | 較多（需保留擴充空間） | 較少 |\n| 效能 | 建立與迭代稍慢 | 略快 |\n\n```python\na = [1, 2, 3]\na.append(4)      # OK: [1, 2, 3, 4]\n\nt = (1, 2, 3)\n# t.append(4)    # AttributeError\n# t[0] = 9       # TypeError\n\nd = {(0, 0): \"原點\"}   # tuple 可當 key\n# d = {[0, 0]: \"x\"}    # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個\n\n**用 list 的情況：**\n- 元素數量會變動，需要不斷新增、刪除。\n- 同類型的資料集合，例如一批使用者、一串分數，需要排序或過濾。\n- 需要在原地修改內容。\n\n**用 tuple 的情況：**\n- 資料是一筆「固定結構的記錄」，例如座標 `(x, y)`、RGB 顏色 `(255, 0, 128)`、資料庫的一列 `(id, name, email)`。位置本身有意義，這時 tuple 比較像「一個東西」而不是「一群東西」。\n- 需要當 dict 的 key 或放進 set 中。\n- 希望資料不被意外修改，例如函式回傳多個值（`return a, b` 實際上就是回傳 tuple）。\n- 作為函式參數傳遞，表達「這份資料不應被改動」的意圖。\n\n## 小結\n\n- **list**：一群「同質、數量不固定、需要修改」的項目。\n- **tuple**：一筆「結構固定、位置有意義、不應被修改」的記錄。\n\n實務上，如果不確定，先用 list；當你需要 hash、想保護資料，或想表達「這是固定結構」時再改用 tuple。",
+ "finished_at": "2026-10-31T17:23:06+00:00",
+ "seconds": 9.7,
+ "first_answer": "Python 的 list 和 tuple 都是有序序列，可以用索引取值、切片，也能存放不同型別的元素。最主要的差別在於**可變性（mutability）**。\n\n## 主要差異\n\n| 特性 | list `[]` | tuple `()` |\n|---|---|---|\n| 可變性 | 可變，能增刪改 | 不可變，建立後不能改 |\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)`，單元素要寫 `(1,)` |\n| 方法 | 較多（`append`、`insert`、`remove`、`sort` 等） | 只有 `count`、`index` |\n| 可作為 dict 的 key | 不行（不可雜湊） | 可以（若元素也都可雜湊） |\n| 記憶體 | 較多（需保留擴充空間） | 較少 |\n| 效能 | 建立與迭代稍慢 | 略快 |\n\n```python\na = [1, 2, 3]\na.append(4)      # OK: [1, 2, 3, 4]\n\nt = (1, 2, 3)\n# t.append(4)    # AttributeError\n# t[0] = 9       # TypeError\n\nd = {(0, 0): \"原點\"}   # tuple 可當 key\n# d = {[0, 0]: \"x\"}    # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個\n\n**用 list 的情況：**\n- 元素數量會變動，需要不斷新增、刪除。\n- 同類型的資料集合，例如一批使用者、一串分數，需要排序或過濾。\n- 需要在原地修改內容。\n\n**用 tuple 的情況：**\n- 資料是一筆「固定結構的記錄」，例如座標 `(x, y)`、RGB 顏色 `(255, 0, 128)`、資料庫的一列 `(id, name, email)`。位置本身有意義，這時 tuple 比較像「一個東西」而不是「一群東西」。\n- 需要當 dict 的 key 或放進 set 中。\n- 希望資料不被意外修改，例如函式回傳多個值（`return a, b` 實際上就是回傳 tuple）。\n- 作為函式參數傳遞，表達「這份資料不應被改動」的意圖。\n\n## 小結\n\n- **list**：一群「同質、數量不固定、需要修改」的項目。\n- **tuple**：一筆「結構固定、位置有意義、不應被修改」的記錄。\n\n實務上，如果不確定，先用 list；當你需要 hash、想保護資料，或想表達「這是固定結構」時再改用 tuple。",
+ "asked_rewrite": false
+}

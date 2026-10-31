@@ -1,0 +1,14 @@
+{
+ "provider": "claude_guard",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "## 核心差異：可變 vs 不可變\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable），能增刪改 | 不可變（immutable），建立後不能改 |\n| 可作 dict 的 key | 不行（不可雜湊） | 可以（若元素也都不可變） |\n| 記憶體 | 較多（需保留擴充空間） | 較少 |\n| 效能 | 建立與迭代稍慢 | 建立與迭代稍快 |\n| 常用方法 | `append`、`insert`、`remove`、`sort` 等 | `count`、`index`（方法很少） |\n\n```python\na = [1, 2, 3]\na.append(4)      # OK：[1, 2, 3, 4]\n\nt = (1, 2, 3)\nt.append(4)      # AttributeError：tuple 沒有 append\nt[0] = 9         # TypeError：tuple 不支援item assignment\n```\n\n## 什麼時候用哪個？\n\n**用 `list`：**\n- 元素數量會變動，例如逐步收集資料、過濾、排序。\n- 同質資料的集合，例如一串使用者名單、一組分數。\n- 需要原地修改（`sort()`、`reverse()`）。\n\n**用 `tuple`：**\n- **固定結構的記錄**，例如座標 `(x, y)`、RGB `(255, 0, 0)`，位置代表意義。\n- **需要當 dict 的 key 或放進 set**，例如 `visited.add((r, c))`。\n- **函式回傳多個值**：`return x, y`，本質上就是回傳 tuple。\n- **保護資料不被意外修改**，例如設定常數 `DAYS = (\"Mon\", \"Tue\", ...)`。\n- **可變物件 unpacking**：`a, b = b, a` 這類寫法。\n\n## 小建議\n\n- 用 `tuple` 表示「異質、位置有意義的記錄」，用 `list` 表示「同質、數量不固定的序列」。\n- tuple 的不可變是**淺層的**：`t = ([1, 2], 3)`，`t[0].append(5)` 仍然可以執行，因為 tuple 只保證自身的元素引用不變，不保證內部物件不變。\n- 若想要有欄位名稱的不可變記錄，可以考慮 `typing.NamedTuple` 或 `dataclasses.dataclass(frozen=True)`，可讀性比裸 tuple 好。",
+ "finished_at": "2026-10-31T17:29:31+00:00",
+ "seconds": 8.9,
+ "first_answer": "## 核心差異：可變 vs 不可變\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable），能增刪改 | 不可變（immutable），建立後不能改 |\n| 可作 dict 的 key | 不行（不可雜湊） | 可以（若元素也都不可變） |\n| 記憶體 | 較多（需保留擴充空間） | 較少 |\n| 效能 | 建立與迭代稍慢 | 建立與迭代稍快 |\n| 常用方法 | `append`、`insert`、`remove`、`sort` 等 | `count`、`index`（方法很少） |\n\n```python\na = [1, 2, 3]\na.append(4)      # OK：[1, 2, 3, 4]\n\nt = (1, 2, 3)\nt.append(4)      # AttributeError：tuple 沒有 append\nt[0] = 9         # TypeError：tuple 不支援item assignment\n```\n\n## 什麼時候用哪個？\n\n**用 `list`：**\n- 元素數量會變動，例如逐步收集資料、過濾、排序。\n- 同質資料的集合，例如一串使用者名單、一組分數。\n- 需要原地修改（`sort()`、`reverse()`）。\n\n**用 `tuple`：**\n- **固定結構的記錄**，例如座標 `(x, y)`、RGB `(255, 0, 0)`，位置代表意義。\n- **需要當 dict 的 key 或放進 set**，例如 `visited.add((r, c))`。\n- **函式回傳多個值**：`return x, y`，本質上就是回傳 tuple。\n- **保護資料不被意外修改**，例如設定常數 `DAYS = (\"Mon\", \"Tue\", ...)`。\n- **可變物件 unpacking**：`a, b = b, a` 這類寫法。\n\n## 小建議\n\n- 用 `tuple` 表示「異質、位置有意義的記錄」，用 `list` 表示「同質、數量不固定的序列」。\n- tuple 的不可變是**淺層的**：`t = ([1, 2], 3)`，`t[0].append(5)` 仍然可以執行，因為 tuple 只保證自身的元素引用不變，不保證內部物件不變。\n- 若想要有欄位名稱的不可變記錄，可以考慮 `typing.NamedTuple` 或 `dataclasses.dataclass(frozen=True)`，可讀性比裸 tuple 好。",
+ "asked_rewrite": false
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "React 元件重複 render 通常是以下幾類原因。沒有看到你的程式碼，所以先列出常見原因，你可以對照檢查。\n\n## 常見原因\n\n**1. 在 render 中建立新的物件、陣列或函式**\n```jsx\n// 每次 render 都是新的參照\n<Child style={{ color: 'red' }} onClick={() => handle()} items={[1, 2]} />\n```\n如果 `Child` 用了 `React.memo`，這種寫法會讓 memo 失效。解法是用 `useMemo`、`useCallback`，或把常數移到元件外面。\n\n**2. `useEffect` 依賴陣列有問題**\n- 依賴項裡放了每次 render 都會變的物件或函式，導致 effect 反覆執行。\n- effect 裡呼叫 `setState`，而該 state 又在依賴陣列中，形成無限迴圈。\n```jsx\nuseEffect(() => {\n  setData(fetchSomething());\n}, [data]); // data 變 → 再 set → 再變...\n```\n- 漏掉依賴項也會讓 effect 拿到舊值，造成其他錯誤。\n\n**3. 在 render 期間或 effect 中無條件呼叫 `setState`**\n```jsx\nfunction A() {\n  const [n, setN] = useState(0);\n  setN(n + 1); // 每次 render 都觸發下一次 render\n}\n```\n\n**4. Context 值每次都是新的**\n```jsx\n<MyContext.Provider value={{ user, setUser }}> // 每次父層 render 都產生新物件\n```\n所有消費這個 context 的元件都會跟著 render。應該用 `useMemo` 包住 value。\n\n**5. 父元件重新 render 連帶子元件重新 render**\n父元件 state 頻繁更新（例如輸入框、計時器、滑鼠事件），子元件沒有做 memo 就會一起跑。\n\n**6. 狀態放得太高**\n把只有局部用途的 state 放在大型父元件，任何小改動都會讓整棵樹重新 render。\n\n**7. Strict Mode 的雙重呼叫**\n開發模式下 React 會故意讓元件 render 兩次，屬正常現象，正式環境不會發生。\n\n**8. 狀態管理函式庫的選擇器寫法**\n例如 Zustand、Redux 的 selector 回傳新物件，即使資料沒變也會觸發更新。\n\n## 除錯方法\n\n1. **React DevTools Profiler**：錄製一次操作，查看哪些元件被 render、原因是什麼（勾選 \"Highlight updates when components render\" 很直觀）。\n2. **加 log**：在元件內 `console.log('render', 元件名稱)`，確認執行次數與觸發時機。\n3. **檢查 props 變化**：用 `useRef` 記錄上一次的 props，比對哪個值改變了。\n4. **`why-did-you-render`** 套件：自動提示不必要的 render。\n\n## 需要的資訊\n\n如果你提供以下內容，我可以更具體地幫你判斷：\n- 出現重複 render 的元件程式碼\n- 它的父元件與使用的 hooks（`useEffect`、`useState` 等）\n- 是哪種情況觸發（頁面載入時、輸入時、還是固定間隔）\n- 是否使用 Redux、Zustand、Context 等狀態管理\n\n你也可以直接把檔案放在工作目錄中，我可以幫你讀取並檢查。",
+ "finished_at": "2026-10-31T17:21:44+00:00",
+ "seconds": 12.3,
+ "cost_usd": 0.00096717
+}

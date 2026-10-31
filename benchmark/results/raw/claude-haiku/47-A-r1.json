@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。",
+ "answer": "這是一個概念性問題，不需要動用工具。以下用中文說明三者的關係。\n\n## 一句話總結\n\n- **Pod**：最小的運行單位，裡面跑著一個或多個容器。\n- **Deployment**：負責「管理 Pod 的副本」，確保數量正確、可以滾動更新。\n- **Service**：提供一個「穩定的網路入口」，讓其他元件能找到並存取這些 Pod。\n\n## 各自的角色\n\n### Pod\n- 是 K8s 排程的最小單位，同一個 Pod 內的容器共享網路（同一個 IP）與儲存卷。\n- Pod 是**短暫的（ephemeral）**：會被刪除、重建，且每次重建後 IP 都可能改變。\n- 通常不會直接建立裸 Pod 來跑正式服務，而是交給 Deployment 等控制器管理。\n\n### Deployment\n- 透過 **ReplicaSet** 間接管理 Pod，宣告式地描述「我要 3 個 Pod，映像檔是 `nginx:1.27`」。\n- 若某個 Pod 掛掉，控制器會自動補一個新的（自我修復）。\n- 支援**滾動更新（rolling update）**與**回滾（rollback）**，更新映像檔時會逐步替換舊 Pod。\n\n### Service\n- 因為 Pod 的 IP 不固定，需要 Service 提供一個**固定的虛擬 IP（ClusterIP）與 DNS 名稱**。\n- 透過 **label selector** 找到符合條件的 Pod，把流量分派過去（負載平衡）。\n- 常見類型：\n  - `ClusterIP`（預設）：只在叢集內部存取。\n  - `NodePort`：在每個節點開一個連接埠對外。\n  - `LoadBalancer`：由雲端供應商建立外部負載平衡器。\n  - `ExternalName`：對應到外部 DNS 名稱。\n\n## 三者如何串在一起\n\n```\nDeployment  ──(管理)──>  ReplicaSet  ──(維持副本數)──>  Pod ×N\n                                                          ▲\nService  ──(用 label selector 選取)──────────────────────┘\n   │\n   └─ 提供固定 IP / DNS，把流量分散到符合條件的 Pod\n```\n\n關鍵連結是 **label**：\n\n1. Deployment 的 `template.metadata.labels` 會貼在它產生的每個 Pod 上，例如 `app: web`。\n2. Service 的 `spec.selector` 設為 `app: web`，就會自動把所有帶這個標籤的 Pod 納入後端。\n3. Pod 重建、擴縮容時，Service 的後端清單會自動更新（透過 Endpoints / EndpointSlice），對呼叫端完全透明。\n\n## 範例\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web          # Pod 的標籤\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  selector:\n    app: web              # 選取上面 Deployment 產生的 Pod\n  ports:\n  - port: 80              # Service 對外的埠\n    targetPort: 80        # 轉發到 Pod 的埠\n```\n\n部署後，叢集內其他服務只要連到 `web-svc:80`，就會被隨機轉發到 3 個 `web` Pod 之一，即使其中某個 Pod 重建、IP 改變，也不影響連線。\n\n## 小結\n\n| 元件 | 解決的問題 | 關鍵機制 |\n|---|---|---|\n| Pod | 跑應用程式本身 | 容器的最小部署單位 |\n| Deployment | 副本數、更新、自我修復 | ReplicaSet + 宣告式設定 |\n| Service | 穩定的存取入口 | label selector + 虛擬 IP / DNS |\n\n簡單記法：**Deployment 管「數量與版本」，Service 管「怎麼找到它們」，Pod 則是真正在跑的東西。**",
+ "finished_at": "2026-10-31T17:22:35+00:00",
+ "seconds": 11.8,
+ "cost_usd": 0.00102797
+}

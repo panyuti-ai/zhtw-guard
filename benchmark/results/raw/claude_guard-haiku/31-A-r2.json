@@ -1,0 +1,14 @@
+{
+ "provider": "claude_guard",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 31,
+ "category": "simplified_source",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "請把這段食譜整理成步驟清單：「先把土豆切块，用水煮十分钟，然后加入盐和黑胡椒，最后撒上葱花就可以了。」",
+ "answer": "1. 將土豆切塊。\n2. 用水煮 10 分鐘。\n3. 加入鹽和黑胡椒。\n4. 撒上蔥花，即可出鍋。",
+ "finished_at": "2026-10-31T17:27:40+00:00",
+ "seconds": 8.9,
+ "first_answer": "1. 将土豆切块。\n2. 用水煮 10 分钟。\n3. 加入盐和黑胡椒。\n4. 撒上葱花，即可出锅。",
+ "asked_rewrite": true
+}

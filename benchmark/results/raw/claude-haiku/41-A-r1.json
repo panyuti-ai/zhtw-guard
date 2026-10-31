@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？",
+ "answer": "重複 render 通常是 **元件拿到的 props、state 或 context 每次都是「新的參考」**，或是 **effect 裡改了會再觸發 render 的 state**。常見原因如下：\n\n## 1. Render 中每次都建立新物件、陣列或函式\n```jsx\n<Child style={{ color: 'red' }} onClick={() => ...} items={[1, 2]} />\n```\n每次 render 都是新參考，即使內容相同，`React.memo` 也會失效。\n\n**修法**：用 `useMemo` / `useCallback`，或把常數移到元件外面。\n\n## 2. `useEffect` 的依賴陣列有問題（最常見的無限迴圈）\n```jsx\nuseEffect(() => {\n  setData(fetchSomething());   // 更新 state\n}, [data]);                    // data 改變 → 再跑 effect → 又更新 → 無限循環\n```\n- 依賴陣列裡放了每次都會變的物件或函式\n- effect 裡 `setState` 的值又是它自己的依賴\n- 忘了加依賴，導致拿到舊值\n\n## 3. 在 render 過程中呼叫 setState\n```jsx\nfunction A() {\n  const [n, setN] = useState(0);\n  setN(n + 1);   // 每次 render 都觸發下一次 render\n}\n```\n通常要包在事件處理函式或 `useEffect` 裡，或加上條件判斷。\n\n## 4. Context 的 value 每次都是新物件\n```jsx\n<MyContext.Provider value={{ user, setUser }}>\n```\nProvider 的父層一 render，所有消費這個 context 的元件都會跟著 render。解法是用 `useMemo` 包住 value。\n\n## 5. 狀態管理函式庫的 selector 回傳新物件\nRedux 的 `useSelector`、Zustand 的 selector 若回傳 `{ a, b }` 這種新物件，每次都會被視為變更。\n- Zustand 可以用 `useShallow`\n- Redux 可以拆成多個 selector，或用 `shallowEqual`\n\n## 6. 父元件頻繁更新，子元件沒有防護\n父層 state 一變，所有子元件預設都會重新 render。這不一定是 bug，但大型列表或複雜子樹可以用 `React.memo` 處理。\n\n## 7. StrictMode 造成的「假重複」\n開發模式下，React 會故意把 render 執行兩次，以找出副作用問題。**只在 dev 出現、production 正常**就是這種情況，不是 bug。\n\n## 8. Effect 內的 fetch 或訂閱沒有清理或防護\n每次依賴變化都重新 fetch 並 setState，會造成連鎖 render。\n\n---\n\n## 除錯建議\n1. **React DevTools Profiler**：勾選 \"Record why each component rendered\"，能看出是 props、state 還是 hook 造成的。\n2. **在元件頂端加 `console.log('render', ...)`**，並搭配 `useEffect` 印出依賴值，確認哪個值在變。\n3. **`why-did-you-render`** 套件：會自動提示 props 參考每次都改變的元件。\n4. 檢查是否在 `StrictMode` 下，先確認是不是開發模式的雙重 render。\n\n---\n\n如果你貼上相關元件的程式碼（或告訴我檔案路徑，我可以直接幫你讀），並說明：\n- 是「一直無限重複」還是「次數過多但會停」\n- 使用的 React 版本與狀態管理方式（Redux、Zustand、Context 等）\n\n我就能更精準地找出原因。",
+ "finished_at": "2026-10-31T17:21:45+00:00",
+ "seconds": 14.6,
+ "cost_usd": 0.00119287
+}

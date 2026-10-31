@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 1,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "TCP 三向交握在做什麼？為什麼不是兩次就好？\n\n請用繁體中文回答。",
+ "answer": "# TCP 三向交握（Three-Way Handshake）\n\n三向交握是 TCP 建立連線的過程，目的是讓通訊雙方在傳資料之前，確認彼此都能收送，並同步初始序號（ISN, Initial Sequence Number）。\n\n## 三個步驟\n\n1. **SYN**：Client 送出 `SYN`，附上自己的初始序號 `seq = x`，表示「我要建立連線，我的序號從 x 開始」。\n2. **SYN-ACK**：Server 回覆 `SYN + ACK`，`ack = x+1` 確認收到 Client 的 SYN，並附上自己的初始序號 `seq = y`。\n3. **ACK**：Client 回覆 `ACK`，`ack = y+1` 確認收到 Server 的 SYN。\n\n三步完成後，雙方進入 `ESTABLISHED` 狀態，開始傳送資料。\n\n## 為什麼不是兩次？\n\n關鍵在於：**連線的每一方，都必須確認對方已收到自己的初始序號**。\n\n### 1. 兩次無法確認 Client 收到 Server 的 SYN-ACK\n\n若只有兩次（SYN、SYN-ACK），Server 送出 SYN-ACK 後就認為連線已建立。但 Server 不知道這個 SYN-ACK 是否到達 Client。若遺失，Client 會重送 SYN，Server 會以為是新連線請求，雙方的狀態就對不上。\n\n### 2. 無法排除「過期的重複 SYN」\n\n這是最核心的理由。網路中封包可能延遲很久才到達（例如在路由器中繞了一圈）。\n\n假設只有兩次交握：\n\n- Client 先送出一個 SYN（稱為 SYN₁），但因網路延遲，它在路上滯留。\n- Client 因逾時重送 SYN₂，這次順利完成連線，之後也結束了連線。\n- 這時，延遲的 SYN₁ 終於抵達 Server。\n- Server 不知道這是舊封包，若只靠兩次交握，就會直接建立連線並進入等待資料的狀態，白白佔用資源，甚至可能接收到錯誤的資料。\n\n加入第三步後，Server 送出 SYN-ACK 時，會等 Client 回應 ACK。舊的 SYN₁ 觸發的 SYN-ACK 會被 Client 視為不合法（Client 並沒有對應的請求），Client 就會回 RST 拒絕，Server 也就不會誤建連線。\n\n### 3. 序號同步必須是雙向的\n\nTCP 是全雙工，雙方各自有獨立的序號空間。兩次交握只能讓 Server 知道 Client 的 ISN，Client 無法確認 Server 的 ISN 是否正確收到。第三步的 ACK 讓雙方都完成了「我知道你的序號、你也確認我的序號」的過程。\n\n## 總結\n\n| 次數 | 能達成的效果 | 缺點 |\n|---|---|---|\n| 兩次 | Server 知道 Client 要連線 | Client 無法確認 Server 的 SYN-ACK 是否到達；無法防止舊的重複 SYN 建立假連線 |\n| 三次 | 雙方都確認對方的序號與收發能力 | 多一次往返（RTT），但換得連線的可靠性 |\n\n理論上，要排除所有舊封包的干擾，需要的確認次數更多，但三次已能在可靠性與效率之間取得平衡，因此成為 TCP 的標準做法。",
+ "finished_at": "2026-10-31T17:31:33+00:00",
+ "seconds": 12.4,
+ "cost_usd": 0.00089696
+}

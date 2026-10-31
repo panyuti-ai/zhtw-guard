@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？",
+ "answer": "# Git rebase 與 merge\n\n兩者都是把一條分支的變更整合到另一條分支，差別在於**歷史紀錄的形狀**。\n\n## Merge（合併）\n\n```\n        A---B---C  feature\n       /         \\\nD---E---F---------G  main   ← G 是 merge commit\n```\n\n- 建立一個新的 **merge commit**（G），它有兩個父節點。\n- 保留完整的分支歷史，包括分支實際發生過的時間點與結構。\n- **不改寫**既有的 commit，對已推送、他人已在用的分支很安全。\n\n**適合情況：**\n- 公開或共享的分支（如 `main`、`develop`），多人協作時。\n- 想保留「這段功能是在哪裡開發、何時合併」的完整脈絡。\n- 合併一個已經被他人參考過的長期功能分支。\n- 想要一個乾淨、可隨時 `revert` 整個功能的合併點。\n\n**缺點：** 歷史可能變得錯綜複雜，充滿 merge commit，`git log` 較難閱讀。\n\n## Rebase（變基）\n\n```\n之前：                         之後：\nD---E---F  main               D---E---F  main\n     \\                                  \\\n      A---B---C  feature                A'---B'---C'  feature\n```\n\n- 把你的分支上的 commit **暫時拿掉**，移到目標分支的最新位置，再一一重新套用。\n- 每個 commit 都會產生新的雜湊值（A'、B'、C'），**改寫了歷史**。\n- 結果是一條線性的歷史，沒有 merge commit。\n\n**適合情況：**\n- **在自己的功能分支上**，準備發 PR 前，把分支更新到最新的 `main`，讓歷史更乾淨。\n- 整理自己尚未推送的 commit（搭配 `git rebase -i`：合併、重排、修改訊息）。\n- 想要線性、容易閱讀的 `git log`。\n- 在 `git bisect`、追查 bug 時，線性歷史比較好用。\n\n**缺點與風險：**\n- **絕不要對已推送且他人在用的分支做 rebase**，否則其他人的本地歷史會與遠端衝突，造成混亂。\n- 解衝突時可能需要在每個 commit 重複解決，比 merge 麻煩。\n- 會丟失「分支實際開發時序」的資訊。\n\n## 快速比較\n\n| 面向 | Merge | Rebase |\n|---|---|---|\n| 歷史形狀 | 分叉 + merge commit | 線性 |\n| 是否改寫 commit | 否 | 是 |\n| 安全性（共享分支） | 高 | 低，避免用於已共享分支 |\n| 歷史完整性 | 保留原始脈絡 | 整潔但可能遺失脈絡 |\n| 衝突處理 | 一次解決 | 可能逐個 commit 解決 |\n| 典型用途 | 把功能合進 `main` | 更新自己的分支、整理 commit |\n\n## 常見實務做法\n\n1. **功能分支開發中**：定期 `git rebase main`，保持與主線同步，避免之後大衝突。\n2. **發 PR 前**：用 `git rebase -i` 整理 commit（squash 掉 \"fix typo\" 之類的雜訊）。\n3. **合併進 main**：依團隊政策，可以用 merge commit（保留脈絡）、squash merge（一個功能一個 commit）或 rebase merge（線性）。\n\n**一句話總結：** 公開歷史用 merge，私人分支整理用 rebase；黃金原則是**不要改寫別人已經在用的歷史**。",
+ "finished_at": "2026-10-31T17:32:05+00:00",
+ "seconds": 10.0,
+ "cost_usd": 0.0008101600000000001
+}

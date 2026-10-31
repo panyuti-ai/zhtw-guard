@@ -1,0 +1,14 @@
+{
+ "provider": "claude_guard",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "## 核心差異：可變 vs 不可變\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable），能增刪改 | 不可變（immutable），建立後不能改 |\n| 方法 | 較多（`append`、`insert`、`remove`、`sort` 等） | 較少（只有 `count`、`index`） |\n| 效能 | 略慢，記憶體略多 | 略快，記憶體較省 |\n| 可作為 dict 的 key | 不可以 | 可以（前提是元素也可雜湊） |\n\n```python\na = [1, 2, 3]\na.append(4)      # OK：[1, 2, 3, 4]\n\nt = (1, 2, 3)\nt[0] = 99        # TypeError: 'tuple' object does not support item assignment\n\nd = {(0, 0): \"原點\"}   # tuple 可當 key\n# d[[0, 0]] = \"x\"      # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個\n\n**用 `list`：**\n- 元素數量會變動，例如不斷加入或移除\n- 同類型的一系列資料，例如「所有使用者」「每筆成績」\n- 需要排序（`sort()`）或原地修改\n\n**用 `tuple`：**\n- 資料結構固定，例如座標 `(x, y)`、RGB `(255, 0, 128)`、資料庫的一筆紀錄\n- 想表達「這組值不應被修改」，讓程式碼意圖更清楚\n- 需要當作 dict 的 key 或放進 `set`\n- 函式回傳多個值（`return a, b` 本質上就是回傳 tuple）\n- 想要稍微更好的效能，或要保護資料不被意外修改\n\n## 一個經驗法則\n\n- **list 像「一疊可以隨時增減的清單」**，元素通常是同一種東西。\n- **tuple 像「一個固定格式的記錄」**，每個位置有各自的意義，例如 `(姓名, 年齡, 城市)`。\n\n另外，如果需要「固定欄位、有名字的記錄」，可以考慮 `namedtuple` 或 `dataclass(frozen=True)`，讀取時比用索引更清楚。",
+ "finished_at": "2026-10-31T17:36:00+00:00",
+ "seconds": 7.7,
+ "first_answer": "## 核心差異：可變 vs 不可變\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable），能增刪改 | 不可變（immutable），建立後不能改 |\n| 方法 | 較多（`append`、`insert`、`remove`、`sort` 等） | 較少（只有 `count`、`index`） |\n| 效能 | 略慢，記憶體略多 | 略快，記憶體較省 |\n| 可作為 dict 的 key | 不可以 | 可以（前提是元素也可雜湊） |\n\n```python\na = [1, 2, 3]\na.append(4)      # OK：[1, 2, 3, 4]\n\nt = (1, 2, 3)\nt[0] = 99        # TypeError: 'tuple' object does not support item assignment\n\nd = {(0, 0): \"原點\"}   # tuple 可當 key\n# d[[0, 0]] = \"x\"      # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個\n\n**用 `list`：**\n- 元素數量會變動，例如不斷加入或移除\n- 同類型的一系列資料，例如「所有使用者」「每筆成績」\n- 需要排序（`sort()`）或原地修改\n\n**用 `tuple`：**\n- 資料結構固定，例如座標 `(x, y)`、RGB `(255, 0, 128)`、資料庫的一筆紀錄\n- 想表達「這組值不應被修改」，讓程式碼意圖更清楚\n- 需要當作 dict 的 key 或放進 `set`\n- 函式回傳多個值（`return a, b` 本質上就是回傳 tuple）\n- 想要稍微更好的效能，或要保護資料不被意外修改\n\n## 一個經驗法則\n\n- **list 像「一疊可以隨時增減的清單」**，元素通常是同一種東西。\n- **tuple 像「一個固定格式的記錄」**，每個位置有各自的意義，例如 `(姓名, 年齡, 城市)`。\n\n另外，如果需要「固定欄位、有名字的記錄」，可以考慮 `namedtuple` 或 `dataclass(frozen=True)`，讀取時比用索引更清楚。",
+ "asked_rewrite": false
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "\n<invoke>\n<invoke name=\"Bash\">\n<invoke name=\"Bash\">\n<parameter name=\"command\">cat > /tmp/tmpd8mvzso6/compress_logs.sh <<'EOF'\n#!/usr/bin/env bash\nset -euo pipefail\n\nDIR=\"${1:-.}\"\ncd \"$DIR\" || { echo \"錯誤：無法進入目錄 $DIR\" >&2; exit 1; }\n\nshopt -s nullglob\nLOGS=(*.log)\nshopt -u nullglob\n\nif (( ${#LOGS[@]} == 0 )); then\n  echo \"找不到 .log 檔案。\"\n  exit 0\nfi\n\nARCHIVE=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"\ntar -czf \"$ARCHIVE\" -- \"${LOGS[@]}\"\necho \"已壓縮 ${#LOGS[@]} 個檔案 -> $ARCHIVE\"\nEOF\nchmod +x /tmp/tmpd8mvzso6/compress_logs.sh\n\nT=$(mktemp -d /tmp/tmpd8mvzso6/scratch_test.XXXX 2>/dev/null || echo \"\")\nT=\"/tmp/tmpd8mvzso6/scratch_logtest\"\nrm -rf \"$T\" && mkdir -p \"$T\" && echo hello > \"$T/a.log\" && echo world > \"$T/b.log\" && echo keep > \"$T/c.txt\"\n/tmp/tmpd8mvzso6/compress_logs.sh \"$T\"\ntar -tzf \"$T\"/logs_*.tar.gz\n/tmp/tmpd8mvzso6/compress_logs.sh /nonexistent_dir_xyz; echo \"exit=$?\"</parameter>\n</invoke>\nerror\n</invoke>",
+ "finished_at": "2026-10-31T17:29:39+00:00",
+ "seconds": 460.6,
+ "cost_usd": 0.08186378
+}

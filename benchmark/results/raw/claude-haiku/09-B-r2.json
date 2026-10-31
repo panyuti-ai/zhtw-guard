@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？\n\n請用繁體中文回答。",
+ "answer": "# DNS 是什麼？\n\n**DNS（Domain Name System，網域名稱系統）** 是網際網路的「電話簿」。人類習慣記住像 `www.example.com` 這樣的網域名稱，但電腦之間實際是用 IP 位址（例如 `93.184.216.34`）來找到彼此。DNS 的工作就是把網域名稱翻譯成 IP 位址。\n\n## 在瀏覽器輸入網址後，發生什麼事？\n\n以在瀏覽器輸入 `https://www.example.com` 為例：\n\n### 1. 檢查快取\n瀏覽器會先看自己的 DNS 快取，若之前查過且尚未過期，就直接使用結果。若沒有，還會依序檢查：\n- **作業系統的 DNS 快取**\n- **hosts 檔案**（如 Windows 的 `C:\\Windows\\System32\\drivers\\etc\\hosts`、Linux/macOS 的 `/etc/hosts`），這裡可以手動指定網域對應的 IP\n\n### 2. 向遞迴解析器（Recursive Resolver）發出查詢\n若本機沒有答案，電腦會把查詢送給設定好的 **DNS 解析器**，通常是：\n- ISP（網路服務商）提供的 DNS\n- 或你自行設定的公共 DNS，如 `8.8.8.8`（Google）、`1.1.1.1`（Cloudflare）\n\n解析器負責代替你「跑完整個查詢流程」。\n\n### 3. 解析器逐層查詢（迭代查詢）\n如果解析器也沒有快取，就會從最上層開始問：\n\n1. **根域名伺服器（Root Server）**：不知道 `www.example.com` 的 IP，但會告訴你 `.com` 由哪些 **TLD 伺服器**負責。\n2. **頂級域名伺服器（TLD Server）**：負責 `.com`，會告訴你 `example.com` 的 **權威名稱伺服器（Authoritative Name Server）**是誰。\n3. **權威名稱伺服器（Authoritative Server）**：掌握 `example.com` 的正式紀錄，回傳 `www.example.com` 的 **A 紀錄（IPv4）** 或 **AAAA 紀錄（IPv6）**，例如 `93.184.216.34`。\n\n### 4. 快取並回傳結果\n解析器取得 IP 後：\n- 依照 **TTL（Time To Live）** 把結果快取一段時間\n- 將 IP 回傳給你的電腦\n- 瀏覽器與作業系統也會各自快取\n\n### 5. 建立連線\n拿到 IP 之後，瀏覽器才真正開始：\n1. 與該 IP 的伺服器建立 **TCP 連線**（三向交握）\n2. 若是 HTTPS，進行 **TLS 握手**，驗證憑證並協商加密\n3. 發送 **HTTP 請求**，取得網頁內容並顯示\n\n## 流程簡圖\n\n```\n瀏覽器 → 本機快取/hosts → 遞迴解析器\n                              ↓\n                  根伺服器 → TLD 伺服器 → 權威伺服器\n                              ↓\n                        回傳 IP（並快取）\n                              ↓\n瀏覽器 ←───────────── IP ─────┘\n   ↓\nTCP / TLS 連線 → HTTP 請求 → 網頁顯示\n```\n\n## 補充重點\n- **埠號（Port）**：DNS 查詢通常使用 UDP/TCP **53** 埠。\n- **DNS over HTTPS (DoH) / DNS over TLS (DoT)**：加密 DNS 查詢，避免被中間人竊聽或竄改。\n- **CDN 與負載平衡**：同一網域可能根據你的位置回傳不同 IP，讓你連到較近的伺服器。\n- **DNS 快取投毒、劫持**等攻擊，是 DNS 安全（如 DNSSEC）要解決的問題。\n\n簡單來說：**DNS 就是把「好記的網址」換成「電腦能找到的位址」的系統，瀏覽器會經過快取、解析器、根/TLD/權威伺服器的層層查詢後，取得 IP 再開始連線。**",
+ "finished_at": "2026-10-31T17:25:04+00:00",
+ "seconds": 10.0,
+ "cost_usd": 0.00092028
+}

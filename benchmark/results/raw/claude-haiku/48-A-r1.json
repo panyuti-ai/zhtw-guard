@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "# Node.js 記憶體持續增加的排查方法\n\n先確認是不是真的洩漏。Node.js 的 GC 會讓記憶體呈鋸齒狀上下波動，只要低點不斷上升，才是洩漏的訊號。\n\n## 1. 先監控數據\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1024 / 1024).toFixed(1) + ' MB',\n    heapUsed: (m.heapUsed / 1024 / 1024).toFixed(1) + ' MB',\n    external: (m.external / 1024 / 1024).toFixed(1) + ' MB',\n  });\n}, 10000);\n```\n\n- **`heapUsed` 持續上升**：多半是 JS 物件沒被釋放，通常是應用層的問題。\n- **`external` / `arrayBuffers` 上升**：多半是 Buffer、檔案或網路串流沒釋放。\n- **`rss` 上升但 `heapUsed` 穩定**：可能是原生模組（native addon）或記憶體碎片。\n\n也可以加上 `node --trace-gc app.js`，觀察每次 GC 後的存活記憶體是否越來越高。\n\n## 2. 用堆積快照（Heap Snapshot）找洩漏物件\n\n**方法 A：Chrome DevTools（最常用）**\n\n```bash\nnode --inspect app.js\n```\n\n1. 打開 Chrome，前往 `chrome://inspect`，點選 “Open dedicated DevTools for Node”。\n2. 切到 **Memory** 分頁，選 **Heap snapshot**。\n3. 讓程式跑一段時間後拍第一張快照。\n4. 執行可能造成洩漏的操作（例如重複呼叫某個 API）數次，再拍第二張、第三張。\n5. 在第二或第三張快照中選 **Comparison**，依 `# New`、`# Delta` 排序。\n6. 找出數量持續增加的物件類型（如 `Object`、`Array`、`string`、`Closure`），展開後查看 **Retainers**，就能看到是哪個變數或全域物件持有它的參考。\n\n**方法 B：在程式中直接寫出快照**\n\n```js\nconst v8 = require('v8');\n// 例如在某個條件或收到訊號時執行\nv8.writeHeapSnapshot(); // 會產生 .heapsnapshot 檔案\n```\n\n也可以用 `node --heapsnapshot-signal=SIGUSR2 app.js`，之後用 `kill -USR2 <pid>` 觸發快照，適合正式環境。\n\n**方法 C：快到記憶體上限時自動產生快照**\n\n```bash\nnode --heapsnapshot-near-heap-limit=3 --max-old-space-size=2048 app.js\n```\n\n## 3. 常見的洩漏原因\n\n| 原因 | 典型情境 | 解法 |\n|---|---|---|\n| **無上限的快取** | 用 `Map`/`Object` 當快取，只增不刪 | 使用 LRU（如 `lru-cache`）或設定 TTL 與上限 |\n| **事件監聽器未移除** | 每次請求都 `emitter.on(...)`，卻沒 `off`；會出現 `MaxListenersExceededWarning` | 使用 `once`，或在結束時 `removeListener` |\n| **定時器未清除** | `setInterval` 在函式內重複建立 | 保存 timer 參考，在不需要時 `clearInterval` |\n| **閉包持有大物件** | 回呼函式不必要地捕捉了大型資料 | 縮小閉包作用域，只保留需要的欄位 |\n| **全域陣列累積** | `global.logs.push(...)`、`results.push(...)` 不斷增加 | 加上上限、定期清空，或改用串流寫出 |\n| **串流或 Promise 未處理完** | 讀取大檔案後沒消費完、或 Promise 永遠不 resolve | 使用 `pipeline`，確保 `await` 與錯誤處理完整 |\n| **Buffer 未釋放** | 大量 Buffer 或 `fs.readFile` 結果被保留 | 處理完即丟棄參考，避免存進長期結構 |\n\n## 4. 建議的排查順序\n\n1. 用 `process.memoryUsage()` 確認 `heapUsed` 是否真的持續上升。\n2. 用 Chrome DevTools 拍 3 張快照（間隔中執行相同操作），比較 Delta 最大的物件類型。\n3. 順著 **Retainers** 找到持有參考的程式碼位置。\n4. 修正後重複測試，確認低點不再上升。\n\n如果你能提供程式碼片段、使用的框架（Express、NestJS 等）、或記憶體變化的曲線與時間，我可以幫你更具體地判斷可能的原因。",
+ "finished_at": "2026-10-31T17:22:50+00:00",
+ "seconds": 14.7,
+ "cost_usd": 0.0013438699999999998
+}

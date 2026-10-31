@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？\n\n請用繁體中文回答。",
+ "answer": "# list 與 tuple 的差異\n\n## 最核心的差別：可變性（Mutability）\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable） | 不可變（immutable） |\n| 新增/刪除/修改元素 | 可以 | 不行 |\n| 可作為 dict 的 key | 不行（不可雜湊） | 可以（若元素也都可雜湊） |\n| 效能與記憶體 | 較多額外開銷 | 較輕量、較快 |\n| 常見用途 | 同類型、數量不固定的資料集合 | 固定結構的記錄、多個回傳值 |\n\n### 範例\n\n```python\n# list：可變\nnums = [1, 2, 3]\nnums.append(4)      # [1, 2, 3, 4]\nnums[0] = 10        # [10, 2, 3, 4]\n\n# tuple：不可變\npoint = (3, 4)\npoint[0] = 5        # TypeError: 'tuple' object does not support item assignment\n\n# tuple 可以當 dict 的 key，list 不行\nlocations = {(35.6, 139.7): \"Tokyo\"}   # OK\n# {[35.6, 139.7]: \"Tokyo\"}            # TypeError: unhashable type: 'list'\n```\n\n### 注意：tuple 的「不可變」是淺層的\n\ntuple 本身不能改，但若其中包含可變物件，該物件仍可修改：\n\n```python\nt = ([1, 2], 3)\nt[0].append(99)     # 合法，t 變成 ([1, 2, 99], 3)\n# t[1] = 5          # 這行才會報錯\n```\n\n## 什麼時候用哪個？\n\n### 使用 `list` 的時機\n- **元素數量會變動**：例如不斷加入的結果、待辦清單、佇列。\n- **需要頻繁修改**：排序、插入、刪除、原地更新。\n- **同質資料的集合**：例如一組使用者名稱、一串分數。\n\n### 使用 `tuple` 的時機\n- **結構固定、代表一筆「記錄」**：例如 `(x, y)` 座標、`(年, 月, 日)` 日期。\n- **函式回傳多個值**：`return x, y` 實際上回傳的就是 tuple。\n- **需要作為 dict key 或 set 的元素**：例如快取的鍵值、座標集合。\n- **希望資料不被意外修改**：傳遞給其他函式時能保證內容不變，是一種防禦性設計。\n- **效能考量**：資料量大且不需修改時，tuple 通常比 list 略快、佔用較少記憶體。\n\n## 小技巧\n\n- **空的寫法**：`()` 是空 tuple，`(1,)` 才是單元素 tuple（注意逗號，否則 `(1)` 只是整數 1）。\n- **互相轉換**：`list(t)` 轉成 list，`tuple(lst)` 轉成 tuple。\n- **解包（unpacking）**：兩者都能用，例如 `a, b = (1, 2)`。\n- **具名 tuple**：若想讓 tuple 欄位有名字，可用 `collections.namedtuple` 或 `typing.NamedTuple`，例如 `Point(x=3, y=4)`，可讀性更好。\n\n## 簡單判斷原則\n\n> **如果資料「會變」或「是一串同類項目的集合」，用 list；如果資料「是一筆固定結構的記錄」或「不希望被修改」，用 tuple。**",
+ "finished_at": "2026-10-31T17:30:45+00:00",
+ "seconds": 10.2,
+ "cost_usd": 0.0008037
+}

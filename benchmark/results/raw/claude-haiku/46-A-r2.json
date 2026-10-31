@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "Python 的 list 和 tuple 都是有序的序列，可以用索引和切片存取，也可以放不同型別的元素。最主要的差別在於**可變性**。\n\n## 主要差異\n\n| 特性 | list | tuple |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable），能新增、刪除、修改元素 | 不可變（immutable），建立後不能修改 |\n| 可作為 dict 的 key | 不行（不可雜湊） | 可以（若元素也都可雜湊） |\n| 效能與記憶體 | 較多額外開銷 | 較省記憶體，建立與迭代稍快 |\n| 常用方法 | `append`、`insert`、`remove`、`sort` 等 | 只有 `count`、`index` |\n\n```python\na = [1, 2, 3]\na.append(4)        # OK：[1, 2, 3, 4]\n\nt = (1, 2, 3)\nt.append(4)        # AttributeError：tuple 沒有 append\nt[0] = 99          # TypeError：tuple 不支援元素賦值\n\nd = {(0, 0): \"原點\"}   # tuple 可以當 dict 的 key\n# d2 = {[0, 0]: \"x\"}   # TypeError：list 不能當 key\n```\n\n## 什麼時候用哪個\n\n**用 list：**\n- 元素數量會變動，需要頻繁新增或刪除，例如收集結果、逐步累加資料。\n- 同質資料的集合，例如一串使用者名稱或一組分數，並且需要排序或原地修改。\n\n**用 tuple：**\n- 資料固定、不應被改動，例如座標 `(x, y)`、RGB 顏色 `(255, 0, 0)`、資料庫的一筆記錄。\n- 需要當作 dict 的 key 或放進 set 中。\n- 函式回傳多個值，例如 `return x, y`。\n- 想表達「這是一組固定結構的資料」，讓讀者一眼看出它的意圖。\n\n## 小補充\n\n- **具名結構**：如果 tuple 的每個位置都有特定意義，可以考慮 `collections.namedtuple` 或 `typing.NamedTuple`（或 Python 3.7+ 的 `dataclasses`），讓程式更好讀：\n  ```python\n  from typing import NamedTuple\n\n  class Point(NamedTuple):\n      x: int\n      y: int\n\n  p = Point(3, 4)\n  print(p.x, p.y)   # 3 4\n  ```\n- **可變性的陷阱**：tuple 本身不可變，但若它裡面包含 list，那個 list 仍然可以被修改：\n  ```python\n  t = (1, [2, 3])\n  t[1].append(4)    # 可以，結果 (1, [2, 3, 4])\n  ```\n\n**簡單的判斷原則**：資料需要變動就用 list；資料是固定的一組值、或需要當作 key 時就用 tuple。",
+ "finished_at": "2026-10-31T17:30:43+00:00",
+ "seconds": 8.5,
+ "cost_usd": 0.0007041899999999999
+}

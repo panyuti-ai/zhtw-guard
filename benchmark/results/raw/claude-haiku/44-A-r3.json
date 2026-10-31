@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。",
+ "answer": "## 腳本\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\ntarget_dir=\"${1:-.}\"\nif [[ ! -d \"$target_dir\" ]]; then\n    echo \"錯誤：'$target_dir' 不是資料夾\" >&2\n    exit 1\nfi\ncd \"$target_dir\"\nmapfile -d '' -t logs < <(find . -maxdepth 1 -type f -name '*.log' -print0)\nif (( ${#logs[@]} == 0 )); then\n    echo \"資料夾 '$target_dir' 中沒有 .log 檔\"\n    exit 0\nfi\narchive=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"\ntar -czf \"$archive\" -- \"${logs[@]}\"\necho \"已將 ${#logs[@]} 個 .log 檔壓縮為 $(pwd)/$archive\"\n```\n\n## 逐行說明\n\n1. `#!/usr/bin/env bash`：指定用 bash 執行，`env` 會從 PATH 找到 bash，比寫死 `/bin/bash` 更可攜。\n2. `set -euo pipefail`：`-e` 指令失敗就立刻結束；`-u` 使用未定義變數時報錯；`-o pipefail` 讓管線中任一步失敗都算失敗。\n3. `target_dir=\"${1:-.}\"`：取第一個參數作為目標資料夾，沒給參數時預設為目前目錄（`.`）。\n4. `if [[ ! -d \"$target_dir\" ]]; then`：檢查路徑是否存在且為資料夾。`! -d` 表示「不是資料夾」。\n5. `echo \"錯誤：...\" >&2`：把錯誤訊息輸出到 stderr（錯誤輸出），而不是一般輸出。\n6. `exit 1`：以非零狀態結束，表示執行失敗，方便其他腳本判斷。\n7. `fi`：結束 `if` 區塊。\n8. `cd \"$target_dir\"`：切換到目標資料夾。這樣 `find` 找到的是相對檔名，壓縮檔內不會包含完整路徑。\n9. `mapfile -d '' -t logs < <(find . -maxdepth 1 -type f -name '*.log' -print0)`：\n   - `find . -maxdepth 1`：只找目前資料夾，不進入子資料夾。\n   - `-type f -name '*.log'`：只找一般檔案，且檔名結尾是 `.log`。\n   - `-print0`：以 NUL 字元分隔結果，檔名含空白或換行也不會出錯。\n   - `mapfile -d '' -t logs`：讀入陣列 `logs`，`-d ''` 以 NUL 分隔，`-t` 去掉分隔符。\n   - `< <(...)`：程序替換，把 `find` 的輸出當作輸入檔。\n10. `if (( ${#logs[@]} == 0 )); then`：`${#logs[@]}` 是陣列元素數量，為 0 代表沒找到檔案。\n11. `echo \"沒有找到...\"`：提示沒有符合的檔案。\n12. `exit 0`：正常結束，因為沒有錯誤，只是沒有工作要做。\n13. `fi`：結束判斷區塊。\n14. `archive=\"logs_$(date +%Y%m%d_%H%M%S).tar.gz\"`：用時間戳記產生檔名，例如 `logs_20261031_153000.tar.gz`，避免覆蓋舊的壓縮檔。`$(...)` 會執行 `date` 並取得結果。\n15. `tar -czf \"$archive\" -- \"${logs[@]}\"`：\n   - `-c` 建立新壓縮檔，`-z` 用 gzip 壓縮，`-f` 指定輸出檔名。\n   - `--` 表示後面都是檔名，即使檔名以 `-` 開頭也不會被當成選項。\n   - `\"${logs[@]}\"` 展開為陣列中所有檔名，每個檔名都保持為獨立參數。\n16. `echo \"已將 ...\"`：顯示壓縮的檔案數與輸出路徑。`$(pwd)` 取得目前完整路徑。\n\n## 使用方式\n\n```bash\nchmod +x compress_logs.sh\n./compress_logs.sh /path/to/logs    # 指定資料夾\n./compress_logs.sh                  # 使用目前資料夾\n```\n\n## 說明與注意事項\n\n- 腳本**不會刪除原始 .log 檔**，較安全。若要壓縮後刪除，可在 `tar` 之後加上 `rm -- \"${logs[@]}\"`，但執行前請先確認壓縮檔內容正確。\n- 只處理目標資料夾本身，不遞迴子資料夾。若要包含子資料夾，把 `-maxdepth 1` 拿掉即可，但壓縮檔內會保留相對路徑結構。\n- 我還沒有在這個環境中實際執行這份腳本，以上是依 bash 語法撰寫並逐行核對的結果。",
+ "finished_at": "2026-10-31T17:36:15+00:00",
+ "seconds": 20.4,
+ "cost_usd": 0.00200882
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 2,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "什麼是資料庫索引？什麼情況下加索引反而變慢？\n\n請用繁體中文回答。",
+ "answer": "# 資料庫索引\n\n## 什麼是資料庫索引？\n\n索引（Index）是資料庫中的一種**額外資料結構**，用來加速查詢。它的概念類似書籍的目錄：不必逐頁翻閱，就能快速找到特定內容。\n\n常見的實作方式：\n\n- **B-Tree（B+Tree）**：最常見，適合範圍查詢（`BETWEEN`、`>`、`<`）與排序，MySQL InnoDB、PostgreSQL 預設都使用。\n- **Hash 索引**：適合精確比對（`=`），不支援範圍查詢。\n- **全文索引（Full-text）**：用於文字搜尋。\n- **其他**：GiST、GIN、BRIN（PostgreSQL）、R-Tree（空間資料）等。\n\n**運作原理（以 B-Tree 為例）：**\n- 索引會依照欄位值排序，並以樹狀結構組織。\n- 查詢時從根節點逐層往下找，時間複雜度約為 O(log n)，而非全表掃描的 O(n)。\n- 索引記錄的是欄位值與對應資料列的位置（例如主鍵或 row pointer）。\n\n**範例：**\n```sql\nCREATE INDEX idx_users_email ON users(email);\n\n-- 有索引時，可以快速定位\nSELECT * FROM users WHERE email = 'a@example.com';\n```\n\n## 什麼情況下加索引反而變慢？\n\n索引不是越多越好。以下情況可能造成效能下降：\n\n### 1. 寫入效能變差\n每次 `INSERT`、`UPDATE`、`DELETE` 都要同步更新所有相關索引，索引越多，寫入成本越高。這對寫入頻繁的系統（如日誌、交易紀錄）影響特別明顯。\n\n### 2. 佔用額外儲存空間\n索引本身需要磁碟空間，甚至可能佔用大量記憶體（若要放進 buffer pool / cache 中）。若索引過大，會擠掉其他有用的快取資料。\n\n### 3. 選擇性低（Low Cardinality）的欄位\n例如「性別」「是否啟用」這類只有少數不同值的欄位。若某個值佔了大部分資料（如 90% 的資料都是 `status = 'active'`），優化器通常會判定全表掃描更划算，索引反而被忽略，徒增維護成本。\n\n### 4. 查詢無法有效使用索引\n- **對欄位套用函式**：`WHERE YEAR(created_at) = 2026` 無法使用 `created_at` 的索引，應改寫為範圍條件 `WHERE created_at >= '2026-01-01' AND created_at < '2027-01-01'`。\n- **前綴萬用字元**：`LIKE '%keyword'` 無法使用一般 B-Tree 索引。\n- **隱含型別轉換**：例如字串欄位與數字比較，可能導致索引失效。\n- **複合索引順序錯誤**：`(a, b)` 的索引對 `WHERE b = ?` 通常無效，因為違反最左前綴原則。\n\n### 5. 統計資訊過期或優化器誤判\n資料分布改變後若統計資訊未更新，優化器可能選錯執行計畫，反而走了較慢的索引路徑（例如大量隨機 I/O 的回表查詢）。可用 `EXPLAIN` / `EXPLAIN ANALYZE` 檢查，並定期執行 `ANALYZE`（PostgreSQL）或 `ANALYZE TABLE`（MySQL）。\n\n### 6. 回表（Lookup）成本過高\n若查詢需要大量資料列，而索引無法涵蓋（covering index）所需欄位，資料庫就得對每一筆索引結果回到主表讀取，產生大量隨機 I/O。此時全表掃描（順序 I/O）可能更快。\n\n### 7. 重複或冗餘的索引\n例如同時存在 `(a)` 與 `(a, b)` 兩個索引，前者通常可以刪除，因為後者已涵蓋其用途。冗餘索引只會增加寫入負擔。\n\n## 實務建議\n\n1. **根據實際查詢加索引**，而不是憑感覺全部欄位都加。\n2. **用 `EXPLAIN` 驗證**索引是否被使用。\n3. **定期檢視未使用或重複的索引**（PostgreSQL 可查 `pg_stat_user_indexes`，MySQL 可查 `sys.schema_unused_indexes`）。\n4. **注意寫入比例**：讀多寫少的表適合多建索引；寫多讀少的表要謹慎。\n5. **複合索引依查詢條件設計欄位順序**，把選擇性高、常用於等值條件的欄位放前面。",
+ "finished_at": "2026-10-31T17:31:38+00:00",
+ "seconds": 12.5,
+ "cost_usd": 0.00101226
+}

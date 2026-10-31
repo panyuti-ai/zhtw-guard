@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "## 基本版本\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr[arr.length - 1];\n}\n\nconst nums = [1, 2, 3];\nconst a = last(nums);        // number | undefined\nconst b = last([\"x\", \"y\"]);  // string | undefined\nconst c = last([]);          // never[] 推導出的 T 為 never，回傳 undefined\n```\n\n回傳型別標成 `T | undefined`，是因為空陣列時 `arr[-1]` 會得到 `undefined`，型別要誠實反映這點。\n\n## 型別如何推導\n\n1. **`T` 由參數推導。** 呼叫 `last(nums)` 時，TypeScript 比對參數型別 `readonly T[]` 與實際傳入的 `number[]`，得出 `T = number`。\n2. **`readonly T[]` 同時接受可變與唯讀陣列。** `number[]` 可以指派給 `readonly number[]`，所以這個參數型別更寬鬆，也不會修改傳入的陣列。\n3. **回傳型別由 `T` 代入。** `T | undefined` 變成 `number | undefined`。\n\n## 進階：保留元組的精確型別\n\n一般陣列只知道元素型別，不知道長度。若傳入元組（tuple），希望拿到確切的最後一個元素型別，可以用條件型別：\n\n```ts\ntype Last<A extends readonly unknown[]> =\n  A extends readonly [...unknown[], infer L]\n    ? L                    // 元組至少有一個元素：取最後一個的型別\n    : A[number] | undefined; // 一般陣列或空元組：退回聯集型別\n\nfunction last<const A extends readonly unknown[]>(arr: A): Last<A> {\n  return arr[arr.length - 1] as Last<A>;\n}\n\nconst t = last([1, \"two\", true] as const);  // true\nconst n = last([1, 2, 3]);                  // 因 const 參數，推導為 3\nconst u = last([10, 20]);                   // 同上，推導為 20\nconst arr: number[] = [1, 2];\nconst v = last(arr);                        // number | undefined\nconst e = last([] as const);                // undefined\n```\n\n說明：\n\n- **`const A` 型別參數**（TypeScript 5.0+）讓字面量陣列推導成唯讀元組，例如 `[1, 2, 3]` 推為 `readonly [1, 2, 3]`，而不是 `number[]`。\n- **`[...unknown[], infer L]`** 是「末尾為一個元素」的元組模式。`infer L` 會擷取最後一個元素的型別。\n- **`as Last<A>` 斷言**是必要的，因為 TypeScript 無法證明 `arr[arr.length - 1]` 符合條件型別的結果。執行時的行為不受影響，但這代表函式實作的型別安全由開發者自己保證。",
+ "finished_at": "2026-10-31T17:23:02+00:00",
+ "seconds": 12.0,
+ "cost_usd": 0.00115227
+}

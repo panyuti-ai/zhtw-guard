@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？",
+ "answer": "OAuth 是一種**授權（authorization）框架**，讓你可以在不把密碼交給第三方的情況下，允許某個應用程式存取你在另一個服務上的資料或功能。例如，你用 Google 帳號登入某個網站時，網站不需要知道你的 Google 密碼。\n\n## 核心概念\n\n- **資源擁有者（Resource Owner）**：你，也就是使用者。\n- **客戶端（Client）**：想要存取你資料的第三方應用程式。\n- **授權伺服器（Authorization Server）**：負責驗證你身分並發放令牌的服務，例如 Google 的登入系統。\n- **資源伺服器（Resource Server）**：儲存資料的 API，例如 Google 的 Gmail API。\n- **存取令牌（Access Token）**：客戶端拿來呼叫 API 的憑證，通常有效期很短。\n- **刷新令牌（Refresh Token）**：用來在存取令牌過期後換取新的存取令牌，通常有效期較長。\n\n## 登入第三方網站時發生了什麼？\n\n以常見的「授權碼流程（Authorization Code Flow）」為例：\n\n1. **點擊「使用 Google 登入」**\n   網站把你導向 Google 的授權頁面，URL 中帶有 `client_id`、`redirect_uri`、`scope`（要求的權限）和 `state`（防止 CSRF 的隨機值）等參數。\n\n2. **在 Google 頁面登入並同意授權**\n   你在 Google 的網域上輸入帳密（網站看不到），並確認網站要求的權限，例如「查看你的基本個人資料」。\n\n3. **Google 發回授權碼**\n   Google 把你導回網站指定的 `redirect_uri`，附上一次性的**授權碼（authorization code）**。\n\n4. **後端交換令牌**\n   網站的伺服器拿著授權碼、`client_id` 和 `client_secret` 向 Google 的 token 端點請求令牌。這一步在伺服器之間進行，使用者看不到。\n\n5. **取得使用者資訊並建立登入狀態**\n   網站用存取令牌向 API 取得你的基本資料（如 email、名稱），然後在自己的系統中建立你的登入 session。\n\n## 為什麼這樣設計比較安全？\n\n- **密碼不外洩**：網站只拿到有限權限的令牌，而不是密碼。\n- **權限可限縮**：你可以只授權特定範圍（scope），例如只讀取而不能寄信。\n- **可隨時撤銷**：你可以在 Google 帳號設定中撤銷某個應用的存取權，不必改密碼。\n- **授權碼與令牌分離**：授權碼經由瀏覽器傳遞，容易被看到，所以真正的令牌只在伺服器之間交換。\n\n## 常見誤解\n\n- **OAuth 本身不是登入協議。** 它只負責「授權」。如果要做「身分驗證」，通常會在 OAuth 上加一層 **OpenID Connect (OIDC)**，多出一個 **ID Token**（JWT 格式），裡面包含使用者身分資訊。「用 Google 登入」實際上多半是 OIDC。\n- **存取令牌不是你的密碼。** 它代表「某應用在某範圍內可以做某事」的授權。\n\n如果你想要，我可以用程式碼範例（例如 Node.js 或 Python）示範授權碼流程的實作，或說明 PKCE 為什麼在手機和單頁應用中很重要。",
+ "finished_at": "2026-10-31T17:24:37+00:00",
+ "seconds": 10.5,
+ "cost_usd": 0.0007942699999999999
+}

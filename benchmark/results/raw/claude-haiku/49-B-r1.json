@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。\n\n請用繁體中文回答。",
+ "answer": "## 基本版本\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr.length > 0 ? arr[arr.length - 1] : undefined;\n}\n\nconst n = last([1, 2, 3]);      // number | undefined\nconst s = last([\"a\", \"b\"]);     // string | undefined\nconst e = last<number>([]);     // number | undefined\n```\n\n### 型別推導說明\n\n1. **從參數推導 `T`**：呼叫 `last([1, 2, 3])` 時，TypeScript 會把參數 `[1, 2, 3]` 與參數型別 `readonly T[]` 比對，推出 `T = number`。\n2. **陣列接受 `readonly`**：參數宣告為 `readonly T[]`，表示函式不會修改傳入的陣列，同時 `number[]` 與 `readonly number[]` 都能傳入。\n3. **回傳 `T | undefined`**：空陣列沒有最後一個元素，所以回傳型別必須包含 `undefined`。TypeScript 不會因為陣列有 `length` 檢查就自動縮小結果型別，因此要誠實標註。\n4. **顯式指定 `T`**：`last<number>([])` 可以手動指定型別參數，用於推導不到的情況（例如空陣列字面值）。\n\n## 進階版本：保留元組的精確型別\n\n基本版本對 `[1, 2, 3]` 只能得到 `number | undefined`，但元組的最後一個元素型別其實是已知的。可以用條件型別做得更精確：\n\n```ts\ntype Last<T extends readonly unknown[]> =\n  T extends readonly [] ? undefined                          // 空元組\n  : T extends readonly [...unknown[], infer L] ? L           // 元組：取最後一個型別\n  : T[number] | undefined;                                   // 一般陣列\n\nfunction last<const T extends readonly unknown[]>(arr: T): Last<T> {\n  return (arr.length > 0 ? arr[arr.length - 1] : undefined) as Last<T>;\n}\n\nconst a = last([1, 2, 3] as const);   // 3\nconst b = last([\"x\", \"y\"]);           // string（非 const 時 T 為 string[]，見下）\nconst c = last([]);                   // undefined\nconst d: number[] = [1, 2];\nconst f = last(d);                    // number | undefined\n```\n\n### 這個版本的推導重點\n\n- **`const T` 修飾子**（TypeScript 5.0+）：讓推導保留字面值與元組結構，`[1, 2, 3]` 會被推為 `readonly [1, 2, 3]`，而不是 `number[]`。若不加 `const`，多數情況會退回陣列型別。\n- **`infer L`**：從 `readonly [...unknown[], infer L]` 中取出末尾元素的型別。`[...unknown[], infer L]` 的意思是「前面任意多個元素，最後一個是 `L`」。\n- **條件型別分支順序**：先判斷空元組，再判斷有末尾元素的元組，最後才是一般陣列。順序錯了會得到錯誤結果。\n- **`as Last<T>` 斷言**：泛型條件型別在函式內部無法被編譯器展開，所以實作時需要斷言。這是型別層面的約定，執行時的邏輯仍由 `length` 檢查保證正確。\n\n## 補充\n\n若專案啟用 `noUncheckedIndexedAccess`，基本版本的 `arr[arr.length - 1]` 本身就會被視為 `T | undefined`，此時 `length` 檢查仍建議保留，讓程式意圖更清楚。",
+ "finished_at": "2026-10-31T17:23:06+00:00",
+ "seconds": 13.5,
+ "cost_usd": 0.0012908699999999997
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。\n\n請用繁體中文回答。",
+ "answer": "# 單元測試的原則\n\n1. **測試行為，而非實作細節**：測試應描述「輸入什麼、得到什麼結果」，而不是檢查內部用了哪個變數或呼叫了哪個私有方法。這樣重構時測試不會輕易壞掉。\n2. **AAA 結構（Arrange / Act / Assert）**：先準備資料，再執行被測函式，最後驗證結果。每個測試的結構要清楚。\n3. **一個測試只驗證一件事**：測試失敗時，應能從名稱直接知道哪裡壞了。\n4. **測試名稱要像規格書**：用自然語言描述情境與預期結果，例如「折扣 0% 時價格不變」。\n5. **獨立且可重複**：測試之間不共享狀態，不依賴執行順序，每次執行結果一致（不依賴時間、網路、隨機數等，必要時用 mock）。\n6. **涵蓋正常、邊界與錯誤情境**：只測快樂路徑是不夠的。\n7. **測試本身保持簡單**：測試裡避免複雜邏輯（如迴圈、條件判斷），否則測試本身也需要測試。\n8. **隔離外部依賴**：資料庫、API 等外部依賴應以 mock 或 stub 取代，讓測試專注於當前單元。\n\n# Jest 範例\n\n假設有一個計算折扣價格的函式：\n\n```js\n// priceCalculator.js\nfunction applyDiscount(price, percent) {\n  if (typeof price !== 'number' || price < 0) {\n    throw new Error('價格必須是非負數字');\n  }\n  if (percent < 0 || percent > 100) {\n    throw new Error('折扣百分比必須介於 0 到 100 之間');\n  }\n  return Math.round(price * (1 - percent / 100) * 100) / 100;\n}\n\nmodule.exports = { applyDiscount };\n```\n\n對應的測試：\n\n```js\n// priceCalculator.test.js\nconst { applyDiscount } = require('./priceCalculator');\n\ndescribe('applyDiscount', () => {\n  // 正常情境\n  test('打 8 折時應回傳原價的 80%', () => {\n    // Arrange\n    const price = 100;\n    const percent = 20;\n\n    // Act\n    const result = applyDiscount(price, percent);\n\n    // Assert\n    expect(result).toBe(80);\n  });\n\n  test('折扣為 0% 時價格不變', () => {\n    expect(applyDiscount(250, 0)).toBe(250);\n  });\n\n  test('折扣為 100% 時價格為 0', () => {\n    expect(applyDiscount(999, 100)).toBe(0);\n  });\n\n  // 邊界／精度情境\n  test('結果四捨五入到小數點後兩位', () => {\n    expect(applyDiscount(10, 33)).toBe(6.7);\n  });\n\n  // 錯誤情境\n  test('價格為負數時應拋出錯誤', () => {\n    expect(() => applyDiscount(-1, 10)).toThrow('價格必須是非負數字');\n  });\n\n  test('折扣百分比超過 100 時應拋出錯誤', () => {\n    expect(() => applyDiscount(100, 101)).toThrow('折扣百分比必須介於 0 到 100 之間');\n  });\n});\n```\n\n執行測試：\n\n```bash\nnpx jest\n```\n\n這個範例展示了：使用 `describe` 分組、以 AAA 結構撰寫測試、名稱描述預期行為，並同時涵蓋正常、邊界與錯誤情境。若被測函式依賴外部服務，可再搭配 `jest.fn()` 或 `jest.mock()` 進行隔離。",
+ "finished_at": "2026-10-31T17:23:20+00:00",
+ "seconds": 13.7,
+ "cost_usd": 0.00145437
+}

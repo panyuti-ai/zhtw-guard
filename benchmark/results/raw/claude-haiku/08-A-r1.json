@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 8,
+ "category": "tech",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "雜湊表怎麼做到平均 O(1) 查詢？碰撞怎麼處理？",
+ "answer": "## 為什麼平均是 O(1)\n\n雜湊表用雜湊函數 `h(key)` 把鍵映射到陣列的某個索引（桶，bucket），查詢時直接計算索引、跳過去讀取，不需要逐一比對，所以單次查找不隨資料量增長。\n\n但不同的鍵可能被映射到同一個索引，這就是**碰撞**。所以查詢的實際成本取決於每個桶平均放了多少元素。\n\n這個數字用**負載因子** α = n / m 衡量（n 為元素數，m 為桶數）。雜湊表會在 α 超過某個門檻（例如 0.75）時**擴容**：配置更大的陣列（通常加倍），再把所有元素重新雜湊到新陣列。因為 α 被限制在常數範圍內，在假設雜湊值均勻分布的前提下，每次查找的期望步數是 O(1)。\n\n擴容的成本是 O(n)，但因為陣列每次加倍，把這次成本分攤到之前的 n 次插入上，**攤還（amortized）** 每次插入仍是 O(1)。\n\n**最壞情況**：如果所有鍵都碰撞到同一個桶，查找退化為 O(n)。這通常來自糟糕的雜湊函數，或攻擊者刻意構造的輸入（hash flooding DoS）。部分語言的對策是：Java 的 `HashMap` 在單一桶過長時會把鏈表轉為紅黑樹，使最壞情況降到 O(log n)；Python 的字串雜湊使用隨機種子，讓攻擊者難以預先算出碰撞鍵。\n\n## 碰撞處理\n\n### 1. 鏈接法（Separate Chaining）\n\n每個桶存放一個鏈表（或動態陣列、樹），碰撞的元素都掛在同一個桶下面。\n\n```python\nclass HashTable:\n    def __init__(self, size=8):\n        self.buckets = [[] for _ in range(size)]\n        self.n = 0\n\n    def _index(self, key):\n        return hash(key) % len(self.buckets)\n\n    def put(self, key, value):\n        bucket = self.buckets[self._index(key)]\n        for i, (k, _) in enumerate(bucket):\n            if k == key:              # 鍵已存在，更新\n                bucket[i] = (key, value)\n                return\n        bucket.append((key, value))   # 碰撞時直接串在後面\n        self.n += 1\n        if self.n / len(self.buckets) > 0.75:\n            self._resize()\n\n    def get(self, key):\n        for k, v in self.buckets[self._index(key)]:\n            if k == key:\n                return v\n        raise KeyError(key)\n\n    def _resize(self):\n        old = self.buckets\n        self.buckets = [[] for _ in range(len(old) * 2)]\n        for bucket in old:\n            for k, v in bucket:\n                self.buckets[self._index(k)].append((k, v))\n```\n\n**優點**：實作簡單，刪除容易，負載因子可以超過 1。\n**缺點**：每個節點需要額外指標，記憶體不連續，快取效能較差。\n\n### 2. 開放定址法（Open Addressing）\n\n所有元素都直接存放在陣列中。碰撞時依照某個**探測序列**尋找下一個空位：\n\n- **線性探測**：`h(k), h(k)+1, h(k)+2, …`（mod m）。實作簡單、快取友善，但容易產生聚集（primary clustering）。\n- **二次探測**：`h(k) + c₁·i + c₂·i²`，減緩聚集，但要注意探測序列可能無法走遍所有桶。\n- **雙重雜湊**：`h₁(k) + i·h₂(k)`，步長由第二個雜湊函數決定，分布最均勻。\n\n**刪除的特殊處理**：不能直接清空位置，否則會截斷後面元素的探測路徑。通常放入一個**墓碑（tombstone）** 標記，查找時跳過它，插入時可以覆寫它。\n\n**負載因子必須低於 1**，實務上通常控制在 0.5～0.75 左右，否則探測次數會急劇上升。Python 的 `dict` 就是開放定址法，使用一種結合高位元雜湊值的擾動探測。\n\n## 總結\n\n| 面向 | 鏈接法 | 開放定址法 |\n|---|---|---|\n| 碰撞處理 | 桶內掛鏈表 | 依探測序列找下一個空位 |\n| 負載因子 | 可以大於 1 | 必須小於 1 |\n| 刪除 | 直接移除節點 | 需要墓碑標記 |\n| 快取效能 | 較差 | 較好 |\n| 代表實作 | Java `HashMap` | Python `dict`、Go `map`（bucket 結構略有不同） |\n\n影響平均 O(1) 的關鍵因素有三個：**雜湊函數分布均勻**、**負載因子受控（適時擴容）**，以及**碰撞處理方式**。",
+ "finished_at": "2026-10-31T17:18:18+00:00",
+ "seconds": 15.3,
+ "cost_usd": 0.00146697
+}

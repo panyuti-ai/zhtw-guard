@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？",
+ "answer": "# Git merge 與 rebase\n\n兩者都是把一條分支的修改整合進另一條分支，差別在於**提交歷史的樣子**。\n\n## Merge（合併）\n\n`merge` 會建立一個新的「合併提交」（merge commit），有兩個父提交，把兩條分支的歷史連起來。原本的提交都保留，時間順序和分岔方式都照實記錄。\n\n```\n        A---B---C  feature\n       /         \\\nD---E---F---------M  main（M 是合併提交）\n```\n\n```bash\ngit checkout main\ngit merge feature\n```\n\n**優點**\n- 不改寫既有提交，歷史真實可追溯。\n- 安全，對已推送、多人共用的分支沒有風險。\n- 能看出一個功能是在何時整合進主線的。\n\n**缺點**\n- 分支多時，歷史會有很多分叉與合併線，較難閱讀。\n\n## Rebase（變基）\n\n`rebase` 會把你的分支提交「搬」到目標分支的最新提交之後，並且**重新產生**這些提交（新的 hash）。結果是一條乾淨的直線歷史。\n\n```\nBefore:\nD---E---F  main\n     \\\n      A---B---C  feature\n\nAfter `git checkout feature && git rebase main`:\nD---E---F  main\n         \\\n          A'---B'---C'  feature\n```\n\n```bash\ngit checkout feature\ngit rebase main\n# 之後把 main 快轉合併進來（fast-forward，不會產生合併提交）\ngit checkout main\ngit merge feature\n```\n\n**優點**\n- 歷史是線性的，容易閱讀、用 `git log` 瀏覽。\n- 在送出 Pull Request 前整理自己的提交（`git rebase -i` 可以合併、重新排序、修改訊息）。\n\n**缺點**\n- 會改寫提交歷史，產生新的 hash。\n- 如果對已推送且別人在用的分支 rebase，會造成其他人的歷史衝突，必須強制推送（`push --force`），風險很高。\n\n## 各適合什麼情況\n\n| 情境 | 建議 |\n|---|---|\n| 公開或多人共用的分支（如 `main`、`develop`） | **merge**，不要改寫共用歷史 |\n| 把主線最新變更拉進自己的功能分支，且只有你在用 | **rebase**，保持分支與主線同步且乾淨 |\n| 送 PR 前整理自己雜亂的小提交 | **rebase -i**（互動式變基），再 merge 或 fast-forward |\n| 想完整保留「何時、如何整合」的紀錄（例如重要發布） | **merge**（可用 `--no-ff` 保留合併提交） |\n| 修復已推送到遠端且他人可能已拉取的提交 | 用 **merge** 或新增提交，避免 rebase |\n\n## 一個簡單的判斷原則\n\n> **已經推送出去、別人可能基於它工作的歷史，就不要 rebase；只在自己本地、尚未分享的分支上 rebase。**\n\n很多團隊的做法是：**本地功能分支用 rebase 保持整潔，整合回共用分支時用 merge（或 squash merge）**。這樣兼顧了乾淨的歷史與安全性。",
+ "finished_at": "2026-10-31T17:24:27+00:00",
+ "seconds": 10.6,
+ "cost_usd": 0.0007856600000000001
+}

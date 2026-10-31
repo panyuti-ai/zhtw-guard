@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "以下是 React 元件重複 render 最常見的原因，依可能性大致排序：\n\n## 1. 在 render 期間直接修改 state 或呼叫會觸發 setState 的程式\n```jsx\nfunction Comp() {\n  const [count, setCount] = useState(0);\n  setCount(count + 1); // ❌ render 中呼叫 setState 會無限循環\n  return <div>{count}</div>;\n}\n```\n應該把副作用移到 `useEffect` 或事件處理函式中。\n\n## 2. `useEffect` 依賴陣列有問題\n```jsx\nuseEffect(() => {\n  setData(fetchSomething());\n}); // ❌ 沒有依賴陣列，每次 render 都執行，且 setData 又觸發 render\n\nuseEffect(() => {\n  setData(...);\n}, [data]); // ❌ effect 內改了 data，又觸發自己\n```\n- 沒寫依賴陣列 → 每次 render 都跑\n- 依賴的是每次都會變的物件/陣列/函式（見第 3 點）\n- 在 effect 內 `setState` 的值又在依賴陣列中，形成循環\n\n## 3. 依賴項目是每次 render 都會新建的參考\n```jsx\nuseEffect(() => { ... }, [{ id: 1 }]);       // ❌ 每次都是新物件\nuseEffect(() => { ... }, [options]);         // ❌ 若 options 在元件內宣告\n```\n解法：用 `useMemo` / `useCallback` 包起來，或把物件移到元件外面，或只依賴其中的原始值（如 `options.id`）。\n\n## 4. 把 props 傳入的物件/函式在子元件中當依賴\n```jsx\n<Child onChange={() => ...} style={{ color: 'red' }} />\n```\n每次父層 render，子層都收到新參考，若子層用 `React.memo` 也會失效。可用 `useCallback` / `useMemo` 穩定化。\n\n## 5. Context 的 value 每次都是新物件\n```jsx\n<MyContext.Provider value={{ user, setUser }}>  // ❌ 每次 render 都是新物件\n```\n所有consume 此 context 的元件都會重新 render。改用 `useMemo` 包住 value。\n\n## 6. 父元件狀態頻繁更新\n父元件的 state 一變，整棵子樹都會 re-render（即使 props 沒變）。可考慮：\n- 用 `React.memo` 包住子元件\n- 把狀態下放到需要它的元件\n- 把頻繁變動的部分拆成獨立元件\n\n## 7. StrictMode 造成的「看似重複」\n開發模式下 `<StrictMode>` 會刻意讓 render 與 effect 執行兩次，**這只會發生在開發環境**，正式版不會。若要確認，可以在 console 印出 log 比較。\n\n## 8. 其他常見情況\n- **`key` 使用不當**（用 index 或每次隨機產生），導致元件被重新掛載\n- **在 render 中建立新的 Component**（如 `const Inner = () => ...` 寫在元件內），每次都會被視為新元件而 remount\n- **Store 訂閱（Redux / Zustand 等）selector 回傳新物件**，例如 `useSelector(s => ({...}))`，每次都會觸發更新\n\n---\n\n## 排查建議\n\n1. **用 React DevTools Profiler**：勾選 \"Record why each component rendered\"，可以看到是哪個元件、因為哪個 props/state/hook 而 render。\n2. **加上 log**：\n   ```jsx\n   console.log('Comp render', { count, props });\n   ```\n   比對每次 render 的值是否真的改變。\n3. **用 `why-did-you-render` 套件**：自動印出 props 參考變化的原因。\n\n如果你能提供重複 render 的程式碼片段（特別是 `useEffect`、`useState`、Context 相關的部分），我可以幫你更精確地找出問題所在。",
+ "finished_at": "2026-10-31T17:35:50+00:00",
+ "seconds": 10.4,
+ "cost_usd": 0.0008666300000000001
+}

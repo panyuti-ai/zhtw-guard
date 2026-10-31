@@ -1,0 +1,14 @@
+{
+ "provider": "claude_guard",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？\n\n請用繁體中文回答。",
+ "answer": "# Python list 與 tuple 的差異\n\n## 主要差異\n\n| 特性 | list | tuple |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable） | 不可變（immutable） |\n| 增刪改元素 | 支援（`append`、`remove`、`x[0] = 5` 等） | 不支援 |\n| 效能 | 較慢，空間較大 | 較快，記憶體較省 |\n| 可作為 dict 的 key | 不行 | 可以（若內含元素皆可雜湊） |\n| 方法數量 | 較多（`append`、`insert`、`sort` 等） | 較少（僅 `count`、`index`） |\n\n## 範例\n\n```python\n# list：可變\nnums = [1, 2, 3]\nnums.append(4)      # [1, 2, 3, 4]\nnums[0] = 10        # [10, 2, 3, 4]\n\n# tuple：不可變\npoint = (3, 4)\npoint[0] = 5        # TypeError: 'tuple' object does not support item assignment\n\n# tuple 可以當 dict 的 key，list 不行\nlocations = {(35.6, 139.7): \"Tokyo\"}\n# {[35.6, 139.7]: \"Tokyo\"}  # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個？\n\n**用 list 的情況：**\n- 元素數量會變動，需要頻繁新增、刪除、修改\n- 一組同類型的資料，例如：一串使用者名稱、一批待處理的任務\n- 需要排序（`sort()`）或就地修改\n\n**用 tuple 的情況：**\n- 資料組合固定，代表「一筆紀錄」，例如座標 `(x, y)`、RGB 顏色 `(255, 0, 128)`\n- 希望資料不被意外修改，作為保護性的設計\n- 需要當作 dict 的 key 或 set 的元素\n- 函式需要回傳多個值（`return x, y` 實際上回傳的就是 tuple）\n- 效能敏感且資料不會變動的場景，例如大量唯讀資料\n\n## 補充：tuple 的特殊用法\n\n```python\n# 解包（unpacking）\nx, y = (3, 4)\n\n# 單元素 tuple 必須加逗號\nt = (5,)      # 是 tuple\nt = (5)       # 只是整數 5\n\n# 交換變數\na, b = b, a\n```\n\n## 簡單記法\n\n> **需要「會變的一串東西」→ list；需要「固定的一組資料」→ tuple。**",
+ "finished_at": "2026-10-31T17:23:05+00:00",
+ "seconds": 7.7,
+ "first_answer": "# Python list 與 tuple 的差異\n\n## 主要差異\n\n| 特性 | list | tuple |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable） | 不可變（immutable） |\n| 增刪改元素 | 支援（`append`、`remove`、`x[0] = 5` 等） | 不支援 |\n| 效能 | 較慢，空間較大 | 較快，記憶體較省 |\n| 可作為 dict 的 key | 不行 | 可以（若內含元素皆可雜湊） |\n| 方法數量 | 較多（`append`、`insert`、`sort` 等） | 較少（僅 `count`、`index`） |\n\n## 範例\n\n```python\n# list：可變\nnums = [1, 2, 3]\nnums.append(4)      # [1, 2, 3, 4]\nnums[0] = 10        # [10, 2, 3, 4]\n\n# tuple：不可變\npoint = (3, 4)\npoint[0] = 5        # TypeError: 'tuple' object does not support item assignment\n\n# tuple 可以當 dict 的 key，list 不行\nlocations = {(35.6, 139.7): \"Tokyo\"}\n# {[35.6, 139.7]: \"Tokyo\"}  # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個？\n\n**用 list 的情況：**\n- 元素數量會變動，需要頻繁新增、刪除、修改\n- 一組同類型的資料，例如：一串使用者名稱、一批待處理的任務\n- 需要排序（`sort()`）或就地修改\n\n**用 tuple 的情況：**\n- 資料組合固定，代表「一筆紀錄」，例如座標 `(x, y)`、RGB 顏色 `(255, 0, 128)`\n- 希望資料不被意外修改，作為保護性的設計\n- 需要當作 dict 的 key 或 set 的元素\n- 函式需要回傳多個值（`return x, y` 實際上回傳的就是 tuple）\n- 效能敏感且資料不會變動的場景，例如大量唯讀資料\n\n## 補充：tuple 的特殊用法\n\n```python\n# 解包（unpacking）\nx, y = (3, 4)\n\n# 單元素 tuple 必須加逗號\nt = (5,)      # 是 tuple\nt = (5)       # 只是整數 5\n\n# 交換變數\na, b = b, a\n```\n\n## 簡單記法\n\n> **需要「會變的一串東西」→ list；需要「固定的一組資料」→ tuple。**",
+ "asked_rewrite": false
+}

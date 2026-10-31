@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？\n\n請用繁體中文回答。",
+ "answer": "# 什麼是 DNS？\n\n**DNS（Domain Name System，網域名稱系統）** 是網際網路的「電話簿」。人類習慣記住像 `www.example.com` 這樣的網域名稱，但電腦之間實際是透過 IP 位址（例如 `93.184.216.34`）來找到彼此。DNS 的工作就是把網域名稱翻譯成 IP 位址。\n\n---\n\n## 在瀏覽器輸入網址後，網域名稱如何變成 IP？\n\n以輸入 `www.example.com` 為例，流程大致如下：\n\n### 1. 檢查本機快取\n- **瀏覽器快取**：瀏覽器先看自己是否記得這個網域的 IP。\n- **作業系統快取**：若瀏覽器沒有，會查作業系統的 DNS 快取。\n- **hosts 檔案**：系統也會檢查本機的 `hosts` 檔（Linux/macOS 為 `/etc/hosts`，Windows 為 `C:\\Windows\\System32\\drivers\\etc\\hosts`），如果裡面有對應設定就直接使用。\n\n### 2. 向遞迴解析器（Recursive Resolver）詢問\n若本機都找不到，電腦會把查詢送給設定好的 **DNS 解析器**，通常是：\n- ISP（網路服務商）提供的 DNS\n- 或自行設定的公共 DNS，例如 Google `8.8.8.8`、Cloudflare `1.1.1.1`\n\n解析器會替你完成後續所有查詢工作，並把結果快取起來。\n\n### 3. 解析器逐層查詢\n如果解析器也沒有快取，會從上到下依序詢問：\n\n1. **根域名伺服器（Root Name Server）**\n   - 回覆：「`.com` 的管理者在哪裡？」\n2. **頂級域名伺服器（TLD Name Server，如 `.com`）**\n   - 回覆：「`example.com` 的權威伺服器在哪裡？」\n3. **權威域名伺服器（Authoritative Name Server）**\n   - 回覆：「`www.example.com` 的 IP 是 `93.184.216.34`」\n\n### 4. 回傳結果\n- 解析器把 IP 位址回傳給你的電腦，並依照 **TTL（Time To Live）** 設定的時間將結果快取。\n- 瀏覽器拿到 IP 後，就會用 **TCP/UDP 連線**（通常是 HTTPS 的 443 port）去連接該伺服器，開始傳輸網頁資料。\n\n---\n\n## 流程簡圖\n\n```\n使用者輸入 www.example.com\n        │\n        ▼\n瀏覽器快取 → 作業系統快取 → hosts 檔\n        │ （都沒有）\n        ▼\n遞迴解析器（ISP / 8.8.8.8 / 1.1.1.1）\n        │\n        ├─→ 根伺服器       → 告訴你 .com 在哪\n        ├─→ .com TLD 伺服器 → 告訴你 example.com 在哪\n        └─→ example.com 權威伺服器 → 回傳 www 的 IP\n        │\n        ▼\n回傳 IP 給瀏覽器 → 建立連線 → 載入網頁\n```\n\n---\n\n## 補充重點\n- **DNS 通常使用 UDP 53 port**（回應過大時也會用 TCP 53）。\n- **DNS over HTTPS (DoH)** 與 **DNS over TLS (DoT)** 則能加密查詢內容，提升隱私與安全性。\n- 因為 DNS 有快取機制，修改網域的 IP 後，全世界要等 **TTL 到期**才會完全生效，這就是所謂的「DNS 傳播需要時間」。",
+ "finished_at": "2026-10-31T17:18:28+00:00",
+ "seconds": 9.8,
+ "cost_usd": 0.00092947
+}

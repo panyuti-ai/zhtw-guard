@@ -1,0 +1,14 @@
+{
+ "provider": "claude_guard",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？\n\n請用繁體中文回答。",
+ "answer": "# Git 的 rebase 與 merge\n\n兩者都是把不同分支的修改整合在一起，差別在於**歷史紀錄的呈現方式**。\n\n## Merge（合併）\n\n把兩個分支的最新提交合成一個新的「merge commit」，保留完整的分支歷史。\n\n```\nA---B---C  (main)\n     \\\n      D---E  (feature)\n\nmerge 之後：\nA---B---C-------M  (main)\n     \\         /\n      D---E---\n```\n\n- **優點**：不改寫既有提交，歷史真實反映「何時分支、何時合併」；對已推送、多人共用的分支安全。\n- **缺點**：歷史容易變得交錯複雜，`git log` 較難閱讀。\n\n## Rebase（變基）\n\n把你的分支提交「搬移」到目標分支的最新提交之後，逐一重新套用，產生新的提交（新的 hash）。\n\n```\nrebase 之前：\nA---B---C  (main)\n     \\\n      D---E  (feature)\n\nrebase feature 到 main 之後：\nA---B---C---D'---E'  (feature)\n```\n\n- **優點**：歷史呈現為一條乾淨的直線，容易閱讀；合併時不會多出 merge commit。\n- **缺點**：會**改寫提交歷史**（hash 改變）。如果分支已推送且他人基於它工作，強制推送會造成嚴重混亂。\n\n## 各自適合的情況\n\n| 情境 | 建議 |\n|---|---|\n| 公開/共享分支（如 `main`、`develop`），已有他人基於其工作 | **Merge**，避免改寫歷史 |\n| 個人功能分支，尚未推送或只有自己使用 | **Rebase**，保持歷史整潔 |\n| 把功能分支更新為最新的 `main`，再提 PR | **Rebase**（或 merge `main` 進來，依團隊慣例） |\n| 想保留「這裡曾經分支、開發過」的完整脈絡 | **Merge** |\n| 想要線性歷史，便於 `git bisect` 或審查 | **Rebase** |\n| 整理自己的多個小提交（squash、修正訊息） | **互動式 rebase**：`git rebase -i` |\n\n## 黃金守則\n\n> **不要對已經推送到共享分支、且他人可能已基於其工作的提交執行 rebase。**\n\n若真的需要改寫已推送的分支，請使用 `git push --force-with-lease`，而不是 `--force`，以避免覆蓋他人的新提交。\n\n## 簡短總結\n\n- **Merge**：保留真實歷史，適合共享分支與需要完整脈絡的情況。\n- **Rebase**：產生線性歷史，適合個人分支在合併前整理、同步最新的主分支。",
+ "finished_at": "2026-10-31T17:24:34+00:00",
+ "seconds": 9.0,
+ "first_answer": "# Git 的 rebase 與 merge\n\n兩者都是把不同分支的修改整合在一起，差別在於**歷史紀錄的呈現方式**。\n\n## Merge（合併）\n\n把兩個分支的最新提交合成一個新的「merge commit」，保留完整的分支歷史。\n\n```\nA---B---C  (main)\n     \\\n      D---E  (feature)\n\nmerge 之後：\nA---B---C-------M  (main)\n     \\         /\n      D---E---\n```\n\n- **優點**：不改寫既有提交，歷史真實反映「何時分支、何時合併」；對已推送、多人共用的分支安全。\n- **缺點**：歷史容易變得交錯複雜，`git log` 較難閱讀。\n\n## Rebase（變基）\n\n把你的分支提交「搬移」到目標分支的最新提交之後，逐一重新套用，產生新的提交（新的 hash）。\n\n```\nrebase 之前：\nA---B---C  (main)\n     \\\n      D---E  (feature)\n\nrebase feature 到 main 之後：\nA---B---C---D'---E'  (feature)\n```\n\n- **優點**：歷史呈現為一條乾淨的直線，容易閱讀；合併時不會多出 merge commit。\n- **缺點**：會**改寫提交歷史**（hash 改變）。如果分支已推送且他人基於它工作，強制推送會造成嚴重混亂。\n\n## 各自適合的情況\n\n| 情境 | 建議 |\n|---|---|\n| 公開/共享分支（如 `main`、`develop`），已有他人基於其工作 | **Merge**，避免改寫歷史 |\n| 個人功能分支，尚未推送或只有自己使用 | **Rebase**，保持歷史整潔 |\n| 把功能分支更新為最新的 `main`，再提 PR | **Rebase**（或 merge `main` 進來，依團隊慣例） |\n| 想保留「這裡曾經分支、開發過」的完整脈絡 | **Merge** |\n| 想要線性歷史，便於 `git bisect` 或審查 | **Rebase** |\n| 整理自己的多個小提交（squash、修正訊息） | **互動式 rebase**：`git rebase -i` |\n\n## 黃金守則\n\n> **不要對已經推送到共享分支、且他人可能已基於其工作的提交執行 rebase。**\n\n若真的需要改寫已推送的分支，請使用 `git push --force-with-lease`，而不是 `--force`，以避免覆蓋他人的新提交。\n\n## 簡短總結\n\n- **Merge**：保留真實歷史，適合共享分支與需要完整脈絡的情況。\n- **Rebase**：產生線性歷史，適合個人分支在合併前整理、同步最新的主分支。",
+ "asked_rewrite": false
+}

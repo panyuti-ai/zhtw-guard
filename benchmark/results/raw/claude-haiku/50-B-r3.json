@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。\n\n請用繁體中文回答。",
+ "answer": "## 單元測試的原則\n\n1. **AAA 結構（Arrange / Act / Assert）**：每個測試分成三段：準備資料、執行被測試的程式、驗證結果。結構一致，讀的人才容易看懂。\n2. **測試行為，而非實作細節**：只驗證輸入與輸出，以及對外可觀察的結果。若內部重構後測試就壞掉，代表測試綁得太緊。\n3. **每個測試只驗證一件事**：測試失敗時，名稱就應該能告訴你哪裡壞了。\n4. **測試之間要互相獨立**：每個測試都能單獨執行，不依賴執行順序，也不共享可變的狀態。\n5. **涵蓋正常、邊界與錯誤情境**：除了正常路徑，也要測空值、0、極大值、超出範圍等邊界，以及預期會拋出的錯誤。\n6. **名稱要清楚描述情境與預期結果**：例如「折扣 20% 時，100 元應變成 80 元」，比「test1」有用得多。\n7. **只在邊界處 Mock**：像外部 API、資料庫、時間等依賴才需要 mock。過度 mock 會讓測試失去意義。\n8. **快速且可重複**：單元測試應該很快，且在任何環境執行結果都一致。\n9. **FIRST 原則**：Fast、Independent、Repeatable、Self-validating、Timely。\n\n## Jest 範例\n\n假設有一個計算折扣後價格的函式：\n\n```js\n// discount.js\nexport function applyDiscount(price, percent) {\n  if (typeof price !== 'number' || price < 0) {\n    throw new Error('價格必須是非負數字');\n  }\n  if (percent < 0 || percent > 100) {\n    throw new Error('折扣百分比必須介於 0 到 100 之間');\n  }\n  return Math.round(price * (1 - percent / 100) * 100) / 100;\n}\n```\n\n對應的測試：\n\n```js\n// discount.test.js\nimport { applyDiscount } from './discount';\n\ndescribe('applyDiscount', () => {\n  test('折扣 20% 時，100 元應變成 80 元', () => {\n    // Arrange\n    const price = 100;\n    const percent = 20;\n\n    // Act\n    const result = applyDiscount(price, percent);\n\n    // Assert\n    expect(result).toBe(80);\n  });\n\n  test('折扣 0% 時，價格不變', () => {\n    expect(applyDiscount(99.9, 0)).toBe(99.9);\n  });\n\n  test('折扣 100% 時，結果為 0', () => {\n    expect(applyDiscount(500, 100)).toBe(0);\n  });\n\n  test('價格為負數時拋出錯誤', () => {\n    expect(() => applyDiscount(-1, 10)).toThrow('價格必須是非負數字');\n  });\n\n  test.each([-1, 101])('折扣百分比為 %p（超出範圍）時拋出錯誤', (percent) => {\n    expect(() => applyDiscount(100, percent)).toThrow(\n      '折扣百分比必須介於 0 到 100 之間'\n    );\n  });\n});\n```\n\n執行測試：\n\n```bash\nnpx jest\n```\n\n這個範例涵蓋了幾個重點：正常計算、邊界值（0% 與 100%）、錯誤處理，並用 `test.each` 避免重複撰寫相似的測試。",
+ "finished_at": "2026-10-31T17:37:26+00:00",
+ "seconds": 12.5,
+ "cost_usd": 0.00122457
+}

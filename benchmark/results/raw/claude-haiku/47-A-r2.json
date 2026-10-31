@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。",
+ "answer": "# Kubernetes 的 Pod、Deployment、Service 關係\n\n三者分工明確：**Pod 負責跑程式，Deployment 負責維持 Pod 的數量與版本，Service 負責讓外部找到這些 Pod。**\n\n## 1. Pod：最小執行單位\n\n- Pod 是 Kubernetes 中最小的可部署單位，裡面包含一或多個容器（例如應用程式容器與 sidecar）。\n- 同一個 Pod 內的容器共享網路（同一個 IP）與儲存卷。\n- Pod 是**短暫的**：會被刪除、重建、排程到其他節點，每次重建 IP 都可能改變。\n- 直接建立的 Pod 不會自動重建。如果節點掛掉，它就不見了。\n\n## 2. Deployment：管理 Pod 的控制器\n\n- Deployment 透過 ReplicaSet 來管理 Pod，你只要宣告「我要 3 個副本、使用 `nginx:1.27` 映像」。\n- 它會持續比對**期望狀態**與**實際狀態**，Pod 掛掉就自動補上。\n- 支援**滾動更新（rolling update）**與**回滾（rollback）**，更新版本時逐步替換舊 Pod。\n- 你通常操作的是 Deployment，而不是直接管理 Pod。\n\n## 3. Service：穩定的網路入口\n\n- Pod 的 IP 會變，因此不能直接用 Pod IP 呼叫。Service 提供一個**固定的虛擬 IP（ClusterIP）與 DNS 名稱**。\n- Service 透過 **label selector** 找到對應的 Pod，並把流量負載平衡到這些 Pod。\n- 常見類型：\n  - `ClusterIP`（預設）：只在叢集內部存取。\n  - `NodePort`：在每個節點開一個連接埠對外。\n  - `LoadBalancer`：由雲端平台配置外部負載平衡器。\n\n## 三者如何串起來\n\n關鍵在於 **label**：\n\n```\nDeployment ──(建立/管理)──> ReplicaSet ──(建立/維持)──> Pod (labels: app=web)\n                                                            ▲\nService  ──(selector: app=web)──────────────────────────────┘\n```\n\n1. Deployment 的 `template.metadata.labels` 會為每個 Pod 貼上標籤，例如 `app: web`。\n2. Service 的 `selector` 設定為 `app: web`，自動找到所有符合的 Pod，並持續更新端點清單。\n3. Pod 被重建、擴縮或滾動更新時，Service 會自動更新後端，呼叫端不需要知道任何變化。\n\n## 範例\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3                  # 維持 3 個 Pod\n  selector:\n    matchLabels:\n      app: web\n  template:                    # Pod 的模板\n    metadata:\n      labels:\n        app: web               # Service 靠這個標籤找到 Pod\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  selector:\n    app: web                   # 對應 Deployment 產生的 Pod\n  ports:\n  - port: 80                   # Service 對外的埠\n    targetPort: 80             # Pod 內容器的埠\n  type: ClusterIP\n```\n\n套用後，叢集內其他服務可以用 `http://web-svc` 存取這三個 Pod，不論其中哪個 Pod 被替換，呼叫端都不受影響。\n\n## 一句話總結\n\n- **Pod**：跑程式的單位（短暫、會變）\n- **Deployment**：確保 Pod 數量與版本正確（自癒、更新、回滾）\n- **Service**：為一組 Pod 提供固定入口與負載平衡（靠 label 連結）",
+ "finished_at": "2026-10-31T17:30:53+00:00",
+ "seconds": 10.2,
+ "cost_usd": 0.0009261
+}

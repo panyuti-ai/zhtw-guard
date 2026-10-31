@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "## 基本版本\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr.length > 0 ? arr[arr.length - 1] : undefined;\n}\n\nconst nums = [1, 2, 3];\nconst a = last(nums);          // number | undefined\nconst b = last([\"x\", \"y\"]);    // string | undefined\nconst c = last([]);            // undefined（T 推導為 never）\n```\n\n## 型別是怎麼推導的\n\n1. **參數決定 `T`**：呼叫 `last(nums)` 時，TypeScript 比對實際傳入的型別 `number[]` 和形式參數 `readonly T[]`，從中反推出 `T = number`。\n2. **`readonly T[]` 的好處**：它同時接受可變陣列 `T[]` 和唯讀陣列 `readonly T[]`，而且函式本身不會修改傳入的陣列。\n3. **回傳值是 `T | undefined`**：空陣列沒有最後一個元素，所以必須包含 `undefined`。如果不加，型別系統會允許你在空陣列上直接存取結果，導致執行期錯誤。\n4. **空陣列的情況**：`[]` 的型別是 `never[]`，因此 `T` 被推導為 `never`，結果型別是 `undefined`。\n\n## 進階版本：保留元組的精確型別\n\n一般陣列只知道元素型別是 `T`，無法知道「最後一個位置」具體是什麼。若是元組（tuple），可以用條件型別取出最後一個元素的確切型別：\n\n```ts\ntype Last<A extends readonly unknown[]> =\n  A extends readonly [...unknown[], infer L] ? L\n  : A extends readonly [] ? undefined\n  : A[number] | undefined;\n\nfunction lastOf<const A extends readonly unknown[]>(arr: A): Last<A> {\n  return arr.length > 0 ? arr[arr.length - 1] : undefined;\n}\n\nconst t1 = lastOf([1, \"two\", true] as const); // true\nconst t2 = lastOf([] as const);               // undefined\nconst t3 = lastOf([\"a\", \"b\"]);                // string | undefined\n```\n\n這裡的關鍵是：\n\n- `const A` 修飾子（TypeScript 5.0+）讓字面量陣列被推導為元組與字面量型別，而不是寬泛的陣列。\n- `infer L` 在 `[...unknown[], infer L]` 中匹配陣列的最後一個位置，把它捕捉成型別變數 `L`。\n- 對一般陣列 `A[number]` 只能給出元素聯集，所以退回 `A[number] | undefined`。\n\n## 注意事項\n\n- 若開啟 `tsconfig` 的 `noUncheckedIndexedAccess`，`arr[arr.length - 1]` 本身的型別就會是 `T | undefined`，這時函式內部的寫法仍然正確。\n- 上面的程式碼是我根據 TypeScript 的型別規則撰寫的，尚未在本機編譯執行。如果需要，我可以在這個工作目錄建立檔案並用 `tsc` 驗證。",
+ "finished_at": "2026-10-31T17:37:05+00:00",
+ "seconds": 11.2,
+ "cost_usd": 0.0009118400000000001
+}

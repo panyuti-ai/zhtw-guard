@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？\n\n請用繁體中文回答。",
+ "answer": "Git 的 `merge` 和 `rebase` 都是把不同分支的變更整合在一起，但做法和結果的歷史樣貌不同。\n\n## Merge（合併）\n\n假設你在 `feature` 分支上開發，`main` 也有新的提交：\n\n```\nA---B---C  (main)\n     \\\n      D---E  (feature)\n```\n\n執行 `git checkout main && git merge feature` 後，Git 會建立一個新的「合併提交」（merge commit）M，把兩條分支接起來：\n\n```\nA---B---C-------M  (main)\n     \\         /\n      D-------E  (feature)\n```\n\n**特點：**\n- **保留完整歷史**：分支的存在與分叉過程都會被記錄下來。\n- **不改寫既有提交**：對已經推送到遠端、其他人可能已經在用的提交很安全。\n- **可以清楚看出何時整合**：合併提交本身就是一個里程碑。\n- **缺點**：歷史可能變得複雜，充滿許多「Merge branch ...」的分叉線，閱讀 `git log` 較吃力。\n\n**適合的情況：**\n- 公開或共享的分支（例如 `main`、`develop`），特別是多人協作時。\n- 想保留真實的開發時間線與分支脈絡。\n- 整合長期分支，或不希望改寫歷史。\n\n## Rebase（變基）\n\n同樣的情境，在 `feature` 上執行 `git checkout feature && git rebase main`，Git 會把 `D`、`E` 這兩個提交「搬到」`main` 最新的 `C` 之後，並重新產生新的提交（D'、E'）：\n\n```\nA---B---C  (main)\n         \\\n          D'---E'  (feature)\n```\n\n接著再 `git checkout main && git merge feature`，就會是乾淨的快進合併（fast-forward），不產生合併提交：\n\n```\nA---B---C---D'---E'  (main, feature)\n```\n\n**特點：**\n- **歷史呈一條直線**，`git log` 很好讀。\n- **會改寫提交**（新的 hash），因此不能對已經公開、別人可能基於它工作的分支隨便使用。\n- 衝突是逐一提交處理，可能需要多次解決同樣的問題。\n\n**適合的情況：**\n- 個人的功能分支，在合併回主線之前，用來同步最新的 `main`、整理自己的提交。\n- 想保持線性、乾淨的歷史。\n- 在送出 Pull Request 前，整理 commit（搭配 `git rebase -i` 做 squash、fixup、reword）。\n\n## 黃金守則\n\n> **不要對已經推送到共享遠端、他人可能正在使用的分支執行 rebase。**\n\n若真的必須改寫已推送的分支，請用 `git push --force-with-lease`，它會比 `--force` 更安全，因為會檢查遠端是否有你不知道的新提交。\n\n## 快速對照\n\n| 面向 | Merge | Rebase |\n|---|---|---|\n| 歷史形狀 | 分叉、非線性 | 線性、整齊 |\n| 是否改寫提交 | 否 | 是（新 hash） |\n| 保留分支脈絡 | 是 | 否 |\n| 衝突處理 | 一次解決 | 逐個提交解決 |\n| 適合對象 | 共享分支、公開歷史 | 私人分支、送 PR 前整理 |\n\n## 實務建議\n\n- **同步主線到自己的功能分支**：用 `rebase`，讓自己的工作保持在最新 `main` 之上。\n- **把功能分支併回主線**：依團隊慣例，用 `merge`（保留紀錄）或 `squash merge`（壓成一個提交）。\n- **團隊有明確規範時**，以團隊規範為準。",
+ "finished_at": "2026-10-31T17:32:09+00:00",
+ "seconds": 10.5,
+ "cost_usd": 0.00083077
+}

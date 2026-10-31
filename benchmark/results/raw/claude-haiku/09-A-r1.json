@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？",
+ "answer": "DNS（Domain Name System，網域名稱系統）是網際網路的「電話簿」。人類容易記住 `google.com` 這類網域名稱，但電腦之間實際是用 IP 位址（如 `142.250.72.14`）來找到彼此。DNS 負責把網域名稱翻譯成 IP 位址。\n\n## 在瀏覽器輸入網址後，網域名稱如何變成 IP\n\n以輸入 `www.example.com` 為例：\n\n1. **檢查瀏覽器快取**：瀏覽器先看自己是否記得這個網域的 IP，若有就直接使用。\n2. **檢查作業系統快取**：若瀏覽器沒有，會問作業系統（OS）的 DNS 快取，或讀取 `hosts` 檔案（Linux/macOS 為 `/etc/hosts`，Windows 為 `C:\\Windows\\System32\\drivers\\etc\\hosts`）。\n3. **詢問遞迴解析器（Recursive Resolver）**：若本機都沒有，系統會把查詢送給設定好的 DNS 伺服器，通常是 ISP 提供的，或 Google `8.8.8.8`、Cloudflare `1.1.1.1` 等公共 DNS。這台伺服器若有快取就直接回傳。\n4. **從根伺服器開始逐層查詢**（若快取沒有）：\n   - **根伺服器（Root）**：回答「`.com` 由哪些伺服器管理？」\n   - **頂層網域伺服器（TLD，如 `.com`）**：回答「`example.com` 的權威伺服器是哪台？」\n   - **權威伺服器（Authoritative）**：這台掌握 `example.com` 的正式紀錄，回答「`www.example.com` 的 IP 是 `93.184.215.14`」。\n5. **回傳結果並快取**：遞迴解析器把 IP 回給電腦，途中會依 TTL（存活時間）把結果快取起來，之後同樣的查詢就不用重跑整個流程。\n6. **瀏覽器開始連線**：拿到 IP 後，瀏覽器以該 IP 與伺服器建立 TCP 連線（HTTPS 還會進行 TLS 交握），然後發出 HTTP 請求，取得網頁內容。\n\n## 常見的 DNS 紀錄類型\n\n| 類型 | 用途 |\n|------|------|\n| A | 網域 → IPv4 位址 |\n| AAAA | 網域 → IPv6 位址 |\n| CNAME | 網域 → 另一個網域（別名） |\n| MX | 郵件伺服器 |\n| TXT | 文字資訊（常用於驗證，如 SPF、網域所有權） |\n| NS | 該網域的權威伺服器 |\n\n## 小結\n\n整個流程可以簡化為：**快取 → hosts 檔 → 遞迴解析器 → 根 → TLD → 權威伺服器 → 回傳並快取**。大多數情況下前幾步就能命中快取，所以你平常幾乎感覺不到 DNS 查詢的延遲。\n\n如果想實際觀察，可以在終端機執行 `dig www.example.com` 或 `nslookup www.example.com`，會看到解析結果與 TTL。",
+ "finished_at": "2026-10-31T17:18:24+00:00",
+ "seconds": 9.3,
+ "cost_usd": 0.0007497700000000001
+}
