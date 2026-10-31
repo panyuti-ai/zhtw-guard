@@ -1,12 +1,24 @@
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/prompt-hook.js", "${CLAUDE_PLUGIN_DATA}"],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/stop-hook.js"],
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/stop-hook.js", "${CLAUDE_PLUGIN_DATA}"],
             "timeout": 10
           }
         ]

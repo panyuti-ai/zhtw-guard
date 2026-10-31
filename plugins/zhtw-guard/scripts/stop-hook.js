@@ -6,18 +6,13 @@
 // Windows) cannot garble the reply before it is checked.
 
 const { check, describe } = require('../lib/checker');
+const { recall, readStdin } = require('../lib/request');
 
-function readStdin() {
-  return new Promise((resolve) => {
-    const chunks = [];
-    process.stdin.on('data', (c) => chunks.push(c));
-    process.stdin.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-    process.stdin.on('error', () => resolve(''));
-  });
-}
-
-function decide(input) {
-  const { checked, findings } = check(input.last_assistant_message);
+// allowSimplified: the user's prompt explicitly asked for Simplified Chinese,
+// so only kana and Hangul are still checked.
+function decide(input, allowSimplified = false) {
+  const { checked, findings: all } = check(input.last_assistant_message);
+  const findings = allowSimplified ? all.filter((f) => f.type !== 'simplified') : all;
   if (!checked || findings.length === 0) return null;
 
   const list = findings.map((f) => '- ' + describe(f)).join('\n');
@@ -42,7 +37,7 @@ async function main() {
   } catch {
     return; // Never get in the way of Claude Code because of bad input.
   }
-  const output = decide(input);
+  const output = decide(input, recall(process.argv[2], input.session_id));
   if (output) process.stdout.write(JSON.stringify(output));
 }
 
