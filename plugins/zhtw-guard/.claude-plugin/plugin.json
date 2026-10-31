@@ -1,6 +1,6 @@
 {
   "name": "zhtw-guard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Catches Simplified characters and stray Japanese or Korean in Traditional Chinese (Taiwan) replies, and asks Claude to rewrite once.",
   "author": { "name": "Yu-Ting Pan" },
   "license": "MIT",

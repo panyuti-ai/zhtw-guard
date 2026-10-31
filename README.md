@@ -10,7 +10,7 @@ Measured on 50 Traditional Chinese prompts, 3 runs each ([benchmark/](benchmark/
 
 - Given a Simplified Chinese text to summarize or rewrite, and no explicit 「請用繁體中文回答」, Claude Code (Sonnet 5.5) answered entirely in Simplified 7 times in 150 answers. Codex (GPT-6.1-Sol): 0.
 - On those failing prompts, with zhtw-guard loaded: Claude's first reply was Simplified in 6 of 9 runs; zhtw-guard asked for a rewrite each time and **all 9 final answers had no Simplified characters**.
-- Full 300-answer run with Claude Haiku 5.5: without zhtw-guard, 15 answers were written in Simplified and 7 mixed in a Simplified version (some even on code and tech prompts). With zhtw-guard: **0 and 0**. It asked for a rewrite 48 times (46 replies had Simplified characters; 2 had Japanese phrases in a Japan travel answer), and average time per answer did not go up (11.8 s vs 12.2 s).
+- Full 300-answer run with Claude Haiku 5.5: without zhtw-guard, 15 answers were written in Simplified and 7 mixed in a Simplified version (some even on code and tech prompts). With zhtw-guard: **0 and 0**. It asked for a rewrite 48 times (46 replies had Simplified characters; 2 had useful Japanese names and phrases in a Japan travel answer, which v0.3.0 no longer flags), and average time per answer did not go up (11.8 s vs 12.2 s).
 
 All prompts, raw answers and scoring code are in [benchmark/](benchmark/).
 
@@ -28,7 +28,7 @@ Requires Node.js on `PATH` (no npm packages). Works on Windows, macOS, and Linux
 ## What it checks
 
 - **Simplified-only characters** (这, 们, 软 …). Characters that are also valid Traditional (后, 里, 么) are left alone.
-- **Japanese kana and Korean** mixed into a Chinese reply.
+- **Japanese kana and Korean** mixed into a Chinese reply. Japanese or Korean inside 「」, 『』 or brackets, or a name right before its reading in brackets (食べログ（Tabelog）), is treated as quoted on purpose and left alone; only kana or Hangul in running text (「確認です。」) is flagged. A Japanese name written without brackets is still flagged.
 
 Code blocks, inline code, and URLs are skipped. Replies with fewer than 10 Chinese characters are not checked, so English replies are left alone.
 
@@ -74,7 +74,7 @@ The benchmark has its own instructions in [benchmark/README.md](benchmark/README
 
 實測：給 Claude 簡體原文又沒要求繁體時，它會整段用簡體回答；裝了 zhtw-guard 之後，9 次最終回答都沒有簡體字（見 [benchmark/](benchmark/)）。
 
-Claude 用繁體中文回答時，偶爾會混進簡體字，甚至日文或韓文；在 CLAUDE.md 寫了要繁體中文也一樣。`zhtw-guard` 會在每次回答後自動檢查，抓到就請 Claude 重寫一次。程式碼、指令和網址不檢查。你明確要求簡體時（例如「用簡體回答」「翻成简体」），那一則就不抓簡體字。
+Claude 用繁體中文回答時，偶爾會混進簡體字，甚至日文或韓文；在 CLAUDE.md 寫了要繁體中文也一樣。`zhtw-guard` 會在每次回答後自動檢查，抓到就請 Claude 重寫一次。程式碼、指令和網址不檢查。放在括號或引號裡的日文、韓文（例如店名「食べログ（Tabelog）」、教你說的日文句子）當成引用，不會被抓。你明確要求簡體時（例如「用簡體回答」「翻成简体」），那一則就不抓簡體字。
 
 「線程、軟件」這類用繁體字寫的大陸用語不會被抓：很多詞台灣也在用，連台灣官方的名詞表都有收錄，硬抓只會讓人煩。之後可能會加上以辭典為依據的檢查。
 

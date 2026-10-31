@@ -27,10 +27,10 @@ All 300 prompts/variants/reps were run with `CLAUDE_MODEL=claude-haiku-5-5`, onc
 
 | | written in Simplified | mixed | quotes Simplified | kana/Hangul |
 |---|---|---|---|---|
-| Haiku 5.5 | 15 | 7 | 16 | 3 |
+| Haiku 5.5 | 15 | 7 | 16 | 1 |
 | Haiku 5.5 + zhtw-guard | 0 | 0 | 5 | 0 |
 
-zhtw-guard asked for a rewrite in 48 of 300 answers: 46 first replies contained Simplified characters, 2 contained Japanese phrases (prompt 14, a Japan travel question). Average time per answer: 11.8 s with the plugin, 12.2 s without.
+zhtw-guard (v0.2.0, the version used for the run) asked for a rewrite in 48 of 300 answers: 46 first replies contained Simplified characters, 2 contained useful Japanese names and phrases (prompt 14, a Japan travel question). v0.3.0 treats Japanese in brackets or 「」 as quoted and no longer flags those 2. Scores in `results/` are computed with the current checker. Average time per answer: 11.8 s with the plugin, 12.2 s without.
 
 ## Run
 
