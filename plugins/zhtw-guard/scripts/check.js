@@ -5,7 +5,7 @@
 //   node check.js answer.md other.md
 //   type answer.md | node check.js        (Windows)
 //   cat answer.md | node check.js         (macOS / Linux)
-// Prints one JSON object per input. Exit code 1 when any block-level finding.
+// Prints one JSON object per input. Exit code 1 when anything is found.
 
 const fs = require('fs');
 const { check } = require('../lib/checker');
@@ -13,7 +13,7 @@ const { check } = require('../lib/checker');
 function report(name, text) {
   const result = check(text);
   process.stdout.write(JSON.stringify({ file: name, ...result }) + '\n');
-  return result.findings.some((f) => f.level === 'block');
+  return result.findings.length > 0;
 }
 
 const files = process.argv.slice(2);

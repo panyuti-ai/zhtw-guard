@@ -20,24 +20,19 @@ function decide(input) {
   const { checked, findings } = check(input.last_assistant_message);
   if (!checked || findings.length === 0) return null;
 
-  const blocking = findings.filter((f) => f.level === 'block');
-  const warning = findings.filter((f) => f.level === 'warn');
-  const list = (items) => items.map((f) => '- ' + describe(f)).join('\n');
+  const list = findings.map((f) => '- ' + describe(f)).join('\n');
 
   // Ask for one rewrite at most. If this reply is already the rewrite,
   // only tell the user what is left.
-  if (blocking.length > 0 && !input.stop_hook_active) {
-    let context =
+  if (!input.stop_hook_active) {
+    const context =
       'zhtw-guard：上一則回答是寫給台灣讀者的繁體中文，但出現了下列用字。' +
-      '請把整則回答用台灣用語重寫一次，內容不變，程式碼與指令保持原樣：\n' +
-      list(blocking);
-    if (warning.length > 0) {
-      context += '\n\n下列詞依上下文判斷，台灣用法不同時才改：\n' + list(warning);
-    }
+      '請把整則回答用繁體中文重寫一次，內容不變，程式碼與指令保持原樣：\n' +
+      list;
     return { hookSpecificOutput: { hookEventName: 'Stop', additionalContext: context } };
   }
 
-  return { systemMessage: 'zhtw-guard 提醒，可能不是台灣用語：\n' + list(findings) };
+  return { systemMessage: 'zhtw-guard 提醒，重寫後仍有：\n' + list };
 }
 
 async function main() {

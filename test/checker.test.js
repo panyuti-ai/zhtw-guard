@@ -13,17 +13,8 @@ test('clean Taiwan text has no findings', () => {
   assert.deepEqual(r.findings, []);
 });
 
-test('Mainland terms are found with the Taiwan term', () => {
-  const r = check('這個軟件的默認文件夾在用戶目錄底下，請用鼠標點選設定。');
-  const byFrom = Object.fromEntries(r.findings.map((f) => [f.from, f]));
-  assert.equal(byFrom['軟件'].to, '軟體');
-  assert.equal(byFrom['默認'].level, 'block');
-  assert.equal(byFrom['文件夾'].to, '資料夾');
-  assert.equal(byFrom['用戶'].level, 'warn');
-});
-
-test('longer term wins: 字符串 is not reported as 字符', () => {
-  assert.deepEqual(froms('請把這個字符串轉成數字，然後再印出結果給使用者看。'), ['字符串']);
+test('Mainland terms written in Traditional characters are not flagged', () => {
+  assert.deepEqual(froms('線程和進程的差別在於記憶體，死鎖時要檢查上下文切換，軟件也一樣。'), []);
 });
 
 test('Simplified-only characters are found, shared ones are not', () => {
@@ -35,6 +26,12 @@ test('Simplified-only characters are found, shared ones are not', () => {
   assert.ok(!f.includes('么'));
 });
 
+test('Simplified finding carries the Traditional form', () => {
+  const r = check('请把这个设定改好，再重新启动一次程式看看结果。');
+  const zhe = r.findings.find((f) => f.from === '这');
+  assert.equal(zhe.to, '這');
+});
+
 test('Japanese kana and Korean are found', () => {
   const r = check('這個功能已經完成了，接下來請確認です。測試也都通過了，沒有問題합니다。');
   const types = r.findings.map((f) => f.type).sort();
@@ -44,44 +41,28 @@ test('Japanese kana and Korean are found', () => {
 test('code blocks, inline code and URLs are ignored', () => {
   const text =
     '下面是設定檔，內容請照抄，不要修改任何一個字元喔：\n' +
-    '```\nname = "默認軟件"\n```\n' +
+    '```\nname = "这是です"\n```\n' +
     '指令是 `install 软件`，說明在 https://example.com/视频 這一頁。';
   assert.deepEqual(froms(text), []);
 });
 
 test('English replies are not checked', () => {
-  const r = check('Done. I renamed the 軟件 folder and updated the tests.');
+  const r = check('Done. I renamed the 这 folder and updated the tests.');
   assert.equal(r.checked, false);
 });
 
-test('hook asks for one rewrite when blocking terms appear', () => {
-  const out = decide({ last_assistant_message: '這個軟件的默認設定已經改好了，請重新啟動看看。', stop_hook_active: false });
+test('hook asks for one rewrite when something is found', () => {
+  const out = decide({ last_assistant_message: '这个设定已經改好了，請重新啟動程式看看結果。', stop_hook_active: false });
   assert.equal(out.hookSpecificOutput.hookEventName, 'Stop');
-  assert.match(out.hookSpecificOutput.additionalContext, /「軟件」→「軟體」/);
+  assert.match(out.hookSpecificOutput.additionalContext, /簡體字「这」→「這」/);
 });
 
 test('hook does not ask twice; it only tells the user', () => {
-  const out = decide({ last_assistant_message: '這個軟件的默認設定已經改好了，請重新啟動看看。', stop_hook_active: true });
+  const out = decide({ last_assistant_message: '这个设定已經改好了，請重新啟動程式看看結果。', stop_hook_active: true });
   assert.equal(out.hookSpecificOutput, undefined);
-  assert.match(out.systemMessage, /軟件/);
-});
-
-test('warn-only findings never interrupt Claude', () => {
-  const out = decide({ last_assistant_message: '這個專案的數據已經整理好了，請到報表頁面查看結果。', stop_hook_active: false });
-  assert.equal(out.hookSpecificOutput, undefined);
-  assert.match(out.systemMessage, /數據/);
+  assert.match(out.systemMessage, /这/);
 });
 
 test('clean reply produces no output', () => {
   assert.equal(decide({ last_assistant_message: '這個軟體的預設設定已經改好了，請重新啟動看看。' }), null);
-});
-
-test('correct Taiwan words that contain a term are not reported', () => {
-  assert.deepEqual(froms('這個演算法的使用例句放在線上文件裡，大家都可以看到。'), []);
-});
-
-test('context-dependent words only warn', () => {
-  const r = check('請記下錯誤代碼，再到餐廳菜單旁邊的公告欄查詢。');
-  assert.ok(r.findings.length > 0);
-  assert.ok(r.findings.every((f) => f.level === 'warn'));
 });

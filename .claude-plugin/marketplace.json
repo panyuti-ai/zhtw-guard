@@ -6,7 +6,7 @@
     {
       "name": "zhtw-guard",
       "source": "./plugins/zhtw-guard",
-      "description": "Checks every reply for Mainland-China terms, Simplified characters, and stray Japanese or Korean, and asks Claude to rewrite once."
+      "description": "Checks every reply for Simplified characters and stray Japanese or Korean, and asks Claude to rewrite once."
     }
   ]
 }

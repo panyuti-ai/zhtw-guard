@@ -1,6 +1,5 @@
 'use strict';
 
-const terms = require('./terms');
 const simplified = require('./simplified-chars');
 
 // Replies with fewer Han characters than this are treated as not written in
@@ -19,11 +18,6 @@ function stripQuoted(text) {
     .replace(/https?:\/\/\S+/g, ' ');
 }
 
-const ALL_TERMS = [
-  ...Object.entries(terms.block).map(([from, to]) => ({ from, to, level: 'block' })),
-  ...Object.entries(terms.warn).map(([from, to]) => ({ from, to, level: 'warn' })),
-].sort((a, b) => b.from.length - a.from.length);
-
 function add(found, key, entry) {
   const hit = found.get(key);
   if (hit) hit.count += 1;
@@ -32,42 +26,26 @@ function add(found, key, entry) {
 
 // Returns { checked, findings }. checked is false when the text is not
 // Chinese enough to judge. Each finding is
-// { type: 'term' | 'simplified' | 'kana' | 'hangul', from, to, level, count }.
+// { type: 'simplified' | 'kana' | 'hangul', from, to, count }.
 function check(text) {
   const body = stripQuoted(String(text || ''));
   const han = body.match(HAN) || [];
   if (han.length < MIN_HAN) return { checked: false, findings: [] };
 
   const found = new Map();
-  const chars = Array.from(body);
-  for (let i = 0; i < chars.length; ) {
-    const rest = chars.slice(i, i + 6).join('');
-    const kept = terms.keep.find((w) => rest.startsWith(w));
-    if (kept) {
-      i += Array.from(kept).length;
-      continue;
-    }
-    const term = ALL_TERMS.find((t) => rest.startsWith(t.from));
-    if (term) {
-      add(found, 'term:' + term.from, { type: 'term', from: term.from, to: term.to, level: term.level });
-      i += Array.from(term.from).length;
-      continue;
-    }
-    const c = chars[i];
+  for (const c of body) {
     if (simplified.has(c)) {
-      add(found, 'simplified:' + c, { type: 'simplified', from: c, to: simplified.get(c), level: 'block' });
+      add(found, 'simplified:' + c, { type: 'simplified', from: c, to: simplified.get(c) });
     } else if (KANA.test(c)) {
-      add(found, 'kana', { type: 'kana', from: c, to: '', level: 'block' });
+      add(found, 'kana', { type: 'kana', from: c, to: '' });
     } else if (HANGUL.test(c)) {
-      add(found, 'hangul', { type: 'hangul', from: c, to: '', level: 'block' });
+      add(found, 'hangul', { type: 'hangul', from: c, to: '' });
     }
-    i += 1;
   }
   return { checked: true, findings: [...found.values()] };
 }
 
 function describe(f) {
-  if (f.type === 'term') return `「${f.from}」→「${f.to}」`;
   if (f.type === 'simplified') return `簡體字「${f.from}」→「${f.to}」`;
   if (f.type === 'kana') return `混入日文假名（例如「${f.from}」）`;
   return `混入韓文（例如「${f.from}」）`;
