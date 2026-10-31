@@ -36,6 +36,12 @@ GEMINI_MODEL = "gemini-3.8-flash"
 # gpt-6.1-sol is first in the model list Codex 0.166.0 fetched for this account.
 CODEX_MODEL = os.environ.get("CODEX_MODEL", "gpt-6.1-sol")
 TIMEOUT = 600
+# Optional: pin the Claude model, e.g. CLAUDE_MODEL=claude-haiku-5-5. Unset uses Claude Code's default.
+CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "")
+
+
+def claude_model_args():
+    return ["--model", CLAUDE_MODEL] if CLAUDE_MODEL else []
 
 
 def ask_claude(text):
@@ -44,7 +50,8 @@ def ask_claude(text):
     with tempfile.TemporaryDirectory() as cwd:
         out = subprocess.run(
             ["claude", "-p", text, "--output-format", "json",
-             "--no-session-persistence", "--setting-sources", "", "--tools", ""],
+             "--no-session-persistence", "--setting-sources", "", "--tools", "",
+             *claude_model_args()],
             cwd=cwd, capture_output=True, timeout=TIMEOUT,
         )
     data = json.loads(out.stdout.decode("utf-8"))
@@ -64,7 +71,7 @@ def ask_claude_guard(text):
         out = subprocess.run(
             ["claude", "-p", text, "--output-format", "stream-json", "--verbose",
              "--no-session-persistence", "--setting-sources", "", "--tools", "",
-             "--plugin-dir", plugin],
+             "--plugin-dir", plugin, *claude_model_args()],
             cwd=cwd, capture_output=True, timeout=TIMEOUT,
         )
     texts, asked_rewrite, result, models = [], False, None, []
