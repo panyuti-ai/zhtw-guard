@@ -379,8 +379,8 @@ claude-haiku,claude-haiku-5-5,13,tech,B,2,true,1028,0,0,0,,clean
 claude-haiku,claude-haiku-5-5,13,tech,B,3,true,1314,0,0,0,,clean
 claude-haiku,claude-haiku-5-5,14,daily,A,1,true,913,0,0,0,,clean
 claude-haiku,claude-haiku-5-5,14,daily,A,2,true,1054,0,3,0,,clean
-claude-haiku,claude-haiku-5-5,14,daily,A,3,true,1094,0,4,0,,clean
-claude-haiku,claude-haiku-5-5,14,daily,B,1,true,1014,0,21,0,,clean
+claude-haiku,claude-haiku-5-5,14,daily,A,3,true,1094,0,0,0,,clean
+claude-haiku,claude-haiku-5-5,14,daily,B,1,true,1014,0,0,0,,clean
 claude-haiku,claude-haiku-5-5,14,daily,B,2,true,1106,0,0,0,,clean
 claude-haiku,claude-haiku-5-5,14,daily,B,3,true,1018,0,0,0,,clean
 claude-haiku,claude-haiku-5-5,15,daily,A,1,true,537,0,0,0,,clean

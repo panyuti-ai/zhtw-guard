@@ -74,3 +74,20 @@ test('Taiwan standard forms that OpenCC writes differently are not flagged', () 
 test('Simplified or Japanese-only forms Taiwan does not use are still flagged', () => {
   assert.ok(froms('這個內容放在内部資料夾，請把线路接好再測試一次。').includes('内'));
 });
+
+test('Japanese or Korean quoted in brackets or 「」 is not flagged', () => {
+  const r = check(
+    '到日本找餐廳可以用食べログ（Tabelog），提款可以去郵局（ゆうちょ銀行），' +
+    '過敏的話給店員看這句：「私はえびアレルギーです」。韓國朋友會說「감사합니다」。',
+  );
+  assert.deepEqual(r.findings, []);
+});
+
+test('Japanese or Korean in running text is still flagged', () => {
+  const types = check('這個功能已經完成了，接下來請確認です。測試也都通過了，沒有問題합니다。').findings.map((f) => f.type).sort();
+  assert.deepEqual(types, ['hangul', 'kana']);
+});
+
+test('Simplified characters inside brackets are still flagged', () => {
+  assert.ok(froms('這段原文（这个软件很好用）請改寫成台灣的說法給我看。').includes('这'));
+});

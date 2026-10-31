@@ -18,6 +18,21 @@ function stripQuoted(text) {
     .replace(/https?:\/\/\S+/g, ' ');
 }
 
+// Japanese or Korean inside 「」『』 or brackets is quoted on purpose: a shop
+// name like 食べログ（Tabelog）, a bank like （ゆうちょ銀行）, or a phrase to show
+// someone, 「私はえびアレルギーです」. Only kana or Hangul in running text is
+// treated as a slip, e.g. 「測試已經確認です。」. A name written just before its
+// reading or translation in brackets, 食べログ（Tabelog）, counts as quoted too.
+function stripBracketed(text) {
+  let out = text.replace(/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Han}ー]+(?=\s*[（(])/gu, ' ');
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(/「[^「」]*」|『[^『』]*』|（[^（）]*）|\([^()]*\)/g, ' ');
+  } while (out !== prev);
+  return out;
+}
+
 function add(found, key, entry) {
   const hit = found.get(key);
   if (hit) hit.count += 1;
@@ -36,7 +51,10 @@ function check(text) {
   for (const c of body) {
     if (simplified.has(c)) {
       add(found, 'simplified:' + c, { type: 'simplified', from: c, to: simplified.get(c) });
-    } else if (KANA.test(c)) {
+    }
+  }
+  for (const c of stripBracketed(body)) {
+    if (KANA.test(c)) {
       add(found, 'kana', { type: 'kana', from: c, to: '' });
     } else if (HANGUL.test(c)) {
       add(found, 'hangul', { type: 'hangul', from: c, to: '' });
@@ -51,4 +69,4 @@ function describe(f) {
   return `混入韓文（例如「${f.from}」）`;
 }
 
-module.exports = { check, describe, stripQuoted, MIN_HAN };
+module.exports = { check, describe, stripQuoted, stripBracketed, MIN_HAN };
