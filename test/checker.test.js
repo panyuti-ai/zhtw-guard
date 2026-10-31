@@ -66,3 +66,11 @@ test('hook does not ask twice; it only tells the user', () => {
 test('clean reply produces no output', () => {
   assert.equal(decide({ last_assistant_message: '這個軟體的預設設定已經改好了，請重新啟動看看。' }), null);
 });
+
+test('Taiwan standard forms that OpenCC writes differently are not flagged', () => {
+  assert.deepEqual(froms('請把群組設定好，秘書會把床單送到山峰上的小屋，痴痴等待粽子和灶台，真倒霉。'), []);
+});
+
+test('Simplified or Japanese-only forms Taiwan does not use are still flagged', () => {
+  assert.ok(froms('這個內容放在内部資料夾，請把线路接好再測試一次。').includes('内'));
+});
