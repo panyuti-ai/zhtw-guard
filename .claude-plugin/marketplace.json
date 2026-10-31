@@ -1,0 +1,12 @@
+{
+  "name": "zhtw-guard",
+  "description": "Traditional Chinese (Taiwan) wording guard for Claude Code",
+  "owner": { "name": "Yu-Ting Pan" },
+  "plugins": [
+    {
+      "name": "zhtw-guard",
+      "source": "./plugins/zhtw-guard",
+      "description": "Checks every reply for Mainland-China terms, Simplified characters, and stray Japanese or Korean, and asks Claude to rewrite once."
+    }
+  ]
+}
