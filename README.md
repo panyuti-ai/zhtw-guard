@@ -30,6 +30,8 @@ Mainland-China wording written in Traditional characters (線程, 軟件) is **n
 2. If it finds anything, Claude gets one rewrite request listing each fix.
 3. If the rewrite still has problems, you see a notice instead. Claude is asked at most once per reply, so it never loops.
 
+If your prompt explicitly asks for Simplified Chinese (「用簡體回答」, 「翻成简体」, "in Simplified Chinese"), Simplified characters in that reply are left alone; kana and Korean are still checked. A `UserPromptSubmit` hook notes this per session; mentioning Simplified text (「原文是簡體」) or saying 「不要用簡體」 does not count as a request.
+
 The hook decodes its input as UTF-8 itself, so a Windows ANSI code page (cp950 on Traditional Chinese Windows) cannot garble the text before it is checked ([anthropics/claude-code#96285](https://github.com/anthropics/claude-code/issues/96285)).
 
 ## Limits
@@ -58,7 +60,7 @@ node --test test/*.test.js
 
 ## 中文說明
 
-Claude 用繁體中文回答時，偶爾會混進簡體字，甚至日文或韓文；在 CLAUDE.md 寫了要繁體中文也一樣。`zhtw-guard` 會在每次回答後自動檢查，抓到就請 Claude 重寫一次。程式碼、指令和網址不檢查。
+Claude 用繁體中文回答時，偶爾會混進簡體字，甚至日文或韓文；在 CLAUDE.md 寫了要繁體中文也一樣。`zhtw-guard` 會在每次回答後自動檢查，抓到就請 Claude 重寫一次。程式碼、指令和網址不檢查。你明確要求簡體時（例如「用簡體回答」「翻成简体」），那一則就不抓簡體字。
 
 「線程、軟件」這類用繁體字寫的大陸用語不會被抓：很多詞台灣也在用，連台灣官方的名詞表都有收錄，硬抓只會讓人煩。之後可能會加上以辭典為依據的檢查。
 
