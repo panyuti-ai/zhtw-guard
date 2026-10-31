@@ -4,6 +4,15 @@ A Claude Code plugin for people who work with Claude in Traditional Chinese (Tai
 
 Claude sometimes slips Simplified characters, or even stray Japanese and Korean, into Traditional Chinese replies, even when `CLAUDE.md` asks for Traditional Chinese ([anthropics/claude-code#46846](https://github.com/anthropics/claude-code/issues/46846), [anthropics/claude-code#95284](https://github.com/anthropics/claude-code/issues/95284)). A rule in a prompt is a request. `zhtw-guard` is a check: it runs after every reply and, when it finds a problem, asks Claude to rewrite the reply once.
 
+## Does it work?
+
+Measured on 50 Traditional Chinese prompts, 3 runs each ([benchmark/](benchmark/), 2026-10-31):
+
+- Given a Simplified Chinese text to summarize or rewrite, and no explicit 「請用繁體中文回答」, Claude Code (Sonnet 5.5) answered entirely in Simplified 7 times in 150 answers. Codex (GPT-6.1-Sol): 0.
+- On those failing prompts, with zhtw-guard loaded: Claude's first reply was Simplified in 6 of 9 runs; zhtw-guard asked for a rewrite each time and **all 9 final answers had no Simplified characters**.
+
+All prompts, raw answers and scoring code are in [benchmark/](benchmark/).
+
 ## Install
 
 In Claude Code:
@@ -54,11 +63,15 @@ It prints JSON and exits with 1 when anything is found.
 node --test test/*.test.js
 ```
 
+The benchmark has its own instructions in [benchmark/README.md](benchmark/README.md).
+
 `plugins/zhtw-guard/lib/simplified-chars.js` is generated from [OpenCC](https://github.com/BYVoid/OpenCC) by `tools/build-simplified.py`.
 
 ---
 
 ## 中文說明
+
+實測：給 Claude 簡體原文又沒要求繁體時，它會整段用簡體回答；裝了 zhtw-guard 之後，9 次最終回答都沒有簡體字（見 [benchmark/](benchmark/)）。
 
 Claude 用繁體中文回答時，偶爾會混進簡體字，甚至日文或韓文；在 CLAUDE.md 寫了要繁體中文也一樣。`zhtw-guard` 會在每次回答後自動檢查，抓到就請 Claude 重寫一次。程式碼、指令和網址不檢查。你明確要求簡體時（例如「用簡體回答」「翻成简体」），那一則就不抓簡體字。
 

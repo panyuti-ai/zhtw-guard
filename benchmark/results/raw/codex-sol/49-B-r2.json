@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。\n\n請用繁體中文回答。",
+ "answer": "可以用泛型 `T` 表示陣列元素的型別，並用 `T | undefined` 處理空陣列：\n\n```typescript\nfunction last<T>(items: readonly T[]): T | undefined {\n  return items.length === 0\n    ? undefined\n    : items[items.length - 1];\n}\n```\n\nTypeScript 會根據傳入的陣列推導 `T`：\n\n```typescript\nconst a = last([1, 2, 3]);\n// T = number，a：number | undefined\n\nconst b = last([\"甲\", \"乙\"]);\n// T = string，b：string | undefined\n\nconst c = last([1, \"乙\"]);\n// T = number | string\n// c：number | string | undefined\n\nconst d = last<number>([]);\n// 明確指定 T = number\n// d：number | undefined，實際值為 undefined\n```\n\n`readonly T[]` 讓函式同時接受一般陣列與唯讀陣列，也表示函式不會修改陣列。回傳型別包含 `undefined`，因為一般陣列型別無法保證陣列至少有一個元素。",
+ "finished_at": "2026-10-31T16:11:23+00:00",
+ "seconds": 9.6
+}

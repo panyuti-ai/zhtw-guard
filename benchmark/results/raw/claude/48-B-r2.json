@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "# 排查 Node.js 記憶體持續增長\n\n## 1. 先確認是真的洩漏\n- 觀察 `process.memoryUsage()`：\n  ```js\n  setInterval(() => {\n    const m = process.memoryUsage();\n    console.log({\n      rss: (m.rss/1e6).toFixed(0)+'MB',\n      heapUsed: (m.heapUsed/1e6).toFixed(0)+'MB',\n      external: (m.external/1e6).toFixed(0)+'MB',\n      arrayBuffers: (m.arrayBuffers/1e6).toFixed(0)+'MB',\n    });\n  }, 10000);\n  ```\n- 判讀：\n  - **heapUsed 持續上升**（GC 後也不降）→ JS 物件洩漏\n  - **rss/external/arrayBuffers 上升、heapUsed 平穩** → Buffer、原生模組或 C++ 層洩漏\n  - 鋸齒狀但整體平穩 → 正常 GC，不是洩漏\n- 可用 `node --max-old-space-size=512 --trace-gc app.js` 觀察 GC 行為。\n\n## 2. 取得 Heap Snapshot 並比對（最有效）\n1. 啟動時加上 inspector：\n   ```bash\n   node --inspect app.js\n   ```\n   然後在 Chrome 開 `chrome://inspect` → Inspect → **Memory** 分頁。\n2. 流程：\n   - 程式暖機後，**Take snapshot #1**\n   - 施加一段負載（或等一段時間）\n   - **Take snapshot #2**、再一次 **#3**\n3. 在 #3 選 **Comparison**（對比 #1/#2），依 **Size Delta / # Delta** 排序，找持續增加的物件類型。\n4. 點開可疑物件，看底下 **Retainers**，就能知道是誰一直抓著它不放。\n\n不方便接 DevTools 的環境（例如正式環境）：\n```js\nconst v8 = require('v8');\nv8.writeHeapSnapshot(); // 產生 .heapsnapshot，再下載到本機用 DevTools 載入\n```\n或用 `kill -USR2` 搭配 `--heapsnapshot-signal=SIGUSR2` 啟動：\n```bash\nnode --heapsnapshot-signal=SIGUSR2 app.js\nkill -USR2 <pid>\n```\n注意：產生 snapshot 時會暫停程式並暫用大量記憶體，正式環境請先摘流量。\n\n## 3. 其他輔助工具\n- **Allocation instrumentation on timeline**（DevTools Memory）：看哪些分配一直沒被釋放，並直接對應到程式碼行。\n- **`node --heap-prof`**：取樣式 heap profile，看是哪些函式分配最多。\n- **clinic.js**（`npx clinic doctor -- node app.js`）、**memlab**（Meta，自動找洩漏）。\n\n## 4. 常見洩漏原因（對照檢查）\n| 類型 | 典型情況 |\n|---|---|\n| 全域/模組層快取 | `const cache = {}` / `Map` 只增不刪，沒有上限或 TTL（改用 LRU，如 `lru-cache`） |\n| 事件監聽器 | 重複 `emitter.on` 沒 `off`；出現 `MaxListenersExceededWarning` 就是警訊 |\n| 計時器 | `setInterval` 沒 `clearInterval`，closure 抓住大物件 |\n| Closure | 回呼閉包意外引用大物件 |\n| 請求相關 | 把 `req`/`res` 存進全域陣列；未結束的 stream、未處理完的 Promise |\n| 連線 | DB/HTTP 連線未關閉、沒用連線池、keep-alive socket 累積 |\n| 日誌/佇列 | 無上限的陣列、消息佇列堆積（消費速度 < 生產速度） |\n| Buffer | 大量 `Buffer.allocUnsafe`、沒處理 backpressure 的 stream |\n| 第三方套件 | 以 snapshot retainers 找出是哪個套件持有 |\n\n## 5. 建議的實務步驟\n1. 加上 `memoryUsage` 記錄，確認是 heap 還是 rss 增長。\n2. 在本機或預備環境用壓測工具（`autocannon`、`k6`）重現。\n3. 取 3 次 snapshot 做 Comparison，鎖定增長最多的 constructor。\n4. 看 Retainers 回溯到持有者，修正（加上限、移除監聽、清除計時器等）。\n5. 修正後再跑同樣壓測，確認 heapUsed 在 GC 後能回落。\n\n---\n\n如果你願意，可以給我：\n- 專案程式碼（或我直接在目前目錄幫你看）\n- `memoryUsage` 的輸出數字\n- 使用的框架（Express/Fastify/Next.js…）與主要套件\n\n我可以幫你更精準地判斷可能的洩漏點。",
+ "finished_at": "2026-10-31T15:40:45+00:00",
+ "seconds": 19.7,
+ "cost_usd": 0.020776700000000002
+}

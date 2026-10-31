@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？\n\n請用繁體中文回答。",
+ "answer": "# Git：rebase 與 merge\n\n兩者都是把一條分支的變更整合進另一條分支，差別在於**歷史怎麼呈現**。\n\n## merge（合併）\n\n```bash\ngit switch main\ngit merge feature\n```\n\n- 建立一個新的「合併提交（merge commit）」，有兩個父節點。\n- **保留完整歷史**：誰在何時從哪裡分出、何時合回，都看得到。\n- 不改動既有提交，因此安全。\n- 缺點：分支多時，歷史圖會出現大量交叉線與 merge commit，不易閱讀。\n\n## rebase（變基）\n\n```bash\ngit switch feature\ngit rebase main\n```\n\n- 把 feature 分支的提交「摘下來」，接到 main 最新提交之後重新套用。\n- 產生**線性、乾淨的歷史**。\n- 但這些提交會被**重寫**（hash 改變）。\n- 缺點：若已推送到共用分支再 rebase，會造成他人歷史衝突；衝突需逐個提交解決。\n\n## 圖示\n\n```\n起點：\n      A---B---C  feature\n     /\nD---E---F        main\n\nmerge 後：\n      A---B---C\n     /         \\\nD---E---F-------M   main\n\nrebase 後（再 fast-forward merge）：\nD---E---F---A'---B'---C'   main\n```\n\n## 各適合什麼情況\n\n| 情況 | 建議 |\n|---|---|\n| 把個人 feature 分支更新到最新 main | **rebase** |\n| 合併前整理自己的零碎提交（`rebase -i`，squash／reword） | **rebase** |\n| 將 feature 正式併入 main／release，想保留分支脈絡 | **merge** |\n| 分支已推送且多人共用 | **merge** |\n| 需要可追溯的合併紀錄（稽核、大型團隊） | **merge** |\n| 想要線性歷史，方便 `git bisect`、閱讀 log | **rebase**（或 squash merge） |\n\n## 黃金守則\n\n> **不要 rebase 已經公開、別人可能已基於其工作的提交。**\n\n若必須在已推送的個人分支 rebase，使用 `git push --force-with-lease`，比 `--force` 安全。\n\n## 常見的團隊工作流\n\n1. 開發時：在 feature 分支用 `git rebase main` 保持同步，並用 `rebase -i` 整理提交。\n2. 合併時：透過 PR 用 merge commit 或 squash merge 併入 main。\n\n這樣既有乾淨的提交，又保有主線的合併紀錄。",
+ "finished_at": "2026-10-31T15:35:04+00:00",
+ "seconds": 11.6,
+ "cost_usd": 0.0120865
+}

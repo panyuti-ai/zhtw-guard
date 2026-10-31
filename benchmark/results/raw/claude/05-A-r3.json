@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 5,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "什麼是快取？快取失效有哪些常見策略？",
+ "answer": "# 什麼是快取（Cache）？\n\n快取是把**計算成本高或讀取速度慢的資料**，暫時存放在**更快的儲存層**中，使後續相同請求可以直接取用，而不必重新計算或從源頭讀取。\n\n**核心效益：**\n- 降低延遲（記憶體 vs. 磁碟／網路）\n- 減輕後端（資料庫、API）負載\n- 提升吞吐量、節省成本\n\n**常見層級：** CPU 快取、瀏覽器快取、CDN、應用程式快取（Redis、Memcached）、資料庫查詢快取。\n\n**代價：** 資料可能與源頭不一致（stale data），所以需要「失效策略」。\n\n---\n\n## 快取失效（Invalidation）常見策略\n\n### 1. TTL（Time-To-Live，存活時間）\n為每筆資料設定過期時間，到期自動移除。\n- ✅ 簡單、無需額外協調\n- ❌ 期限內可能讀到舊資料；TTL 太短則命中率低\n- 建議：加上隨機抖動（jitter），避免大量 key 同時過期\n\n### 2. 主動失效／刪除（Explicit Invalidation）\n資料更新時，由程式主動刪除或更新對應快取。\n- ✅ 一致性較好\n- ❌ 需要清楚掌握資料依賴關係，容易遺漏\n\n### 3. 寫入策略（Write Policies）\n- **Cache-Aside（旁路快取）**：讀時先查快取，未命中再查 DB 並回填；寫時更新 DB 後**刪除**快取。最常用。\n- **Write-Through**：寫入時同時寫快取與 DB，一致性高，但寫入延遲較高。\n- **Write-Behind（Write-Back）**：先寫快取，再非同步寫入 DB。寫入快，但有資料遺失風險。\n\n### 4. 淘汰策略（Eviction，容量滿時）\n- **LRU**：淘汰最久未使用\n- **LFU**：淘汰使用頻率最低\n- **FIFO**：先進先出\n- **Random**：隨機淘汰\n\n### 5. 版本號／內容雜湊（Versioning）\n在 key 或 URL 中加入版本或 hash（如 `app.a1b2c3.js`），內容變動即產生新 key，舊的自然不再被使用。常用於靜態資源與 CDN。\n\n### 6. 事件驅動失效（Event-Driven）\n透過訊息佇列、資料庫 binlog／CDC（如 Canal、Debezium）或 Pub/Sub，在資料變動時通知各節點清除快取。適合分散式系統。\n\n### 7. 條件驗證（HTTP Revalidation）\n使用 `ETag`／`Last-Modified` 搭配 `If-None-Match`，向伺服器確認資料是否變更，未變則回 304，省去傳輸。\n\n### 8. Stale-While-Revalidate\n先回傳舊資料，同時在背景更新快取，兼顧速度與新鮮度。\n\n---\n\n## 常見問題與對策\n\n| 問題 | 說明 | 對策 |\n|---|---|---|\n| **快取穿透** | 查詢不存在的資料，每次都打到 DB | 快取空值、布隆過濾器 |\n| **快取擊穿** | 熱點 key 過期瞬間大量請求湧入 DB | 互斥鎖、邏輯過期、熱點不過期 |\n| **快取雪崩** | 大量 key 同時過期或快取服務掛掉 | TTL 加隨機值、多級快取、高可用叢集、限流降級 |\n\n---\n\n## 選擇建議\n- 一般業務資料：**Cache-Aside + TTL + 更新時刪除快取**\n- 靜態資源：**版本號／hash + 長 TTL**\n- 多服務架構：**事件驅動（CDC）失效**\n- 對一致性要求極高：避免快取，或使用 Write-Through 並縮短 TTL\n\n> 名言：「電腦科學中只有兩件難事：快取失效和命名。」——Phil Karlton",
+ "finished_at": "2026-10-31T15:41:46+00:00",
+ "seconds": 15.2,
+ "cost_usd": 0.0174447
+}

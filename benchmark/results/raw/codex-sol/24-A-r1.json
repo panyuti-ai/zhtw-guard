@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 24,
+ "category": "daily",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "推薦三本適合大學生讀的書，並說明理由。",
+ "answer": "推薦這三本，分別對應大學階段很值得探索的三個問題：**如何看待教育、如何做判斷，以及如何選擇未來。**\n\n1. **《垃圾場長大的自學人生》（Educated）｜塔拉・韋斯托**\n   作者在與主流社會隔絕的家庭長大，透過求學逐步拓展自己的世界。這本回憶錄呈現了教育如何改變一個人，也寫出成長與家庭關係之間的拉扯。[書籍介紹](https://www.penguinrandomhouse.com/books/550168/educated-by-tara-westover/)\n   \n   **推薦理由：**大學是開始形成獨立觀點的時期。這本書能讓你思考：哪些信念來自自己的判斷？當想法與家人不同時，又該如何面對？\n\n2. **《快思慢想》（Thinking, Fast and Slow）｜丹尼爾・康納曼**\n   本書透過直覺與審慎思考兩種模式，說明人如何形成判斷，以及思考容易出現的偏誤。[書籍介紹](https://academic.macmillan.com/academictrade/9780374533557/thinkingfastandslow/)\n   \n   **推薦理由：**無論讀新聞、做研究、參與討論或選課，都需要辨別證據與直覺。它能提醒你，在「我很確定」的時候多追問一步。內容較密，適合分章慢讀。\n\n3. **《做自己的生命設計師》（Designing Your Life）｜比爾・柏內特、戴夫・伊凡斯**\n   兩位作者將設計思考運用在人生規劃上，鼓勵讀者探索可能性，逐步建立有意義的生活。[書籍介紹](https://www.penguinrandomhouse.com/books/249885/designing-your-life-by-bill-burnett-and-dave-evans/9781101875322/)\n   \n   **推薦理由：**很適合對科系、實習或畢業方向感到迷惘的人。讀的時候，可以把想法轉成小規模嘗試，例如訪談學長姐、參加專題或體驗不同工作，藉此更了解自己的偏好。",
+ "finished_at": "2026-10-31T15:49:43+00:00",
+ "seconds": 29.4
+}

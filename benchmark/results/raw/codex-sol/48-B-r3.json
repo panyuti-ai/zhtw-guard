@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "先分清楚：**記憶體增加不一定代表洩漏**。重點是觀察負載降低、垃圾回收後，記憶體是否仍持續上升。\n\n可以依這個順序排查：\n\n### 1. 確認是哪一種記憶體增加\n\n每隔一段時間記錄：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log(\n    Object.fromEntries(\n      Object.entries(m).map(([key, value]) => [\n        key,\n        `${(value / 1024 / 1024).toFixed(1)} MB`,\n      ])\n    )\n  );\n}, 10_000).unref();\n```\n\n主要看這幾個值：\n\n| 指標 | 意義 | 持續增加時優先檢查 |\n|---|---|---|\n| `heapUsed` | JavaScript 物件使用量 | 物件仍被引用、快取、事件監聽器 |\n| `heapTotal` | V8 已配置的 heap | 單獨增加不代表洩漏 |\n| `external` | 與 JS 物件關聯的外部記憶體 | Buffer、原生套件 |\n| `arrayBuffers` | ArrayBuffer 與 Buffer 的記憶體 | 大檔案、網路資料、串流 |\n| `rss` | 整個程序駐留的實體記憶體 | 上述各項、原生配置、記憶體碎片 |\n\n`arrayBuffers` 已包含在 `external` 中，不能重複相加。若只有 `rss` 增加、其他值穩定，也可能是配置器保留記憶體或碎片化。\n\n### 2. 用固定負載重現，觀察回收後的趨勢\n\n在測試環境跑幾輪相同請求，讓程序有空閒時間。\n\n- **鋸齒狀上升再下降，低點大致穩定**：通常是正常垃圾回收。\n- **每輪回收後的低點都更高**：較像物件持續累積。\n- **只在高併發時增加，停止流量後恢復**：檢查排隊、背壓與同時處理的資料量。\n\n必要時可在測試環境觀察 GC：\n\n```bash\nnode --trace-gc app.js\n```\n\n### 3. 比較 Heap Snapshot，找出誰留住物件\n\n在本機或隔離的測試環境啟動：\n\n```bash\nnode --inspect app.js\n```\n\n用 Chrome 開啟 `chrome://inspect`，進入 DevTools 的 **Memory**：\n\n1. 暖機後做一次垃圾回收，拍第一份 Heap Snapshot。\n2. 執行固定數量的操作。\n3. 再回收、拍第二份。\n4. 重複一次，確認哪些物件持續累積。\n\n使用 **Comparison** 檢查數量與大小增長，再查看物件的 **Retainers**：是誰還引用它，導致它無法回收？\n\n**Retained Size** 特別有用：它能幫你找出看起來很小、卻間接留住大量資料的物件。\n\n> Heap Snapshot 會暫停主執行緒、可能大量耗用記憶體，也可能包含敏感資料；優先在測試環境操作，避免直接對接近記憶體上限的正式程序拍攝。\n\n### 4. 優先檢查常見累積來源\n\n- **無上限快取**：全域 `Map`、陣列一直新增，沒有 TTL 或容量限制。\n- **事件監聽器**：每次請求都 `on()`，結束後未移除。\n- **計時器與閉包**：`setInterval()` 或 callback 長期引用大型物件。\n- **未完成的工作**：請求缺乏 timeout、Promise 或重試佇列持續堆積。\n- **Buffer 與串流**：整份檔案讀進記憶體，或忽略背壓。\n- **連線與資源**：WebSocket、資料庫連線或訂閱未釋放。\n\n若 `heapUsed` 很穩定、主要是 `external` 或 `rss` 增加，Heap Snapshot 可能無法完整解釋來源，應進一步檢查 Buffer 的生命週期及原生套件。\n\n**不要先靠調大 `--max-old-space-size` 解決**；它只調整 V8 old space 的限制，無法修復持續累積的引用。\n\n你可以貼上 Node.js 版本、上述記憶體數值的趨勢，以及程式主要處理的工作，我可以幫你縮小排查方向。",
+ "finished_at": "2026-10-31T16:26:47+00:00",
+ "seconds": 31.8
+}

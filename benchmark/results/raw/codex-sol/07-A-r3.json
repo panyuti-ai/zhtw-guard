@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？",
+ "answer": "**OAuth 是一套「授權」機制：讓網站在你同意的範圍內使用你的資料，而不必取得你的密碼。** 例如，你可以允許相簿網站讀取 Google 相片，卻不授權它讀取 Gmail。[OAuth 官方介紹](https://oauth.net/2/)\n\n「使用 Google 登入」還涉及另一件事：**確認你是誰**。這通常由建立在 OAuth 2.0 上的 **OpenID Connect（OIDC）** 負責：\n\n- **OAuth：**這個網站可以存取哪些資料、執行哪些操作？\n- **OIDC：**目前登入的人是誰？[OpenID Foundation 說明](https://openid.net/developers/how-connect-works/)\n\n以你透過 Google 登入網站 A 為例，常見流程如下：\n\n1. **你點「使用 Google 登入」。**  \n   網站 A 把瀏覽器導向 Google，附上自己的識別碼、完成後的返回網址，以及希望取得的權限，例如基本個人資料和電子郵件地址。\n\n2. **Google 確認你的身分與授權。**  \n   你在 Google 的頁面登入、選擇帳號，並視情況確認權限。若已登入且先前已授權，部分畫面可能省略。**正常流程中，你的 Google 密碼不會交給網站 A。**\n\n3. **Google 把你導回網站 A，附上一張短效的「兌換券」。**  \n   這叫作授權碼（authorization code），不是你的密碼，也不是網站可以直接拿來讀資料的通行證。\n\n4. **網站 A 用授權碼換取憑證。**  \n   在常見的伺服器端流程中，網站後端向 Google 換取 token。登入用途的 **ID token** 提供身分資訊；**access token** 則讓網站呼叫獲准的 API。PKCE 等保護機制可以防止被攔截的授權碼遭人冒用。\n\n5. **網站 A 驗證身分，建立自己的登入狀態。**  \n   它驗證 ID token 的簽章、有效期，以及是否發給自己，再對應或建立你的帳號，通常透過 session cookie 讓你保持登入。[Google 協定參考](https://developers.google.com/identity/openid-connect/reference)、[Login.gov 流程與 PKCE 說明](https://developers.login.gov/oidc/authorization/pkce/)、[Microsoft OIDC 登入說明](https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc)\n\n所以，從你的角度看只是按了一個登入按鈕；背後則是 **Google 確認身分、你授予權限、網站驗證憑證，最後建立自己的登入狀態**。第三方網站得到的是身分證明與指定範圍的存取權限，不是你的 Google 密碼。",
+ "finished_at": "2026-10-31T16:13:58+00:00",
+ "seconds": 26.4
+}

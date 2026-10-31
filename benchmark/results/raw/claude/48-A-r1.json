@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "以下是排查 Node.js 記憶體洩漏的常用流程，由簡到繁：\n\n## 1. 先確認是不是真的洩漏\n\n用 `process.memoryUsage()` 定期記錄：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1048576).toFixed(1) + 'MB',\n    heapUsed: (m.heapUsed / 1048576).toFixed(1) + 'MB',\n    external: (m.external / 1048576).toFixed(1) + 'MB',\n    arrayBuffers: (m.arrayBuffers / 1048576).toFixed(1) + 'MB',\n  });\n}, 10000).unref();\n```\n\n判讀：\n- **heapUsed 持續上升**（GC 後也不降）：JS 物件洩漏，最常見。\n- **rss / external / arrayBuffers 上升但 heapUsed 平穩**：Buffer、原生模組、stream 沒釋放。\n- **只是升到某個水位後穩定**：多半是 V8 延後 GC，不是洩漏。可用 `--max-old-space-size` 限制後觀察。\n\n## 2. 用 Heap Snapshot 比對（最有效）\n\n```bash\nnode --inspect app.js\n```\n\n1. Chrome 開 `chrome://inspect` → Inspect → **Memory** 分頁\n2. 程式啟動穩定後拍 **Snapshot 1**\n3. 對程式施加負載（跑一批請求）\n4. 拍 **Snapshot 2**、再負載、拍 **Snapshot 3**\n5. 選 Snapshot 3，右上改成 **Comparison**，與前一個比對，按 **Delta / Size Delta** 排序\n\n重點看持續增長的物件類型，點進去看 **Retainers**（誰在持有它），就能定位到程式碼。\n\n沒有 GUI 的伺服器上，可以直接程式內產生：\n\n```js\nconst v8 = require('v8');\nv8.writeHeapSnapshot(); // 產生 .heapsnapshot，下載到本機用 Chrome DevTools 載入\n```\n\n或用信號觸發：`node --heapsnapshot-signal=SIGUSR2 app.js`，然後 `kill -USR2 <pid>`。\n\n注意：拍 snapshot 時會暫停程式並多用約 2 倍記憶體，正式環境小心。\n\n## 3. 其他輔助工具\n\n- **`clinic doctor` / `clinic heapprofiler`**：`npx clinic doctor -- node app.js`，自動判讀。\n- **`node --heap-prof app.js`**：取樣式 allocation profile，看是哪些函式在配置記憶體。\n- **`memlab`**（Meta）：自動化比對 snapshot 找洩漏。\n\n## 4. 常見洩漏原因檢查清單\n\n| 類型 | 典型寫法 |\n|---|---|\n| 全域/模組層級快取無上限 | `const cache = {}` 一直寫入、從不清除 → 改用 `lru-cache` 或加 TTL |\n| 事件監聽器累積 | 在請求內 `emitter.on(...)` 卻沒 `off`；出現 `MaxListenersExceededWarning` 就是警訊 |\n| 計時器沒清 | `setInterval` 沒 `clearInterval`，closure 持有大物件 |\n| Closure 意外持有引用 | callback 裡引用了大型物件 |\n| Promise 永遠不 resolve | 一堆 pending promise 持有 context |\n| Stream 沒消費/沒銷毀 | 忘記 `pipeline`、錯誤時沒 `destroy()` |\n| 連線沒關 | DB、HTTP keep-alive agent、WebSocket 斷線後沒清理 |\n| `Map`/`Set` 只增不減 | 用 `WeakMap`/`WeakSet` 或定期清 |\n| 日誌/指標標籤爆量 | 以 userId、URL 當 metric label |\n\n## 5. 實務建議\n\n- 先在本機用壓測工具（`autocannon`、`k6`）重現，再做 snapshot 比對，比在正式環境抓容易。\n- 用 `--trace-gc` 看 GC 頻率與回收量，可佐證是否真的回收不掉。\n- 在 Docker/K8s 要記得設定 `--max-old-space-size`，需小於容器記憶體限制，否則會被 OOMKill 而看不到錯誤。\n\n如果你願意，可以告訴我：\n1. `process.memoryUsage()` 哪一項在漲（heapUsed 還是 rss）\n2. 用了哪些框架／套件（Express、Socket.IO、Prisma 等）\n3. 增長速度（每小時多少 MB）\n\n或者直接把專案程式碼放進這個工作目錄，我可以幫你檢查常見洩漏模式。",
+ "finished_at": "2026-10-31T15:33:42+00:00",
+ "seconds": 16.7,
+ "cost_usd": 0.0221464
+}

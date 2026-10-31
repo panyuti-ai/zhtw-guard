@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "## 基本版本\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr[arr.length - 1];\n}\n```\n\n空陣列時沒有最後一個元素，所以回傳型別是 `T | undefined`。\n\n## 型別推導過程\n\n```ts\nconst a = last([1, 2, 3]);        // number | undefined\nconst b = last([\"x\", \"y\"]);       // string | undefined\nconst c = last([1, \"a\", true]);   // string | number | boolean | undefined\nconst d = last([] as Date[]);     // Date | undefined\n```\n\n以 `last([1, 2, 3])` 為例：\n\n1. 參數型別是 `readonly T[]`，傳入的實參是 `number[]`（字面量 `[1, 2, 3]` 先被推成 `number[]`）。\n2. TypeScript 把 `T[]` 與 `number[]` 比對，得出 `T = number`。\n3. 回傳型別 `T | undefined` 代入後成為 `number | undefined`。\n\n混合型別的例子 `[1, \"a\", true]` 會被推成 `(string | number | boolean)[]`，所以 `T` 就是那個聯集型別。\n\n用 `readonly T[]` 的好處是可同時接受一般陣列與唯讀陣列，因為 `T[]` 可賦值給 `readonly T[]`，反過來則不行。\n\n## 保留字面量型別（進階）\n\n預設情況下 `T` 會被放寬成 `number`。如果想保留字面量，可以加上 `const` 型別參數（TS 5.0+）：\n\n```ts\nfunction lastLiteral<const T extends readonly unknown[]>(arr: T): T[number] | undefined {\n  return arr[arr.length - 1];\n}\n\nconst e = lastLiteral([1, 2, 3]);  // 1 | 2 | 3 | undefined\n```\n\n這裡的推導：\n- `const T` 讓實參被推成 `readonly [1, 2, 3]`（唯讀 tuple）。\n- `T[number]` 是索引存取型別，取得 tuple 所有元素型別的聯集，即 `1 | 2 | 3`。\n\n## 精確回傳 tuple 最後一個型別（進階）\n\n若要在 tuple 上得到精確的最後一項型別：\n\n```ts\ntype Last<T extends readonly unknown[]> =\n  T extends readonly [...unknown[], infer L] ? L : T[number] | undefined;\n\nfunction lastExact<const T extends readonly unknown[]>(arr: T): Last<T> {\n  return arr[arr.length - 1] as Last<T>;\n}\n\nconst f = lastExact([1, \"a\", true]);  // true\nconst g = lastExact([] as number[]);  // number | undefined\n```\n\n- `T extends readonly [...unknown[], infer L]` 是條件型別：若 `T` 末尾至少有一個元素，就用 `infer` 取出該位置的型別為 `L`。\n- 一般陣列（長度不定）不符合該模式，退回 `T[number] | undefined`。\n- 函式內部需要 `as` 斷言，因為 TypeScript 無法在實作中驗證條件型別的結果。\n\n## 建議\n\n一般情況用第一個版本就夠了；只有需要對 tuple 取得精確型別時，才用後面兩種。",
+ "finished_at": "2026-10-31T15:33:50+00:00",
+ "seconds": 12.1,
+ "cost_usd": 0.0165264
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "React 元件一直重複 render，常見原因如下（由最常見排起）：\n\n## 1. 在 render 期間直接呼叫 setState\n```jsx\nfunction Comp() {\n  const [n, setN] = useState(0);\n  setN(n + 1); // ❌ 每次 render 都觸發新的 render，無限迴圈\n}\n```\n另一個常見錯誤是 `onClick={setN(1)}`，應寫成 `onClick={() => setN(1)}`。\n\n## 2. useEffect 依賴陣列問題\n```jsx\nuseEffect(() => {\n  setData(fetchData());\n}); // ❌ 沒有依賴陣列，每次 render 後都執行\n```\n- 沒寫依賴陣列 → 每次 render 都跑。\n- effect 內更新了自己依賴的 state → 迴圈。\n- 依賴放了每次都會重新建立的物件、陣列或函式 → 每次都被視為「變了」。\n\n## 3. 依賴或 props 的參考（reference）每次都改變\n```jsx\nconst options = { a: 1 };            // 每次 render 都是新物件\nuseEffect(() => { ... }, [options]); // 每次都觸發\n```\n解法：用 `useMemo`、`useCallback`，或把常數移到元件外面。\n\n## 4. 父元件重新 render\n父元件 render 時，子元件預設也會 re-render。若父元件每次傳新的物件、陣列、inline 函式給子元件，即使用 `React.memo` 也會失效。\n解法：`React.memo` + `useCallback`/`useMemo` 穩定 props。\n\n## 5. Context value 每次都變\n```jsx\n<Ctx.Provider value={{ user, setUser }}> // ❌ 每次都是新物件\n```\n所有使用該 context 的元件都會重新 render。請用 `useMemo` 包住 value。\n\n## 6. 在元件內定義子元件\n```jsx\nfunction Parent() {\n  const Child = () => <div />; // ❌ 每次 render 都是新的元件型別，會被卸載重建\n}\n```\n請把 `Child` 移到 `Parent` 外面。\n\n## 7. 其他\n- **StrictMode**：開發環境下會刻意 render 兩次，屬正常現象，production 不會。\n- **狀態管理**：Redux `useSelector` 回傳新物件（如 `.map()`/`.filter()` 結果），或 Zustand 沒有用 selector，都會造成不必要的 render。\n- **key 不穩定**：用 `Math.random()` 或 index 當 key，會導致子元件重建。\n\n---\n\n## 除錯方法\n1. **React DevTools Profiler**：勾選 \"Record why each component rendered\"，直接看到是哪個 props/state/hook 變了。\n2. 在元件內加 log 追蹤：\n```jsx\nuseEffect(() => { console.log('deps changed', dep1, dep2); }, [dep1, dep2]);\n```\n3. 用 `why-did-you-render` 套件自動提示不必要的 render。\n\n---\n\n如果你願意貼出元件程式碼（尤其是 `useEffect`、`useState` 和傳給子元件的 props），我可以幫你精準找出是哪一個原因。",
+ "finished_at": "2026-10-31T15:32:34+00:00",
+ "seconds": 13.3,
+ "cost_usd": 0.0162344
+}

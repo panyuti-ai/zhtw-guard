@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。",
+ "answer": "# 單元測試的核心原則\n\n1. **單一職責**：一個測試只驗證一個行為，失敗時能立刻知道哪裡壞了。\n2. **獨立且可重複**：測試之間不共用狀態、不依賴執行順序，每次結果相同。\n3. **快速**：不連真實資料庫、網路、檔案系統，必要時用 mock／stub 隔離。\n4. **AAA 結構**：Arrange（準備）→ Act（執行）→ Assert（驗證）。\n5. **測行為而非實作**：只測公開介面的輸入與輸出，重構內部程式碼時測試不該壞。\n6. **涵蓋邊界與錯誤情況**：空值、0、負數、極大值、例外，而不只是 happy path。\n7. **命名清楚**：從測試名稱就能讀出情境與預期結果。\n8. **可讀性優先**：測試也是文件，避免在測試裡寫複雜邏輯（迴圈、條件判斷）。\n\n# Jest 範例\n\n**`discount.js`**\n```js\nfunction applyDiscount(price, percent) {\n  if (price < 0) throw new Error('價格不可為負數');\n  if (percent < 0 || percent > 100) throw new Error('折扣必須介於 0 到 100');\n  return price * (1 - percent / 100);\n}\n\nmodule.exports = { applyDiscount };\n```\n\n**`discount.test.js`**\n```js\nconst { applyDiscount } = require('./discount');\n\ndescribe('applyDiscount', () => {\n  test('折扣 20% 時，100 元應變成 80 元', () => {\n    // Arrange\n    const price = 100;\n    const percent = 20;\n\n    // Act\n    const result = applyDiscount(price, percent);\n\n    // Assert\n    expect(result).toBe(80);\n  });\n\n  test('折扣 0% 時價格不變', () => {\n    expect(applyDiscount(100, 0)).toBe(100);\n  });\n\n  test('折扣 100% 時價格為 0', () => {\n    expect(applyDiscount(100, 100)).toBe(0);\n  });\n\n  test('價格為負數時應拋出錯誤', () => {\n    expect(() => applyDiscount(-1, 10)).toThrow('價格不可為負數');\n  });\n\n  test.each([-1, 101])('折扣為 %i 時應拋出錯誤', (percent) => {\n    expect(() => applyDiscount(100, percent)).toThrow('折扣必須介於 0 到 100');\n  });\n});\n```\n\n執行：\n```bash\nnpx jest\n```\n\n# 範例中體現的原則\n\n- 每個 `test` 只驗證一件事（原則 1）\n- 純函式，無外部依賴，速度快（原則 2、3）\n- 第一個測試明確標示 AAA（原則 4）\n- 只呼叫 `applyDiscount`，不關心內部怎麼算（原則 5）\n- 涵蓋 0%、100%、負價格、超出範圍的折扣（原則 6）\n- 用 `test.each` 避免重複，又不用在測試裡寫迴圈（原則 8）\n\n如果要測有外部依賴的程式（例如呼叫 API），我可以再補一個用 `jest.fn()` / `jest.mock()` 的範例。",
+ "finished_at": "2026-10-31T15:40:52+00:00",
+ "seconds": 11.6,
+ "cost_usd": 0.0144034
+}

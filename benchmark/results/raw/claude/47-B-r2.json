@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。\n\n請用繁體中文回答。",
+ "answer": "# Pod、Deployment、Service 的關係\n\n## 一句話總結\n- **Pod**:實際跑容器的最小單位\n- **Deployment**:負責「管理」Pod(數量、更新、自我修復)\n- **Service**:負責讓 Pod「可被穩定存取」(固定入口與負載平衡)\n\n## 各自角色\n\n### 1. Pod\n- Kubernetes 中最小的部署單位,內含一個或多個容器,共享網路(同一個 IP)與儲存。\n- Pod 是**短暫的**:掛掉後不會自己復活,IP 也會隨重建而改變。\n- 直接建立裸 Pod 在正式環境很少見,因為沒有人替你維護它。\n\n### 2. Deployment\n- 宣告式地描述「我要幾個副本、用哪個映像檔」。\n- 底層透過 **ReplicaSet** 確保 Pod 數量符合期望,Pod 死掉會自動補上。\n- 支援**滾動更新**與**版本回滾**。\n- 透過 Pod 範本(`template`)建立 Pod。\n\n```\nDeployment → ReplicaSet → Pod × N\n```\n\n### 3. Service\n- 因為 Pod 的 IP 會變動,Service 提供**固定的虛擬 IP 與 DNS 名稱**。\n- 透過 **label selector** 找到對應的 Pod,並在它們之間做負載平衡。\n- 常見類型:\n  - `ClusterIP`:叢集內部存取(預設)\n  - `NodePort`:透過節點埠對外\n  - `LoadBalancer`:使用雲端負載平衡器對外\n\n## 三者如何串起來\n\n```\n            用戶端\n              │\n        ┌─────▼─────┐\n        │  Service  │  固定 IP / DNS,依 label 轉送\n        └─────┬─────┘\n      ┌───────┼───────┐\n   ┌──▼──┐ ┌──▼──┐ ┌──▼──┐\n   │ Pod │ │ Pod │ │ Pod │   ← 由 Deployment 管理\n   └─────┘ └─────┘ └─────┘\n```\n\n關鍵連結是 **label**:Deployment 建立的 Pod 帶有 `app: web` 標籤,Service 的 `selector` 也寫 `app: web`,兩者就此關聯。**Deployment 與 Service 之間並沒有直接引用,而是都透過 Pod 的 label 間接配合。**\n\n## 範例\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web          # Pod 的標籤\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.27\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-svc\nspec:\n  selector:\n    app: web              # 對應上面的 Pod 標籤\n  ports:\n  - port: 80\n    targetPort: 80\n```\n\n## 為什麼要這樣分工?\n| 問題 | 解決者 |\n|---|---|\n| 容器要跑在哪裡? | Pod |\n| Pod 掛了、要擴縮容、要升級版本? | Deployment |\n| Pod IP 一直變,別人怎麼連? | Service |\n\n這樣的**關注點分離**讓你可以在不影響使用者的情況下,隨意替換、擴充或更新後端 Pod。",
+ "finished_at": "2026-10-31T15:40:27+00:00",
+ "seconds": 14.6,
+ "cost_usd": 0.0155989
+}

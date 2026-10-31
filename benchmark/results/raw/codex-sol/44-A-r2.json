@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。",
+ "answer": "以下腳本會將指定資料夾內的所有 `.log` 檔打包成 `logs.tar.gz`，保留原始檔案，且不包含子資料夾。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\ncd -- \"${1:-.}\"\nshopt -s nullglob dotglob\nlogs=()\nfor file in *.log; do\n    [[ -f \"$file\" ]] && logs+=(\"$file\")\ndone\nif (( ${#logs[@]} == 0 )); then\n    echo \"沒有找到 .log 檔案。\"\n    exit 0\nfi\ntar -czf logs.tar.gz -- \"${logs[@]}\"\necho \"已建立：$PWD/logs.tar.gz\"\n```\n\n逐行說明：\n\n1. `#!/usr/bin/env bash`：使用 Bash 執行腳本。\n2. `set -euo pipefail`：遇到指令失敗、未定義變數或管線錯誤時停止執行。\n3. `cd -- \"${1:-.}\"`：進入第一個參數指定的資料夾；未提供時使用目前資料夾。\n4. `shopt -s nullglob dotglob`：沒有符合檔案時不保留字面上的 `*.log`，並納入隱藏檔。\n5. `logs=()`：建立空陣列，儲存檔名。\n6. `for file in *.log; do`：逐一處理名稱以 `.log` 結尾的項目。\n7. `[[ -f \"$file\" ]] && logs+=(\"$file\")`：將一般檔案加入陣列，排除資料夾。\n8. `done`：結束迴圈。\n9. `if (( ${#logs[@]} == 0 )); then`：檢查是否沒有找到檔案。\n10. `echo ...`：顯示沒有找到檔案的訊息。\n11. `exit 0`：正常結束腳本。\n12. `fi`：結束條件判斷。\n13. `tar -czf ...`：建立 gzip 壓縮的 tar 封存檔；`--` 防止檔名被當成選項，`\"${logs[@]}\"` 能正確處理含空白的檔名。\n14. `echo ...`：顯示壓縮檔的完整路徑。\n\n存成 `compress_logs.sh` 後執行：\n\n```bash\nbash compress_logs.sh \"/path/to/folder\"\n```\n\n**注意：資料夾中若已有 `logs.tar.gz`，會被覆寫。**",
+ "finished_at": "2026-10-31T16:09:24+00:00",
+ "seconds": 26.1
+}

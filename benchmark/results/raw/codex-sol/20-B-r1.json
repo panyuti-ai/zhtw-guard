@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 20,
+ "category": "daily",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "颱風天前要準備什麼？\n\n請用繁體中文回答。",
+ "answer": "颱風來之前，先做好 **備物資、檢查住家、安排避難**，盡量在風雨變大前完成。\n\n**① 備妥飲食與日用品**\n\n- 飲用水：先備至少 **3 天份，每人每天約 3 公升**；另儲生活用水。\n- 食物：罐頭、餅乾等可常溫保存、不需烹煮的食品，備好開罐器。\n- 常用藥、急救用品、衛生紙，以及嬰幼兒、長輩與寵物所需用品。可依空間逐步增加居家儲備。[消防署防颱準備指引](https://www.tfdp.com.tw/cht/index.php?article_id=1333&code=list&flag=detail&ids=2)\n\n**② 做好停電準備**\n\n- 手機、行動電源充飽電。\n- 檢查手電筒、頭燈、備用電池，有電池式收音機也可備妥。\n- 停電時優先使用手電筒，減少使用蠟燭的火災風險。[消防署颱風注意事項](https://www.tfdp.com.tw/cht/index.php?article_id=1517&code=list&flag=detail&ids=100)\n\n**③ 檢查住家、防風防淹**\n\n- 收進陽台盆栽、曬衣架及容易被吹走的物品。\n- 清理陽台、屋頂排水孔與周邊排水溝，確認門窗能關緊。\n- 容易淹水的住家提前備妥沙包或防水閘門。[消防署居家防颱建議](https://www.tfdp.com.tw/cht/index.php?article_id=1333&code=list&flag=detail&ids=2)\n\n**④ 準備隨手可拿的避難包**\n\n放入證件影本、少量現金、藥物、飲水、即食食品、雨衣、手電筒及行動電源，並與家人約好聯絡方式和集合地點。[官方避難包清單](https://prepare.mnd.gov.tw/emergency-supplies/go-bag)\n\n**⑤ 留意警報，必要時提早撤離**\n\n持續查看官方氣象與地方政府通知。住在低窪、山區或有土石流風險的地方，應提前安排避難，收到撤離通知就配合，別等風雨變大才出發。[內政部防颱提醒](https://www.moi.gov.tw/News_toggle3.aspx?PageSize=30&n=174&page=31&sms=9015)",
+ "finished_at": "2026-10-31T15:47:52+00:00",
+ "seconds": 26.0
+}

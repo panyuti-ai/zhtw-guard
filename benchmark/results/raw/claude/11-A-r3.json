@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 11,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "什麼是負載平衡？常見的分配演算法有哪些？",
+ "answer": "# 負載平衡（Load Balancing）\n\n## 什麼是負載平衡？\n\n負載平衡是把進來的請求或網路流量，分散到多台後端伺服器（或多個資源）上的技術。負載平衡器（Load Balancer）通常位於客戶端與伺服器群之間，負責決定每個請求該交給哪一台處理。\n\n**主要目的：**\n- **提升效能**：避免單一伺服器過載，降低回應時間\n- **高可用性**：透過健康檢查（Health Check）自動剔除故障節點\n- **可擴展性**：需要時可水平擴充（加機器）\n- **維運彈性**：可做滾動更新、灰度發布而不中斷服務\n\n**常見類型：**\n- **L4 負載平衡**：依 IP、Port（TCP/UDP）轉發，速度快（如 LVS、AWS NLB）\n- **L7 負載平衡**：依 HTTP 內容（URL、Header、Cookie）轉發，更靈活（如 Nginx、HAProxy、AWS ALB）\n- **硬體 vs 軟體**：F5 等硬體設備，或 Nginx、HAProxy、Envoy 等軟體方案\n\n---\n\n## 常見分配演算法\n\n### 1. 輪詢（Round Robin）\n依序輪流分配給每台伺服器。\n- 優點：簡單、公平\n- 缺點：不考慮伺服器效能與當前負載差異\n\n### 2. 加權輪詢（Weighted Round Robin）\n效能較好的伺服器設定較高權重，分到較多請求。\n- 適用：伺服器規格不一致時\n\n### 3. 最少連線（Least Connections）\n將請求交給當前連線數最少的伺服器。\n- 適用：請求處理時間差異大、長連線場景（如 WebSocket）\n\n### 4. 加權最少連線（Weighted Least Connections）\n結合權重與當前連線數，兼顧伺服器能力與即時負載。\n\n### 5. 來源 IP 雜湊（IP Hash）\n對客戶端 IP 做雜湊，同一 IP 固定導向同一台伺服器。\n- 優點：具備 Session 黏著性（Sticky Session）\n- 缺點：節點增減時映射會大幅改變，也可能分配不均\n\n### 6. 一致性雜湊（Consistent Hashing）\n將伺服器與請求鍵映射到雜湊環上，節點增減時只影響少部分映射。\n- 適用：快取伺服器（如 CDN、Memcached）、分散式儲存\n\n### 7. 最短回應時間（Least Response Time）\n選擇平均回應時間最短（且連線數少）的伺服器。\n- 適用：對延遲敏感的服務\n\n### 8. 隨機（Random）與 Power of Two Choices\n- **Random**：隨機挑選，實作最簡單\n- **Power of Two Choices**：隨機挑兩台，再選負載較低者，用很低的成本就能得到接近最佳的分配效果（Envoy 等有採用）\n\n### 9. 資源導向（Resource-based）\n依 CPU、記憶體等即時指標分配，需要代理程式回報狀態。\n\n---\n\n## 演算法選擇建議\n\n| 場景 | 建議演算法 |\n|---|---|\n| 無狀態、機器規格相同 | 輪詢 |\n| 機器規格不同 | 加權輪詢 / 加權最少連線 |\n| 請求耗時不均、長連線 | 最少連線 |\n| 需要 Session 黏著 | IP Hash / Cookie 黏著 |\n| 快取叢集、節點常變動 | 一致性雜湊 |\n| 大規模、低開銷 | Power of Two Choices |\n\n## 補充：實務注意事項\n- **健康檢查**：定期探測後端，異常時自動摘除\n- **Session 處理**：盡量讓服務無狀態，或將 Session 放到 Redis 等共享儲存，而不是依賴黏著\n- **單點故障**：負載平衡器本身也要做高可用（如 Keepalived + VIP、多 LB 搭配 DNS）\n\n如果你想看特定工具（例如 Nginx 或 HAProxy）的設定範例，我可以再補充。",
+ "finished_at": "2026-10-31T15:42:45+00:00",
+ "seconds": 15.1,
+ "cost_usd": 0.017847000000000002
+}

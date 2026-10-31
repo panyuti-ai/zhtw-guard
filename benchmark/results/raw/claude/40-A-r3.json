@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。",
+ "answer": "# Promise 與 async/await 的關係\n\n**一句話：async/await 是 Promise 的語法糖。** 它沒有取代 Promise，底層仍然是 Promise，只是讓非同步程式碼寫起來像同步程式碼。\n\n## 核心規則\n\n1. `async` 函式**一定回傳 Promise**（回傳值會自動被包成 Promise）。\n2. `await` 只能在 `async` 函式內使用（或模組頂層），它會「等待」一個 Promise 完成，並取出結果值。\n3. `try/catch` 對應 Promise 的 `.catch()`。\n\n## 範例：同一件事的兩種寫法\n\n先準備一個回傳 Promise 的函式：\n\n```js\nfunction delay(ms, value) {\n  return new Promise((resolve) => setTimeout(() => resolve(value), ms));\n}\n\nfunction fetchUser(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (id <= 0) reject(new Error(\"無效的 ID\"));\n      else resolve({ id, name: \"小明\" });\n    }, 500);\n  });\n}\n```\n\n### Promise 鏈寫法\n\n```js\nfetchUser(1)\n  .then((user) => {\n    console.log(user.name);\n    return delay(300, user.id);\n  })\n  .then((id) => console.log(\"使用者 ID:\", id))\n  .catch((err) => console.error(\"錯誤:\", err.message))\n  .finally(() => console.log(\"完成\"));\n```\n\n### async/await 寫法（效果相同）\n\n```js\nasync function main() {\n  try {\n    const user = await fetchUser(1);\n    console.log(user.name);\n    const id = await delay(300, user.id);\n    console.log(\"使用者 ID:\", id);\n  } catch (err) {\n    console.error(\"錯誤:\", err.message);\n  } finally {\n    console.log(\"完成\");\n  }\n}\n\nmain();\n```\n\n## 證明 async 函式回傳 Promise\n\n```js\nasync function hello() {\n  return \"你好\";\n}\n\nconsole.log(hello());            // Promise { '你好' }\nhello().then(console.log);       // 你好\n```\n\n`return \"你好\"` 等同於 `return Promise.resolve(\"你好\")`。\n\n## 平行執行：兩者可以搭配\n\n`await` 會依序等待，若多個任務互不相依，應使用 `Promise.all` 平行處理：\n\n```js\nasync function parallel() {\n  console.time(\"總時間\");\n\n  // ❌ 循序：約 1000ms\n  const a = await delay(500, \"A\");\n  const b = await delay(500, \"B\");\n\n  // ✅ 平行：約 500ms\n  const [c, d] = await Promise.all([delay(500, \"C\"), delay(500, \"D\")]);\n\n  console.timeEnd(\"總時間\");\n  console.log(a, b, c, d);\n}\n```\n\n## 比較\n\n| 項目 | Promise (`.then`) | async/await |\n|---|---|---|\n| 可讀性 | 多層時呈鏈狀，較難讀 | 像同步程式碼，直觀 |\n| 錯誤處理 | `.catch()` | `try/catch` |\n| 回傳值 | Promise | Promise |\n| 平行處理 | `Promise.all` 等 | 仍需搭配 `Promise.all` |\n\n## 重點整理\n\n- `await` 後面通常接 Promise；若接普通值，會被視為已完成的 Promise。\n- 忘記寫 `await` 會拿到 Promise 物件而非結果，這是常見錯誤。\n- 兩者可混用，理解 Promise 才能真正掌握 async/await 的行為。",
+ "finished_at": "2026-10-31T15:46:13+00:00",
+ "seconds": 11.5,
+ "cost_usd": 0.0154439
+}

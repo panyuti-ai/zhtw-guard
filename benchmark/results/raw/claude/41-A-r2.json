@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？",
+ "answer": "React 元件一直重複 render，常見原因如下（由最常見到較少見排序）：\n\n## 1. 在 render 期間直接 setState（無限迴圈）\n```jsx\nfunction Bad() {\n  const [n, setN] = useState(0);\n  setN(n + 1); // ❌ 每次 render 都觸發新的 render\n  return <div>{n}</div>;\n}\n```\n另一個常見錯誤是事件綁定時直接呼叫：\n```jsx\n<button onClick={setN(n + 1)}>  // ❌ 立即執行\n<button onClick={() => setN(n + 1)}>  // ✅\n```\n\n## 2. useEffect 依賴陣列問題\n```jsx\nuseEffect(() => {\n  setData(fetchSomething());\n}); // ❌ 沒有依賴陣列，每次 render 後都會執行 → setState → 再 render\n```\n```jsx\nconst options = { a: 1 };            // 每次 render 都是新物件\nuseEffect(() => { ... }, [options]); // ❌ 每次都被視為「變了」\n```\n**解法**：加上正確的依賴陣列；物件/陣列/函式依賴用 `useMemo` / `useCallback` 穩定參照，或移到元件外面。\n\n## 3. 父元件重新 render 導致子元件跟著 render\n父元件 state 變動時，所有子元件預設都會重新 render。\n- 子元件用 `React.memo` 包起來\n- 傳給子元件的 props（物件、陣列、函式）要用 `useMemo` / `useCallback` 穩定住，否則 `memo` 也會失效\n\n## 4. Context 值每次都是新物件\n```jsx\n<MyContext.Provider value={{ user, setUser }}>  // ❌ 每次 render 都是新物件\n```\n改為：\n```jsx\nconst value = useMemo(() => ({ user, setUser }), [user]);\n```\n所有 consumer 都會因 value 改變而重新 render。\n\n## 5. 元件在 render 內部定義\n```jsx\nfunction Parent() {\n  const Child = () => <div />;  // ❌ 每次都是新的元件型別 → 卸載再掛載\n  return <Child />;\n}\n```\n把 `Child` 移到 `Parent` 外面。\n\n## 6. key 不穩定\n```jsx\nitems.map(i => <Item key={Math.random()} />)  // ❌ 每次都重新建立\n```\n請使用穩定且唯一的 id，避免用隨機值或（在會重排的列表中）用 index。\n\n## 7. 其他\n- **React.StrictMode**（開發模式）會刻意 render 兩次，這是正常現象，production 不會。\n- 外部 store（Redux、Zustand）selector 每次回傳新物件，造成訂閱者一直更新。\n- 父層 `key` 一直變動，導致整個子樹重新掛載。\n\n## 如何除錯\n1. **React DevTools Profiler**：勾選 \"Record why each component rendered\"，直接看到是 props、state、hooks 還是 context 造成。\n2. 暫時加 log：\n   ```jsx\n   useEffect(() => { console.log('props changed', props); }, [props]);\n   ```\n3. 使用 `why-did-you-render` 套件追蹤不必要的 render。\n\n---\n\n如果你願意貼出有問題的元件程式碼（或告訴我專案路徑），我可以幫你直接找出具體原因。",
+ "finished_at": "2026-10-31T15:39:31+00:00",
+ "seconds": 13.5,
+ "cost_usd": 0.014945
+}

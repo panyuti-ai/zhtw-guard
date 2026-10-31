@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "## 基本版本\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr[arr.length - 1];\n}\n```\n\n（也可以用 `arr.at(-1)`，在 `lib: ES2022` 以上可用。）\n\n## 型別推導說明\n\n**1. `T` 從參數推導**\n\n呼叫時，TypeScript 會把傳入的陣列型別與 `readonly T[]` 做比對，反推 `T`：\n\n```ts\nlast([1, 2, 3]);          // T = number          → number | undefined\nlast([\"a\", \"b\"]);         // T = string          → string | undefined\nlast([1, \"a\"]);           // T = string | number → string | number | undefined\nlast([{ id: 1 }]);        // T = { id: number }\n```\n\n**2. 為什麼回傳 `T | undefined`**\n\n空陣列沒有最後一個元素，`arr[arr.length - 1]` 在執行期會是 `undefined`。所以回傳型別要誠實地包含 `undefined`。\n\n（註：預設情況下 `arr[i]` 的型別只是 `T`，除非開 `noUncheckedIndexedAccess`；但在函式簽名上寫明 `T | undefined` 才能強迫呼叫端處理空陣列。）\n\n**3. 為什麼用 `readonly T[]`**\n\n`readonly T[]` 是 `T[]` 的超型別，所以可變陣列與唯讀陣列都能傳入；函式本身也承諾不修改陣列。\n\n## 進階版本：保留 tuple 的精確型別\n\n基本版本遇到字面量 tuple 會損失資訊。用 tuple 型別加 conditional type 可以更精確：\n\n```ts\ntype Last<T extends readonly unknown[]> =\n  T extends readonly [...unknown[], infer L] ? L : T[number] | undefined;\n\nfunction last<const T extends readonly unknown[]>(arr: T): Last<T> {\n  return arr[arr.length - 1] as Last<T>;\n}\n\nconst a = last([1, \"x\", true]);   // 型別：true\nconst b = last([] as const);      // 型別：undefined\nconst c = last([1, 2, 3] as number[]); // 型別：number | undefined\n```\n\n推導過程：\n\n- **`const T`**（TS 5.0+）：讓 `[1, \"x\", true]` 被推成 `readonly [1, \"x\", true]` 而不是 `(string | number | boolean)[]`。\n- **`T extends readonly [...unknown[], infer L]`**：用 pattern matching 比對「前面任意個、最後一個為 `L`」的結構，並用 `infer` 把最後一個元素的型別抓出來。\n  - `readonly [1, \"x\", true]` → `L = true`\n  - `number[]` 不是固定長度 tuple，無法保證有最後一個元素，匹配失敗，走 fallback `T[number] | undefined`。\n  - `readonly []` 沒有元素，匹配失敗，回傳 `never | undefined`，即 `undefined`。\n- 函式內的 `as Last<T>` 是必要的，因為 TS 無法在函式內部證明 conditional type 的結果，這是一處受控的型別斷言。\n\n## 如何選擇\n\n一般情況用基本版本就夠了；只有在需要對 tuple 保留字面量與位置資訊時，才用進階版本。",
+ "finished_at": "2026-10-31T15:40:40+00:00",
+ "seconds": 13.1,
+ "cost_usd": 0.0147192
+}

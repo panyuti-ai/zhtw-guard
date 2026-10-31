@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。\n\n請用繁體中文回答。",
+ "answer": "# Promise 與 async/await 的關係\n\n**一句話總結：`async/await` 是建立在 Promise 之上的語法糖（syntactic sugar）**，讓非同步程式碼讀起來像同步程式碼。底層仍然是 Promise。\n\n## 核心規則\n\n1. `async` 函式**一定回傳 Promise**（回傳值會被自動包成 Promise）。\n2. `await` 只能在 `async` 函式內使用（或模組頂層），它會**暫停**該函式，等 Promise 完成後取得結果值。\n3. `await` 後的 Promise 若 reject，會被當成 **throw**，可以用 `try/catch` 捕捉。\n\n## 範例：同一件事的兩種寫法\n\n先定義一個模擬非同步請求的函式：\n\n```js\nfunction fetchUser(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (id > 0) resolve({ id, name: \"小明\" });\n      else reject(new Error(\"無效的 ID\"));\n    }, 500);\n  });\n}\n```\n\n### 寫法一：Promise（`.then` 鏈）\n\n```js\nfetchUser(1)\n  .then(user => {\n    console.log(\"使用者：\", user.name);\n    return fetchUser(2);\n  })\n  .then(user2 => console.log(\"第二位：\", user2.id))\n  .catch(err => console.error(\"錯誤：\", err.message));\n```\n\n### 寫法二：async/await\n\n```js\nasync function main() {\n  try {\n    const user = await fetchUser(1);\n    console.log(\"使用者：\", user.name);\n\n    const user2 = await fetchUser(2);\n    console.log(\"第二位：\", user2.id);\n  } catch (err) {\n    console.error(\"錯誤：\", err.message);\n  }\n}\n\nmain();\n```\n\n兩者行為相同，但 async/await 沒有巢狀 callback 或長鏈，更好閱讀與除錯。\n\n## 證明 async 函式回傳 Promise\n\n```js\nasync function hello() {\n  return \"你好\";\n}\n\nconsole.log(hello());          // Promise { '你好' }\nhello().then(console.log);     // 你好\n```\n\n等同於：\n\n```js\nfunction hello() {\n  return Promise.resolve(\"你好\");\n}\n```\n\n## 平行執行：兩者可以搭配\n\n連續 `await` 是**依序**執行（共約 1 秒）；若請求彼此獨立，應用 `Promise.all` 平行處理：\n\n```js\nasync function parallel() {\n  // 依序：約 1000ms\n  const a = await fetchUser(1);\n  const b = await fetchUser(2);\n\n  // 平行：約 500ms\n  const [x, y] = await Promise.all([fetchUser(1), fetchUser(2)]);\n  console.log(x.name, y.name);\n}\n```\n\n這說明了：即使使用 `async/await`，仍需要理解 Promise 的 `Promise.all`、`Promise.race`、`Promise.allSettled` 等工具。\n\n## 對照表\n\n| 項目 | Promise | async/await |\n|---|---|---|\n| 本質 | 代表未來結果的物件 | 操作 Promise 的語法 |\n| 取值 | `.then()` | `await` |\n| 錯誤處理 | `.catch()` | `try/catch` |\n| 可讀性 | 鏈式，較易巢狀 | 類同步，較直觀 |\n| 回傳值 | Promise | 一律是 Promise |\n\n## 常見陷阱\n\n- **忘了 `await`**：拿到的是 Promise 而不是結果值。\n- **在迴圈中誤用 `await`**：`forEach` 不會等待 async callback，應改用 `for...of` 或 `Promise.all(arr.map(...))`。\n- **忘了錯誤處理**：未捕捉的 reject 會變成 unhandled rejection。\n\n## 結論\n\n- Promise 是**基礎機制**，async/await 是**更好用的寫法**。\n- 兩者不是替代關係，而是互補：簡單流程用 `await`，平行或組合邏輯搭配 `Promise.all` 等 Promise 方法。",
+ "finished_at": "2026-10-31T15:32:31+00:00",
+ "seconds": 13.1,
+ "cost_usd": 0.0191524
+}

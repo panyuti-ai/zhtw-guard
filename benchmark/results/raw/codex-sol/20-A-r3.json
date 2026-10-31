@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 20,
+ "category": "daily",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "颱風天前要準備什麼？",
+ "answer": "颱風來之前，先做好 **備物資、整理住家、安排避難** 這三件事：\n\n- **備妥至少 3 天的飲水與食物**：居家飲水可抓每人每天 3 公升，另備罐頭、餅乾等不需開火的食物；也別漏掉嬰幼兒、長輩及寵物用品。[消防署準備清單](https://www.tfdp.com.tw/cht/index.php?article_id=1333&code=list&flag=detail&ids=2)\n- **準備停電用品與避難包**：手機、行動電源充滿電，備好手電筒、電池、常備藥、急救用品、少量現金及證件影本，放在容易拿取的位置。[消防署避難包建議](https://www.tfdp.com.tw/cht/index.php?article_id=1333&code=list&flag=detail&ids=2)\n- **檢查住家**：把陽台盆栽及容易吹落的物品移入室內或固定，清理陽台、屋頂排水孔，確認門窗關妥。趁風雨還沒變大時完成。[消防局防颱提醒](https://www.gov.taipei/News_Content.aspx?n=F0DDAF49B89E9413&s=C3A33BDEA14F7CD8&sms=72544237BBE4C5F6)\n- **確認資訊與撤離安排**：留意官方氣象及地方政府通知；住在低窪、山坡地或易淹水處，要提早確認避難地點，接到撤離通知就配合，避免前往山區、溪邊和海邊。[防颱與撤離指引](https://www.lceb.gov.tw/LCEB_Content.aspx?n=7291&s=282884)\n\n**若時間有限，優先備好水、食物、藥物，充電，再收好戶外物品。**",
+ "finished_at": "2026-10-31T16:19:48+00:00",
+ "seconds": 19.4
+}

@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。\n\n請用繁體中文回答。",
+ "answer": "以下腳本會將指定資料夾內的所有 `.log` 檔案打包成一個 `.tar.gz` 壓縮檔，保留原始檔案，且不搜尋子資料夾。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\nfolder=\"${1:-.}\"\ncd -- \"$folder\"\n\nshopt -s nullglob dotglob\nlogs=()\nfor file in *.log; do\n  [[ -f \"$file\" ]] && logs+=(\"$file\")\ndone\n\nif (( ${#logs[@]} == 0 )); then\n  printf '找不到 .log 檔案。\\n'\n  exit 0\nfi\n\narchive=\"logs-$(date +%Y%m%d-%H%M%S)-$$.tar.gz\"\ntar -czf \"$archive\" -- \"${logs[@]}\"\nprintf '已建立壓縮檔：%s\\n' \"$archive\"\n```\n\n逐行說明：\n\n| 程式碼 | 說明 |\n|---|---|\n| `#!/usr/bin/env bash` | 使用環境中的 Bash 執行腳本。 |\n| `set -euo pipefail` | 指令失敗、使用未定義變數，或管線中的指令失敗時，停止執行。 |\n| `folder=\"${1:-.}\"` | 以第一個參數作為目標資料夾；未提供時使用目前資料夾 `.`。 |\n| `cd -- \"$folder\"` | 切換至目標資料夾。雙引號可處理含空白的路徑，`--` 表示後面是路徑而非選項。 |\n| `shopt -s nullglob dotglob` | 沒有符合的檔案時，讓萬用字元展開為空；同時包含隱藏的 `.log` 檔。 |\n| `logs=()` | 建立空陣列，存放檔案名稱。 |\n| `for file in *.log; do` | 逐一檢查名稱以 `.log` 結尾的項目。 |\n| `[[ -f \"$file\" ]] && logs+=(\"$file\")` | 如果是一般檔案，就加入陣列，排除資料夾。 |\n| `done` | 結束迴圈。 |\n| `if (( ${#logs[@]} == 0 )); then` | 檢查陣列是否為空。 |\n| `printf '找不到 .log 檔案。\\n'` | 顯示沒有符合檔案的訊息。 |\n| `exit 0` | 正常結束腳本，不建立壓縮檔。 |\n| `fi` | 結束條件判斷。 |\n| `archive=\"logs-$(date +%Y%m%d-%H%M%S)-$$.tar.gz\"` | 用日期、時間及程序編號建立壓縮檔名稱。 |\n| `tar -czf \"$archive\" -- \"${logs[@]}\"` | 將檔案打包並以 gzip 壓縮。`c` 是建立封存、`z` 是 gzip 壓縮、`f` 是指定輸出檔名；陣列加雙引號可安全處理含空白的檔名。 |\n| `printf '已建立壓縮檔：%s\\n' \"$archive\"` | 顯示產生的壓縮檔名稱。 |\n\n儲存為 `compress_logs.sh`，執行：\n\n```bash\n# 壓縮目前資料夾的 .log 檔案\nbash compress_logs.sh\n\n# 壓縮指定資料夾的 .log 檔案\nbash compress_logs.sh \"/path/to/logs\"\n```\n\n壓縮檔會建立在目標資料夾內。",
+ "finished_at": "2026-10-31T16:25:12+00:00",
+ "seconds": 19.5
+}

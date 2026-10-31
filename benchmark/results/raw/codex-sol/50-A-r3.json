@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。",
+ "answer": "寫單元測試時，可以掌握這幾個原則：\n\n- **測試可觀察的行為**：驗證輸入與輸出，避免依賴內部實作細節，讓重構不容易弄壞測試。\n- **每個測試聚焦一種情境**：測試名稱清楚描述條件與預期結果；不必限制只能有一個斷言。\n- **涵蓋正常、邊界與錯誤情況**：例如空資料、剛好達到門檻，以及不合法的輸入。\n- **彼此獨立且結果穩定**：不依賴執行順序、真實時間、隨機值或外部服務。\n- **只在必要時使用 mock**：例如隔離網路或資料庫；純函式通常直接測試即可。\n- **重視有效驗證，別只追求覆蓋率**：測試應能抓到實際的錯誤，而不只是讓程式碼跑過一次。\n\n例如，有一個「訂單滿 1,000 元免運，否則運費 80 元」的函式。以下假設金額以整數元表示：\n\n```js\n// shipping.js\nfunction calculateShipping(subtotal) {\n  if (!Number.isInteger(subtotal) || subtotal < 0) {\n    throw new Error('訂單金額必須是非負整數');\n  }\n\n  return subtotal >= 1000 ? 0 : 80;\n}\n\nmodule.exports = { calculateShipping };\n```\n\n用 Jest 測試：\n\n```js\n// shipping.test.js\nconst { calculateShipping } = require('./shipping');\n\ndescribe('calculateShipping', () => {\n  test.each([\n    [0, 80],      // 最小合法金額\n    [999, 80],    // 門檻以下\n    [1000, 0],    // 剛好達到門檻\n    [1500, 0],    // 超過門檻\n  ])('訂單金額為 %i 元時，運費為 %i 元', (subtotal, expected) => {\n    // Arrange：準備輸入（由上方表格提供）\n\n    // Act：執行待測行為\n    const shipping = calculateShipping(subtotal);\n\n    // Assert：驗證結果\n    expect(shipping).toBe(expected);\n  });\n\n  test.each([-1, 1.5, NaN, Infinity, '1000', null])(\n    '拒絕不合法的訂單金額：%p',\n    (subtotal) => {\n      expect(() => calculateShipping(subtotal))\n        .toThrow('訂單金額必須是非負整數');\n    }\n  );\n});\n```\n\n這組測試特別檢查了 **999 與 1,000 的邊界**：如果有人不小心把 `>= 1000` 改成 `> 1000`，測試就會抓出錯誤。測試拋出例外時，要把呼叫包在函式中，例如 `expect(() => ...).toThrow()`。",
+ "finished_at": "2026-10-31T16:27:11+00:00",
+ "seconds": 21.2
+}

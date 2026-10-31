@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 35,
+ "category": "simplified_source",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "請把這段旅遊介紹縮短成一句話：「这座古城有八百多年的历史，街道两旁都是传统建筑，晚上还有夜市可以逛。」\n\n請用繁體中文回答。",
+ "answer": "這座擁有八百多年歷史的古城，街道兩旁盡是傳統建築，夜晚還能逛夜市。",
+ "finished_at": "2026-10-31T15:45:48+00:00",
+ "seconds": 4.5,
+ "cost_usd": 0.0038318000000000002
+}

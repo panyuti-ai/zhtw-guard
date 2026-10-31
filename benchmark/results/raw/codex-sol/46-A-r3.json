@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "Python 的 `list`（串列）和 `tuple`（元組）最主要的差別是：**建立後能不能修改內容**。\n\n| 特性 | `list` | `tuple` |\n|---|---|---|\n| 寫法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 修改、新增、刪除元素 | 可以 | 不可以 |\n| 保留順序、索引、切片 | 支援 | 支援 |\n| 當作字典的 key | 不可以 | 所有元素都可雜湊時可以 |\n\n**資料會變動時，用 `list`**，例如購物清單、待辦事項：\n\n```python\ntasks = [\"寫報告\", \"回信\"]\ntasks.append(\"開會\")\ntasks[0] = \"修改報告\"\n```\n\n**想表達固定的一組資料時，用 `tuple`**，例如座標、函式回傳的多個值：\n\n```python\npoint = (25, 30)\nx, y = point\n\ndef get_size():\n    return 1920, 1080  # 回傳 tuple\n```\n\n有兩個容易忽略的地方：\n\n- **單一元素的 tuple 要加逗號**：`(1,)` 才是 tuple，`(1)` 只是整數。\n- tuple 不可修改，是指不能替換其中的元素；若元素本身是 list，那個 list 仍可修改：\n\n```python\ndata = ([1, 2], \"固定\")\ndata[0].append(3)  # 可以\n# data[1] = \"更改\"  # TypeError\n```\n\n選擇時，先看資料的用途：**需要持續增刪改的集合用 list；固定的一組值用 tuple。**",
+ "finished_at": "2026-10-31T16:25:50+00:00",
+ "seconds": 13.8
+}

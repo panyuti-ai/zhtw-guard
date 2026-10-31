@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 11,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "什麼是負載平衡？常見的分配演算法有哪些？\n\n請用繁體中文回答。",
+ "answer": "# 負載平衡（Load Balancing）\n\n## 什麼是負載平衡？\n\n負載平衡是將進來的網路流量或請求，**分散到多台後端伺服器**的技術。負載平衡器（Load Balancer）位於客戶端與伺服器群之間，扮演「流量調度員」的角色。\n\n**主要目的：**\n- **提升效能**：避免單一伺服器過載，降低回應時間\n- **高可用性**：偵測故障節點（健康檢查），自動將流量導向正常機器\n- **可擴充性**：需要時可水平擴充，加機器即可分擔流量\n- **便於維運**：可在不中斷服務下進行滾動更新、維護\n\n**常見分類：**\n- **L4（傳輸層）**：依 IP、Port 轉發（如 LVS、AWS NLB），速度快\n- **L7（應用層）**：可依 URL、Header、Cookie 決策（如 Nginx、HAProxy、AWS ALB），較靈活\n- 實作形式：硬體（F5）、軟體（Nginx、HAProxy）、雲端服務（ELB、Cloud Load Balancing）\n\n---\n\n## 常見分配演算法\n\n### 1. 輪詢（Round Robin）\n依序將請求輪流分給每台伺服器。\n- 優點：簡單、公平\n- 缺點：不考慮伺服器效能與當前負載差異\n\n### 2. 加權輪詢（Weighted Round Robin）\n依伺服器權重比例分配，效能強的機器權重高、拿到更多請求。\n- 適用：伺服器規格不一致的環境\n\n### 3. 最少連線（Least Connections）\n將請求分給**目前連線數最少**的伺服器。\n- 適用：請求處理時間差異大、長連線場景（如 WebSocket）\n\n### 4. 加權最少連線（Weighted Least Connections）\n結合權重與當前連線數，兼顧機器效能差異與即時負載。\n\n### 5. 雜湊類（Hash）\n- **IP Hash**：依客戶端 IP 雜湊，同一 IP 固定到同一台伺服器（簡易 Session 保持）\n- **URL Hash / 一致性雜湊（Consistent Hashing）**：依 URL 或 key 雜湊；一致性雜湊在節點增減時只影響少量映射，常用於快取叢集（如 CDN、Redis/Memcached）\n\n### 6. 隨機（Random）與「二選一隨機」（Power of Two Choices）\n- Random：隨機挑選，實作簡單\n- Power of Two Choices：隨機挑兩台，再選負載較低者，用很低成本達到接近最少連線的效果\n\n### 7. 最短回應時間（Least Response Time）\n選擇平均回應時間最短（且連線數少）的伺服器，適合對延遲敏感的服務。\n\n### 8. 資源基準（Resource-based）\n依伺服器回報的 CPU、記憶體等即時指標動態分配，較精準但實作較複雜。\n\n---\n\n## 快速比較\n\n| 演算法 | 是否感知負載 | 是否支援 Session 黏性 | 適用情境 |\n|---|---|---|---|\n| 輪詢 | 否 | 否 | 同質伺服器、短請求 |\n| 加權輪詢 | 否 | 否 | 異質伺服器 |\n| 最少連線 | 是 | 否 | 請求耗時不均、長連線 |\n| IP Hash | 否 | 是 | 需要會話保持 |\n| 一致性雜湊 | 否 | 是 | 快取叢集、節點常變動 |\n| 最短回應時間 | 是 | 否 | 低延遲需求 |\n\n---\n\n## 補充：Session 保持\n\n若應用有狀態（如登入 Session），可使用 **Sticky Session**（Cookie 或 IP Hash），或更好的做法是將 Session 外部化（Redis、資料庫），讓伺服器保持無狀態，這樣任何演算法都能使用。\n\n如果你想看 Nginx 或 HAProxy 的實際設定範例，我可以再提供。",
+ "finished_at": "2026-10-31T15:35:49+00:00",
+ "seconds": 15.6,
+ "cost_usd": 0.017396099999999998
+}

@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。\n\n請用繁體中文回答。",
+ "answer": "`Promise` 用來表示非同步操作未來的結果；`async/await` 則是建立在 Promise 上的語法，讓非同步程式更接近一般由上往下執行的寫法。\n\n兩者的關係：\n\n- **`async` 函式一定會回傳 Promise**，即使你回傳的是一般數值。\n- **`await` 會等待 Promise 完成**，取得成功結果；如果 Promise 被拒絕，就拋出錯誤。\n- `await` 只會暫停所在的 `async` 函式，不會阻塞整個 JavaScript 執行緒。\n\n例如，先建立一個回傳 Promise 的函式，模擬取得使用者資料：\n\n```javascript\nfunction getUser() {\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      resolve({ name: \"小明\" });\n    }, 1000);\n  });\n}\n```\n\n使用 Promise 的 `.then()`：\n\n```javascript\ngetUser()\n  .then((user) => {\n    console.log(user.name); // 約一秒後顯示「小明」\n  })\n  .catch((error) => {\n    console.error(\"取得失敗：\", error);\n  });\n```\n\n改成 `async/await`，效果相同：\n\n```javascript\nasync function showUser() {\n  try {\n    const user = await getUser();\n    console.log(user.name); // 約一秒後顯示「小明」\n  } catch (error) {\n    console.error(\"取得失敗：\", error);\n  }\n}\n\nshowUser();\n```\n\n另外，即使 `async` 函式直接回傳數字，呼叫端拿到的仍然是 Promise：\n\n```javascript\nasync function getNumber() {\n  return 42;\n}\n\ngetNumber().then((value) => {\n  console.log(value); // 42\n});\n```\n\n因此，**`async/await` 沒有取代 Promise，而是提供另一種使用 Promise 的方式**。處理連續的非同步步驟時，通常能讓程式更容易閱讀。",
+ "finished_at": "2026-10-31T16:23:58+00:00",
+ "seconds": 13.5
+}

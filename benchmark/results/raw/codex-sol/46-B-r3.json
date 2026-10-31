@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？\n\n請用繁體中文回答。",
+ "answer": "Python 的 `list`（串列）和 `tuple`（元組）都能依序存放多個值，也都支援索引、切片和迴圈。最主要的差別是：**`list` 可以修改，`tuple` 建立後不能修改其中的元素配置。**\n\n| 比較 | `list` | `tuple` |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 新增、刪除或替換元素 | 可以 | 不可以 |\n| 常見用途 | 會變動的資料集合 | 固定的一組資料 |\n| 作為字典的鍵 | 不可以 | 所有元素都可雜湊時可以 |\n\n**用 `list`：資料會增減或更新**\n\n例如購物清單、待辦事項、搜尋結果：\n\n```python\nshopping = [\"牛奶\", \"雞蛋\"]\nshopping.append(\"麵包\")  # 新增\nshopping[0] = \"豆漿\"    # 替換\n```\n\n**用 `tuple`：一組資料的位置有固定意義**\n\n例如座標、尺寸，或函式回傳多個值：\n\n```python\npoint = (10, 20)\nx, y = point\n\ndef get_size():\n    return 1920, 1080  # 回傳 tuple\n\nwidth, height = get_size()\n```\n\n有兩個細節值得注意：\n\n- **單元素的 `tuple` 要加逗號**：`(42,)` 才是 tuple，`(42)` 只是整數。\n- **`tuple` 裡面的可變物件仍能修改**。不能替換 tuple 的元素，但若元素本身是 list，仍能修改該 list：\n\n```python\ndata = ([1, 2], \"固定文字\")\ndata[0].append(3)  # 可以\n# data[0] = [4, 5]  # 不可以，會引發 TypeError\n```\n\n選擇時先看資料的意義：**會持續變動的集合用 `list`；固定成組、各位置有特定意義的資料用 `tuple`。**",
+ "finished_at": "2026-10-31T16:25:58+00:00",
+ "seconds": 16.2
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？",
+ "answer": "# DNS（Domain Name System，網域名稱系統）\n\nDNS 是網際網路的「電話簿」：人類記得住 `www.example.com`，但電腦之間通訊需要 IP 位址（如 `93.184.216.34` 或 IPv6 的 `2606:2800:220:1::`）。DNS 負責把網域名稱翻譯成 IP。\n\n## 輸入網址後的解析流程\n\n以瀏覽器輸入 `www.example.com` 為例：\n\n1. **瀏覽器快取**：先看自己是否剛查過，有就直接用。\n2. **作業系統快取 / hosts 檔**：檢查本機 DNS 快取與 `/etc/hosts`（Windows 為 `C:\\Windows\\System32\\drivers\\etc\\hosts`）。\n3. **遞迴解析器（Recursive Resolver）**：沒找到就詢問設定好的 DNS 伺服器（通常是 ISP 提供，或 `8.8.8.8`、`1.1.1.1`）。解析器若有快取就直接回覆，否則代替你逐層查詢：\n   1. **根伺服器（Root）**：回答「`.com` 由哪些 TLD 伺服器負責」。\n   2. **TLD 伺服器**（`.com`、`.tw` 等）：回答「`example.com` 的權威伺服器在哪」。\n   3. **權威名稱伺服器（Authoritative）**：持有該網域的實際紀錄，回覆 `www.example.com` 的 IP。\n4. **回傳並快取**：解析器把結果交給你的電腦，並依 **TTL**（存活時間）快取一段時間。\n5. **建立連線**：瀏覽器拿到 IP 後，才開始 TCP/TLS 握手並送出 HTTP(S) 請求。\n\n```\n瀏覽器 → 作業系統 → 遞迴解析器 → 根 → TLD → 權威伺服器\n                         ↓\n                  IP 回傳並快取\n```\n\n## 常見紀錄類型\n\n| 類型 | 用途 |\n|---|---|\n| **A** | 網域 → IPv4 |\n| **AAAA** | 網域 → IPv6 |\n| **CNAME** | 別名，指向另一個網域 |\n| **MX** | 郵件伺服器 |\n| **NS** | 該網域的權威名稱伺服器 |\n| **TXT** | 文字資訊（SPF、網域驗證等） |\n\n## 補充\n\n- **快取與 TTL**：大幅減少查詢時間與流量，但也是修改 DNS 後要等一段時間才生效的原因。\n- **傳輸協定**：傳統用 UDP/TCP port 53；現在也有加密的 DoH（DNS over HTTPS）與 DoT（DNS over TLS），防止被竊聽或竄改。\n- **自己試試**：\n  ```bash\n  nslookup example.com\n  dig example.com +trace   # 可看到根 → TLD → 權威的完整過程\n  ```\n\n需要的話，我可以在這個環境幫你實際跑一次 `dig +trace` 示範。",
+ "finished_at": "2026-10-31T15:42:18+00:00",
+ "seconds": 12.3,
+ "cost_usd": 0.014006500000000002
+}

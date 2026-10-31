@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？",
+ "answer": "在 Go 裡，**goroutine 負責並行執行工作，channel 負責在 goroutine 之間傳遞資料與同步**。\n\n用 `go` 啟動 goroutine，用 `make(chan 型別)` 建立 channel，再透過 `<-` 傳送或接收資料。\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc sum(nums []int, result chan<- int) {\n\ttotal := 0\n\tfor _, n := range nums {\n\t\ttotal += n\n\t}\n\tresult <- total // 傳送結果\n}\n\nfunc main() {\n\tresult := make(chan int)\n\n\tgo sum([]int{1, 2, 3}, result)\n\tgo sum([]int{4, 5, 6}, result)\n\n\ta := <-result // 等待並接收一個結果\n\tb := <-result // 等待並接收另一個結果\n\n\tfmt.Println(a + b) // 21\n}\n```\n\n這裡兩個 goroutine 分別計算總和，再把結果送進同一個 channel。`main` 接收兩次，因此會等到兩個計算都完成；接收順序不保證與啟動順序相同。\n\n### 無緩衝與有緩衝 channel\n\n```go\nch := make(chan int)    // 無緩衝\nch := make(chan int, 3) // 有緩衝，最多暫存 3 個值\n```\n\n- **無緩衝**：傳送與接收必須配對，否則會等待。\n- **有緩衝**：緩衝區滿時，傳送會等待；緩衝區空時，接收會等待。\n\n### 傳送多筆資料：搭配 `close` 和 `range`\n\n當發送端確定不再傳送資料，可以關閉 channel，讓接收端的 `range` 在讀完資料後結束：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n\tch := make(chan int)\n\n\tgo func() {\n\t\tdefer close(ch)\n\n\t\tfor i := 1; i <= 3; i++ {\n\t\t\tch <- i\n\t\t}\n\t}()\n\n\tfor value := range ch {\n\t\tfmt.Println(value)\n\t}\n}\n```\n\n幾個常見注意事項：\n\n- 通常由**發送端**關閉 channel；多個發送端共用時，要等全部完成後再關閉。\n- 向已關閉的 channel 傳送資料會引發 panic。\n- Channel 不一定需要關閉；關閉主要是用來通知「不會再有資料」。\n- `main` 結束時，程式就會退出，不會自動等待其他 goroutine。\n- 需要同時等待多個 channel 時，可以使用 `select`。",
+ "finished_at": "2026-10-31T16:08:57+00:00",
+ "seconds": 20.1
+}

@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？",
+ "answer": "DNS（Domain Name System，網域名稱系統）像是網路的通訊錄：把人容易記住的網域名稱，例如 `www.example.com`，查成電腦用來連線的 IP 位址。\n\n在瀏覽器輸入 `https://www.example.com/news` 後，大致會經過這些步驟：\n\n1. **先查快取**  \n   瀏覽器和作業系統會先看看，是否已經存有 `www.example.com` 的 IP。若紀錄仍有效，就能直接使用。\n\n2. **詢問 DNS 解析器**  \n   如果沒有快取，電腦就詢問設定好的 DNS 解析器，通常由網路業者、公司或公共 DNS 服務提供。解析器也會先查自己的快取。\n\n3. **逐層找到負責的 DNS 伺服器**  \n   若解析器也不知道，就依序詢問：\n   - **根 DNS 伺服器**：指出去哪裡查 `.com`。\n   - **`.com` 頂級網域 DNS 伺服器**：指出誰負責 `example.com`。\n   - **權威 DNS 伺服器**：提供 `www.example.com` 的紀錄，例如 IPv4 的 **A 紀錄**或 IPv6 的 **AAAA 紀錄**。\n\n4. **回傳 IP，並暫存結果**  \n   解析器把 IP 回傳給電腦。結果通常會依紀錄的 **TTL（存活時間）**快取一段時間，減少下次查詢的時間。\n\n5. **瀏覽器連線到網站**  \n   瀏覽器使用取得的 IP 建立連線；若使用 HTTPS，還會進行 TLS 握手、驗證網站憑證，再傳送 HTTP 請求，取得網頁。\n\n可以把查詢過程想成：\n\n```text\n瀏覽器 → 快取 → DNS 解析器\n                    ↓ 沒有快取時\n                根 → .com → example.com 的權威 DNS\n                    ↓\n                  回傳 IP\n瀏覽器 ─────────→ 網站伺服器\n```\n\nDNS 查的是網址中的**網域名稱**，不包含 `https://` 或 `/news` 路徑。另外，一個網域可以對應多個 IP，同一個 IP 也可以服務多個網域。",
+ "finished_at": "2026-10-31T16:14:36+00:00",
+ "seconds": 18.4
+}

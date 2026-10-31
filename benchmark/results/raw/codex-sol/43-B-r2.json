@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？\n\n請用繁體中文回答。",
+ "answer": "在 Go 裡，**goroutine 用來並行執行工作，channel 用來在 goroutine 之間傳遞資料與同步**。\n\n你可以把 goroutine 想成工作者，channel 則是工作者之間傳遞資料的管道。\n\n下面是一個完整範例：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc sum(nums []int, result chan<- int) {\n\ttotal := 0\n\tfor _, n := range nums {\n\t\ttotal += n\n\t}\n\tresult <- total // 傳送結果\n}\n\nfunc main() {\n\tresult := make(chan int) // 建立無緩衝 channel\n\n\tgo sum([]int{1, 2, 3}, result) // 啟動 goroutine\n\n\ttotal := <-result // 等待並接收結果\n\tfmt.Println(total) // 6\n}\n```\n\n執行 `go sum(...)` 後，`sum` 會與 `main` 並行執行。`main` 在 `<-result` 等待，直到 `sum` 傳回結果。因此，這裡不需要用 `time.Sleep` 等待 goroutine。\n\n`chan<- int` 表示函式只能向這個 channel **傳送**資料；`<-chan int` 則表示只能**接收**。\n\n**無緩衝與有緩衝 channel**\n\n```go\nunbuffered := make(chan int)    // 無緩衝\nbuffered := make(chan int, 2)   // 有緩衝，容量為 2\n```\n\n- **無緩衝 channel**：傳送與接收必須互相配合；對方尚未就緒時會阻塞。\n- **有緩衝 channel**：還有空間時，傳送不必等待接收者；緩衝區滿了才會阻塞。接收時若沒有資料，也會阻塞。\n\n例如：\n\n```go\nch := make(chan int, 2)\nch <- 10\nch <- 20\n\nfmt.Println(<-ch) // 10\nfmt.Println(<-ch) // 20\n```\n\n**連續傳送資料：搭配 `close` 和 `range`**\n\n當 goroutine 要產生多筆資料時，可以由傳送端關閉 channel，讓接收端知道資料已全部送完：\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc produce(out chan<- int) {\n\tdefer close(out)\n\n\tfor i := 1; i <= 3; i++ {\n\t\tout <- i\n\t}\n}\n\nfunc main() {\n\tch := make(chan int)\n\tgo produce(ch)\n\n\tfor value := range ch {\n\t\tfmt.Println(value)\n\t}\n}\n```\n\n`range ch` 會持續接收資料，直到 channel 已關閉，且裡面的資料全部讀完才結束。\n\n搭配使用時，記住幾個重點：\n\n- `main` 返回時，程式就會結束，不會自動等待其他 goroutine。\n- 通常由**傳送端**關閉 channel；多個傳送者共用時，要確認全部傳送完成後才關閉。\n- 向已關閉的 channel 傳送資料會造成 panic。\n- 不必為每個 channel 都呼叫 `close`；它主要用來表示「不會再有資料」。\n- 多個 channel 需要同時等待時，可以使用 `select`。",
+ "finished_at": "2026-10-31T16:09:07+00:00",
+ "seconds": 22.4
+}

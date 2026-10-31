@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "React 元件重複 render 不一定是問題；重點是它在正常更新，還是陷入無限迴圈。常見原因有以下幾種：\n\n1. **在 render 時直接更新 state**\n\n   ```jsx\n   function Counter() {\n     const [count, setCount] = useState(0);\n     setCount(count + 1); // render → 更新 state → 再 render\n     return <div>{count}</div>;\n   }\n   ```\n\n   也要檢查事件是否誤寫成 `onClick={setCount(count + 1)}`，應改成 `onClick={() => setCount(count + 1)}`。\n\n2. **`useEffect` 更新了自己的依賴**\n\n   ```jsx\n   useEffect(() => {\n     setCount(count + 1);\n   }, [count]); // count 改變後又觸發 effect，形成迴圈\n   ```\n\n   應先確認更新的觸發條件，避免 effect 無條件修改自己的依賴；不要只靠刪除依賴來壓住問題。\n\n3. **Effect 依賴的物件或函式每次都重新建立**\n\n   ```jsx\n   const options = { roomId };\n\n   useEffect(() => {\n     // 如果這裡又更新 state，就可能形成迴圈\n   }, [options]); // 每次 render 都是新的物件\n   ```\n\n   可以將物件移進 effect，改依賴 `roomId`；確實需要保留參照時，再考慮 `useMemo` 或 `useCallback`。\n\n4. **父元件或 Context 更新**\n\n   父元件 render 時，子元件通常也會 render；使用的 Context 值改變也會觸發更新。這通常是正常行為。有效能問題時，再評估 `React.memo` 和 props 是否穩定。\n\n5. **開發環境啟用了 `StrictMode`**\n\n   `StrictMode` 會在開發環境額外呼叫 render，並額外執行 effect 的設定與清理，幫助找出副作用問題。若只是出現兩次紀錄，未必是無限迴圈。\n\n**建議先判斷：是只 render 兩次，還是持續不停？** 再檢查所有 `setState` 的位置與 `useEffect` 依賴，也可以用 React DevTools 的 Profiler 找出頻繁更新的元件。\n\n貼上元件程式碼，尤其是 `useState`、`useEffect` 和父元件傳入的 props，我可以幫你定位原因。",
+ "finished_at": "2026-10-31T16:08:33+00:00",
+ "seconds": 18.1
+}

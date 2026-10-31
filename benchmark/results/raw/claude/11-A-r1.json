@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 11,
+ "category": "tech",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "什麼是負載平衡？常見的分配演算法有哪些？",
+ "answer": "# 負載平衡（Load Balancing）\n\n## 定義\n\n負載平衡是把進來的請求或流量，分散到多台後端伺服器（或多個資源）上的技術。目標是：\n\n- **提升吞吐量與效能**：避免單一節點過載\n- **高可用性**：節點故障時自動剔除，流量轉往健康節點（搭配健康檢查）\n- **可擴充性**：需要時直接增加節點即可水平擴展\n- **便於維運**：可滾動升級、灰度發布而不中斷服務\n\n## 常見分類\n\n| 層級 | 說明 | 例子 |\n|---|---|---|\n| L4（傳輸層） | 依 IP / Port 轉發，速度快 | LVS、AWS NLB、HAProxy (TCP mode) |\n| L7（應用層） | 可依 URL、Header、Cookie 做決策 | Nginx、Envoy、AWS ALB |\n\n另外也有 DNS 負載平衡、硬體設備（F5）與用戶端負載平衡（如 gRPC、Ribbon）。\n\n## 常見分配演算法\n\n### 靜態演算法（不考慮伺服器即時狀態）\n\n1. **輪詢（Round Robin）**\n   依序輪流分配。簡單，適合節點效能相近、請求成本差不多的情況。\n\n2. **加權輪詢（Weighted Round Robin）**\n   效能較強的伺服器權重較高，分到更多請求。\n\n3. **隨機（Random）**\n   隨機挑選節點；請求量大時分佈會趨於均勻。\n\n4. **來源 IP 雜湊（IP Hash）**\n   對客戶端 IP 做雜湊後選節點，同一客戶端總是落到同一台，可做簡易的 session 黏著（sticky）。\n\n5. **一致性雜湊（Consistent Hashing）**\n   節點增減時只有少部分 key 需要重新映射，常用於快取叢集（如 Memcached、CDN）。\n\n### 動態演算法（參考即時狀態）\n\n6. **最少連線（Least Connections）**\n   選擇目前連線數最少的節點，適合長連線或請求處理時間差異大的場景。\n\n7. **加權最少連線（Weighted Least Connections）**\n   結合節點權重與當前連線數。\n\n8. **最短回應時間（Least Response Time）**\n   選擇平均回應時間最短、連線數也少的節點。\n\n9. **Power of Two Choices（P2C）**\n   隨機挑兩個節點，再選負載較低者。實作簡單，效果接近最少連線，且避免多個 LB 同時湧向同一個「最空閒」節點（羊群效應）。\n\n10. **資源使用率導向（Resource-based）**\n    依 CPU、記憶體等回報指標分配。\n\n## 如何選擇\n\n| 場景 | 建議 |\n|---|---|\n| 無狀態服務、節點同質 | 輪詢 / 加權輪詢 |\n| 請求耗時差異大、長連線（WebSocket、DB） | 最少連線 / P2C |\n| 需要 session 黏著 | IP Hash、Cookie 黏著 |\n| 快取叢集、需減少重新映射 | 一致性雜湊 |\n| 異質硬體 | 加權版本 |\n\n## 補充\n\n- **健康檢查**（Health Check）是負載平衡的基本配套，否則會把流量送給已故障的節點。\n- 負載平衡器本身也可能成為單點故障，通常會搭配 **Keepalived / VRRP** 或雲端託管服務做高可用。\n- 盡量讓應用無狀態，把 session 放到 Redis 等共用儲存，比依賴黏著更穩健。\n\n如果想看 Nginx 或 HAProxy 的實際設定範例，我可以再提供。",
+ "finished_at": "2026-10-31T15:28:45+00:00",
+ "seconds": 14.3,
+ "cost_usd": 0.0182304
+}

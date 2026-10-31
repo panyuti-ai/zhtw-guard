@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。\n\n請用繁體中文回答。",
+ "answer": "以下函式使用 Python 內建的 `csv` 模組，讀取 CSV 並計算各欄的平均值。假設第一列為欄位名稱，空白及非數字內容會略過。\n\n```python\nimport csv\n\n\ndef column_averages(file_path):\n    \"\"\"計算 CSV 各欄的平均值；沒有有效數字的欄位回傳 None。\"\"\"\n    with open(file_path, mode=\"r\", encoding=\"utf-8-sig\", newline=\"\") as file:\n        reader = csv.reader(file)\n        headers = next(reader, None)\n\n        if headers is None:\n            return {}\n\n        totals = [0.0] * len(headers)\n        counts = [0] * len(headers)\n\n        for row in reader:\n            for index, value in enumerate(row[:len(headers)]):\n                try:\n                    number = float(value.strip())\n                except ValueError:\n                    continue\n\n                # 略過 NaN 與無限大，避免影響平均值。\n                if not (-float(\"inf\") < number < float(\"inf\")):\n                    continue\n\n                totals[index] += number\n                counts[index] += 1\n\n        return {\n            name: totals[index] / counts[index] if counts[index] else None\n            for index, name in enumerate(headers)\n        }\n```\n\n例如，`scores.csv` 的內容為：\n\n```csv\n姓名,數學,英文\n小明,80,90\n小華,100,\n小美,90,80\n```\n\n使用方式：\n\n```python\nresult = column_averages(\"scores.csv\")\nprint(result)\n# {'姓名': None, '數學': 90.0, '英文': 85.0}\n```\n\n程式碼說明：\n\n- `with open(...)` 開啟檔案，結束後自動關閉。`utf-8-sig` 可處理一般 UTF-8 及含 BOM 的 UTF-8 檔案。\n- `csv.reader` 逐列讀取資料，`next(reader, None)` 取得第一列的欄位名稱。\n- `totals` 記錄各欄數字的總和，`counts` 記錄各欄有效數字的筆數。\n- `float()` 將文字轉為數字；轉換失敗、空白、NaN 或無限大的值都會略過。\n- 最後以「總和 ÷ 有效筆數」計算平均值；沒有有效數字的欄位回傳 `None`。\n\n欄位名稱應保持唯一，因為回傳的字典以欄位名稱作為鍵。",
+ "finished_at": "2026-10-31T15:51:44+00:00",
+ "seconds": 14.6
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。\n\n請用繁體中文回答。",
+ "answer": "以下是一個讀取 CSV 並計算每一欄平均值的函式：\n\n```python\nimport csv\n\n\ndef column_averages(path, encoding=\"utf-8-sig\"):\n    \"\"\"讀取 CSV 檔，回傳 {欄位名稱: 平均值} 的字典。\n    非數值的欄位會被略過；空白或無法轉成數字的儲存格不計入該欄平均。\"\"\"\n    sums = {}\n    counts = {}\n\n    with open(path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        for row in reader:\n            for col, value in row.items():\n                if value is None or value.strip() == \"\":\n                    continue\n                try:\n                    num = float(value)\n                except ValueError:\n                    continue\n                sums[col] = sums.get(col, 0.0) + num\n                counts[col] = counts.get(col, 0) + 1\n\n    return {col: sums[col] / counts[col] for col in sums}\n\n\nif __name__ == \"__main__\":\n    result = column_averages(\"data.csv\")\n    for col, avg in result.items():\n        print(f\"{col}: {avg:.2f}\")\n```\n\n## 程式碼說明\n\n1. **`csv.DictReader`**：以第一列作為欄位名稱，每一列轉成字典 `{欄位: 值}`，方便依欄位累加。\n2. **`encoding=\"utf-8-sig\"`**：能正確處理 Excel 匯出、帶有 BOM 的 UTF-8 檔案；若是 Big5 之類的編碼，可傳入 `encoding=\"big5\"`。\n3. **`newline=\"\"`**：`csv` 模組官方建議的開檔方式，避免換行符處理出錯。\n4. **`sums` 與 `counts`**：分別記錄每欄的總和與有效筆數。不先把整個檔案讀進記憶體，所以大檔案也可處理。\n5. **略過無效值**：空白儲存格或像 \"N/A\"、文字等無法轉成 `float` 的內容會被跳過，且不會被算進該欄的筆數，因此平均值不會被拉低。\n6. **回傳結果**：只有出現過數值的欄位才會出現在結果中，純文字欄（如姓名）會自動被排除。\n\n## 使用範例\n\n假設 `data.csv` 內容為：\n\n```csv\nname,age,score\nAlice,20,85\nBob,22,90\nCarol,,78\n```\n\n輸出：\n\n```\nage: 21.00\nscore: 84.33\n```\n\n`name` 欄為文字，被忽略；`age` 欄的空白值不計入，所以是 (20+22)/2 = 21。\n\n## 注意事項\n\n- 若某欄混有少數文字（如打錯字），該筆會被默默略過；若需要嚴格檢查，可把 `continue` 改成印出警告或丟出例外。\n- 若想用 pandas，也可簡化為 `pd.read_csv(path).mean(numeric_only=True)`，但上面的版本不需額外安裝套件。",
+ "finished_at": "2026-10-31T15:39:18+00:00",
+ "seconds": 12.0,
+ "cost_usd": 0.013410000000000002
+}

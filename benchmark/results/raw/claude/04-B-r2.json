@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 4,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "Docker 容器和虛擬機器差在哪裡？\n\n請用繁體中文回答。",
+ "answer": "## 核心差異\n\n**虛擬機器（VM）** 虛擬化的是「硬體」；**Docker 容器** 虛擬化的是「作業系統層級」。\n\n## 架構比較\n\n| 項目 | 虛擬機器 | Docker 容器 |\n|---|---|---|\n| 虛擬化層級 | 硬體（透過 Hypervisor） | 作業系統（共用主機核心） |\n| 作業系統 | 每台 VM 都有完整的 Guest OS | 共用 Host 的 Kernel，只含應用程式與依賴 |\n| 映像檔大小 | 通常數 GB 到數十 GB | 通常數十 MB 到數百 MB |\n| 啟動速度 | 數十秒到數分鐘 | 毫秒到數秒 |\n| 資源消耗 | 較高（每台都要配置 CPU、記憶體給 OS） | 較低，接近原生效能 |\n| 隔離性 | 強（獨立核心） | 較弱（共用核心，靠 namespace 與 cgroups 隔離） |\n| 可攜性 | 較差，映像檔大 | 很好，「一次建置，到處執行」 |\n| 密度 | 一台主機跑數台到數十台 | 一台主機可跑數百個 |\n\n## 運作原理\n\n- **VM**：硬體 → Host OS → Hypervisor（如 VMware、KVM、Hyper-V）→ 多個 Guest OS → 應用程式\n- **容器**：硬體 → Host OS（核心）→ Container Engine（Docker）→ 多個容器（應用程式＋函式庫）\n\n容器依靠 Linux 的兩項機制：\n- **Namespace**：隔離程序、網路、檔案系統等視野\n- **cgroups**：限制 CPU、記憶體等資源用量\n\n## 如何選擇\n\n**適合用容器：**\n- 微服務架構、CI/CD\n- 需要快速啟動、彈性擴縮\n- 開發與生產環境一致性\n\n**適合用 VM：**\n- 需要不同作業系統（例如在 Linux 上跑 Windows）\n- 對安全隔離要求高（多租戶、不信任的程式碼）\n- 執行傳統、需要完整 OS 的應用\n\n## 補充\n\n兩者並非互斥，實務上常見「在 VM 裡跑容器」，例如雲端的 Kubernetes 節點多半就是 VM，兼顧 VM 的強隔離與容器的輕量靈活。此外，Windows/macOS 上的 Docker Desktop 本身也是透過輕量 VM 來提供 Linux 核心。",
+ "finished_at": "2026-10-31T15:34:42+00:00",
+ "seconds": 11.7,
+ "cost_usd": 0.0123658
+}

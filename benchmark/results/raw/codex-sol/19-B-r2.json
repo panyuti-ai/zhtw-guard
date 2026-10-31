@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 19,
+ "category": "daily",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "家裡的貓一直亂抓沙發，有什麼辦法？\n\n請用繁體中文回答。",
+ "answer": "可以，最有效的方向是**在沙發旁提供牠喜歡的抓板，並獎勵牠使用**。抓東西是貓伸展、整理爪子和留下氣味的正常行為，需要幫牠換個地方抓。[康乃爾大學獸醫學院](https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feline-behavior-problems-destructive-behavior)\n\n你可以先這樣做：\n\n1. **抓板放在牠最常抓的沙發位置旁。** 抓沙發側面就試直立抓柱；抓坐墊就試平放抓板。直立抓柱要穩固，並高到讓牠能伸直身體；材質可試麻繩或瓦楞紙。[俄亥俄州立大學](https://indoorpet.osu.edu/node/449)、[PDSA](https://www.pdsa.org.uk/pet-help-and-advice/looking-after-your-pet/kittens-cats/how-to-stop-my-cat-scratching)\n2. **一抓對地方，立刻獎勵。** 給一小口零食或牠喜歡的互動，也能用逗貓棒引導牠靠近抓板。[奧勒岡獸醫協會](https://www.oregonvma.org/care-health/companion-animals/behavior/cat-behavior-scratching)\n3. **暫時保護沙發抓痕處。** 用固定牢靠的光滑防抓護片遮住，同時保留旁邊的抓板，讓牠有替代選擇。[Cats Protection](https://www.cats.org.uk/help-and-advice/cat-behaviour/scratching)\n4. **避免打罵或噴水。** 處罰可能增加恐懼與壓力，無助於教牠該在哪裡抓。[RSPCA](https://kb.rspca.org.au/categories/companion-animals/cats/behaviour/why-does-my-cat-scratch-the-furniture)\n\n**如果家裡已有抓板，先試著移到沙發旁，並檢查會不會搖晃、尺寸是否太小。** 位置和穩定度往往就是關鍵。\n\n牠主要抓沙發的「側面」，還是「坐墊」？目前有放抓板嗎？",
+ "finished_at": "2026-10-31T16:03:38+00:00",
+ "seconds": 27.8
+}

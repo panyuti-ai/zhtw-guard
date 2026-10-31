@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "先確認「哪一種記憶體在增加」，再找出「誰持續保留資料」。**記憶體上升不一定是洩漏；更值得注意的是，相同負載下，垃圾回收後的用量是否持續墊高。**\n\n**1. 先記錄記憶體趨勢**\n\n把這段加入程式，每 10 秒輸出一次，單位為 MiB：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n\n  console.log({\n    time: new Date().toISOString(),\n    ...Object.fromEntries(\n      Object.entries(m).map(([key, bytes]) => [\n        key,\n        Math.round(bytes / 1024 / 1024),\n      ])\n    ),\n  });\n}, 10_000).unref();\n```\n\n觀察一段固定負載，再停止請求，比較變化：\n\n| 現象 | 優先調查 |\n|---|---|\n| `heapUsed` 上下波動，低點大致固定 | 通常是正常的配置與垃圾回收 |\n| `heapUsed` 的低點持續升高 | JS 物件可能被持續引用 |\n| `external`、`arrayBuffers` 持續增加 | Buffer、二進位資料、原生套件 |\n| 只有 `rss` 增加 | 原生記憶體、配置器碎片等，需進一步確認 |\n\n`rss` 是整個程序的常駐記憶體；`arrayBuffers` 已包含在 `external` 中，別把所有欄位直接相加。Linux 上也可能因配置器碎片出現 RSS 上升。[官方欄位說明](https://nodejs.org/api/process.html#processmemoryusage)\n\n**2. 如果是 JS heap 增長，比較兩份 Heap Snapshot**\n\n在本機或測試環境啟動：\n\n```bash\nnode --inspect=127.0.0.1:9229 app.js\n```\n\n開啟 Chrome 的 `chrome://inspect`，進入該程序的 DevTools → **Memory**：\n\n1. 先讓程式暖機，拍第一份 Heap Snapshot。\n2. 重複執行可疑操作，例如呼叫同一個 API 1,000 次。\n3. 等請求完成，拍第二份快照。\n4. 用 **Comparison** 找數量與保留大小持續增加的物件。\n5. 點進 **Retainers**，追查是哪個陣列、Map、閉包或 listener 保留它。\n\n**關鍵是找出「為什麼物件還活著」**，不只是找最大物件。拍快照會暫停主執行緒，且可能需要約兩倍 heap 記憶體，應先在可承受中斷的環境操作。[官方快照診斷流程](https://nodejs.org/en/learn/diagnostics/memory/using-heap-snapshot)\n\n**3. 優先檢查這幾種程式碼**\n\n- **無上限快取**：全域陣列、`Map` 不斷加入資料，沒有容量限制或清除機制。\n- **事件監聽器重複註冊**：每次請求都 `.on()`，結束後沒有移除。\n- **計時器與閉包**：`setInterval()` 沒清除，閉包一直引用大型資料。\n- **非同步工作堆積**：下游變慢，待處理請求、Promise 或佇列不斷增加。\n- **Buffer 與串流**：整份檔案讀入記憶體，或沒有處理串流背壓。\n\n如果增長來自工作堆積，請同時記錄「進行中請求數、佇列長度、下游延遲」；這能區分資料未釋放和處理速度跟不上。\n\n修正後，用**相同負載、相同操作次數**重跑，確認記憶體低點開始穩定。單純提高 `--max-old-space-size` 通常只會延後問題出現。\n\n你目前看到的是 `rss` 還是 `heapUsed` 增加？若提供 Node.js 版本、上述數值的幾筆紀錄，以及主要工作類型（API、排程、檔案處理等），就能進一步縮小範圍。",
+ "finished_at": "2026-10-31T15:54:53+00:00",
+ "seconds": 35.0
+}

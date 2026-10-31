@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。\n\n請用繁體中文回答。",
+ "answer": "以下是一個讀取 CSV 並計算每一欄平均值的函式：\n\n```python\nimport csv\n\n\ndef column_averages(path, encoding=\"utf-8-sig\"):\n    \"\"\"讀取 CSV 檔，回傳 {欄位名稱: 平均值} 的字典。\n    非數值的欄位會被略過；空白或無法轉成數字的儲存格不計入該欄的平均。\n    \"\"\"\n    sums = {}\n    counts = {}\n\n    with open(path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        for row in reader:\n            for col, value in row.items():\n                if value is None or value.strip() == \"\":\n                    continue\n                try:\n                    num = float(value)\n                except ValueError:\n                    continue\n                sums[col] = sums.get(col, 0.0) + num\n                counts[col] = counts.get(col, 0) + 1\n\n    return {col: sums[col] / counts[col] for col in sums}\n\n\nif __name__ == \"__main__\":\n    result = column_averages(\"data.csv\")\n    for col, avg in result.items():\n        print(f\"{col}: {avg:.2f}\")\n```\n\n## 程式碼說明\n\n1. **`csv.DictReader`**：把第一列當作欄位名稱，之後每一列以字典形式讀出（`{欄名: 值}`），方便依欄位累計。\n2. **`newline=\"\"` 與 `encoding=\"utf-8-sig\"`**：`newline=\"\"` 是 `csv` 模組建議的開檔方式，能正確處理含換行的欄位；`utf-8-sig` 可自動去掉 Excel 匯出檔開頭的 BOM，避免第一個欄名出現亂碼字元。若檔案是 Big5，可傳入 `encoding=\"big5\"`。\n3. **`sums` 與 `counts`**：分別記錄每欄的總和與有效數值筆數。每欄各自計數，所以某欄有缺值時，平均不會被拉低。\n4. **跳過無效值**：空白儲存格直接略過；`float(value)` 轉換失敗（例如文字欄位）則由 `except ValueError` 捕捉並略過。純文字欄位因此不會出現在結果中。\n5. **回傳結果**：用字典生成式 `sums / counts` 算出每欄平均。\n6. **串流處理**：逐列讀取，不會一次把整個檔案載入記憶體，大檔案也適用。\n\n## 範例\n\n`data.csv`：\n\n```\nname,math,english\nAmy,80,90\nBob,70,\nCathy,90,85\n```\n\n輸出：\n\n```\nmath: 80.00\nenglish: 87.50\n```\n\n`name` 欄為文字所以被略過；`english` 欄有一格空白，只用另外兩筆計算（(90+85)/2 = 87.5）。\n\n## 補充\n\n- 如果偏好用 pandas，可以簡化為：`pd.read_csv(path).mean(numeric_only=True).to_dict()`，適合資料量大或需要更多分析時使用。\n- 若某欄同時混有數字與文字，文字儲存格會被略過而不報錯；若希望遇到這種情況就報錯，可把 `except ValueError: continue` 改成拋出例外。",
+ "finished_at": "2026-10-31T15:46:11+00:00",
+ "seconds": 12.0,
+ "cost_usd": 0.014172
+}

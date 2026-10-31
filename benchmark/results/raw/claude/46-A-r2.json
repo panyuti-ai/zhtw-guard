@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？",
+ "answer": "# list vs tuple\n\n## 核心差異\n\n| | list | tuple |\n|---|---|---|\n| 可變性 | **可變** (mutable) | **不可變** (immutable) |\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可增刪改元素 | ✅ | ❌ |\n| 可當 dict 的 key / set 元素 | ❌ (不可雜湊) | ✅ (元素皆可雜湊時) |\n| 記憶體與速度 | 稍多、稍慢 | 稍省、建立較快 |\n| 常見語意 | 同質元素的**集合** | 異質欄位的**記錄** |\n\n```python\nlst = [1, 2, 3]\nlst[0] = 99          # OK\nlst.append(4)        # OK\n\ntup = (1, 2, 3)\ntup[0] = 99          # TypeError\ntup.append(4)        # AttributeError\n\n{(1, 2): \"a\"}        # OK，tuple 可當 key\n{[1, 2]: \"a\"}        # TypeError: unhashable type: 'list'\n```\n\n## 什麼時候用哪個\n\n**用 list：**\n- 長度會變動，或需要增刪、排序、修改元素\n- 一堆同類型的資料，例如使用者清單、數值序列\n- 需要當作堆疊或佇列的暫存容器\n\n**用 tuple：**\n- 資料固定、不該被修改，例如座標 `(x, y)`、RGB `(255, 0, 0)`\n- 當 dict 的 key 或放進 set\n- 函式回傳多個值：`return a, b`\n- 異質欄位組成的一筆記錄，例如 `(\"Alice\", 30, \"Taipei\")`\n- 想向讀程式的人表達「這組資料不會變」\n\n## 注意事項\n\n1. **tuple 的不可變是「淺層」的**：若裡面放 list，該 list 內容仍可改。\n   ```python\n   t = ([1, 2], 3)\n   t[0].append(99)   # OK → ([1, 2, 99], 3)\n   ```\n2. **單元素 tuple 要加逗號**：`(1,)`，而 `(1)` 只是整數 1。\n3. **效能差異通常不是主因**，選擇時以「語意」優先：會變就用 list，不會變就用 tuple。\n4. 需要有欄位名稱的記錄時，可考慮 `namedtuple` 或 `dataclass`，可讀性比純 tuple 好。\n\n**簡單口訣：** 資料會增減、會修改 → list；資料是固定的一組、要當 key 或要保護不被改 → tuple。",
+ "finished_at": "2026-10-31T15:40:12+00:00",
+ "seconds": 11.1,
+ "cost_usd": 0.0123157
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 43,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "Go 語言的 goroutine 和 channel 怎麼搭配使用？\n\n請用繁體中文回答。",
+ "answer": "# Goroutine 與 Channel 的搭配使用\n\n**核心概念**：goroutine 負責「並行執行」，channel 負責「goroutine 之間溝通與同步」。Go 的理念是：*不要用共享記憶體來通訊，而要用通訊來共享記憶體。*\n\n## 1. 基本用法：傳遞結果\n\n```go\nfunc main() {\n    ch := make(chan int)\n\n    go func() {\n        ch <- 42 // 傳送（無緩衝時會阻塞，直到有人接收）\n    }()\n\n    v := <-ch // 接收\n    fmt.Println(v)\n}\n```\n\n## 2. 無緩衝 vs 有緩衝\n\n```go\nch1 := make(chan int)     // 無緩衝：收發雙方必須同時就緒（同步）\nch2 := make(chan int, 3)  // 有緩衝：緩衝未滿時傳送不會阻塞\n```\n\n## 3. Worker Pool（最常見模式）\n\n```go\nfunc worker(id int, jobs <-chan int, results chan<- int) {\n    for j := range jobs {\n        results <- j * 2\n    }\n}\n\nfunc main() {\n    jobs := make(chan int, 10)\n    results := make(chan int, 10)\n\n    for w := 1; w <= 3; w++ {\n        go worker(w, jobs, results)\n    }\n\n    for i := 1; i <= 5; i++ {\n        jobs <- i\n    }\n    close(jobs) // 關閉後 worker 的 range 才會結束\n\n    for i := 1; i <= 5; i++ {\n        fmt.Println(<-results)\n    }\n}\n```\n\n`<-chan int` 為只讀、`chan<- int` 為只寫，可在型別層面避免誤用。\n\n## 4. 搭配 WaitGroup 等待完成\n\n```go\nvar wg sync.WaitGroup\nresults := make(chan int)\n\nfor i := 0; i < 5; i++ {\n    wg.Add(1)\n    go func(n int) {\n        defer wg.Done()\n        results <- n * n\n    }(i)\n}\n\ngo func() {\n    wg.Wait()\n    close(results) // 所有生產者結束後才關閉\n}()\n\nfor r := range results {\n    fmt.Println(r)\n}\n```\n\n## 5. select：多路復用與逾時\n\n```go\nselect {\ncase msg := <-ch1:\n    fmt.Println(\"收到\", msg)\ncase <-time.After(2 * time.Second):\n    fmt.Println(\"逾時\")\ndefault:\n    // 沒有任何 channel 就緒時執行（非阻塞）\n}\n```\n\n## 6. 用 context 取消 goroutine\n\n```go\nfunc run(ctx context.Context, out chan<- int) {\n    for i := 0; ; i++ {\n        select {\n        case <-ctx.Done():\n            return // 收到取消訊號就退出，避免 goroutine 洩漏\n        case out <- i:\n        }\n    }\n}\n```\n\n## 常見注意事項\n\n| 問題 | 說明 |\n|---|---|\n| **死鎖** | 無緩衝 channel 只有傳送沒有接收（或相反），會 `fatal error: all goroutines are asleep` |\n| **關閉規則** | 只由**傳送方**關閉；對已關閉的 channel 傳送或重複關閉會 panic |\n| **goroutine 洩漏** | goroutine 卡在永遠等不到的收發上，應用 `context` 或 `done` channel 讓它能退出 |\n| **迴圈變數** | Go 1.22 之前，閉包捕獲迴圈變數需以參數傳入；1.22 起每次迭代都有獨立變數 |\n| **nil channel** | 對 nil channel 收發會永遠阻塞（可在 `select` 中用來停用某個 case） |\n\n## 何時用 channel，何時用 Mutex？\n\n- **channel**：傳遞資料所有權、任務分派、事件通知、管線（pipeline）。\n- **`sync.Mutex`**：保護共享狀態（如計數器、快取），簡單直接且效能較好。\n\n如果你想要，我可以再示範 pipeline、fan-in/fan-out，或 `errgroup` 的用法。",
+ "finished_at": "2026-10-31T15:46:42+00:00",
+ "seconds": 13.2,
+ "cost_usd": 0.0173965
+}

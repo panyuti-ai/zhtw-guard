@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "# 排查 Node.js 記憶體持續增長\n\n## 1. 先確認是真的洩漏\n記憶體增加不一定是 leak。先觀察：\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1048576).toFixed(1),\n    heapUsed: (m.heapUsed / 1048576).toFixed(1),\n    external: (m.external / 1048576).toFixed(1),\n    arrayBuffers: (m.arrayBuffers / 1048576).toFixed(1),\n  });\n}, 10000);\n```\n- **heapUsed 持續上升**（GC 後也降不下來）→ JS 物件洩漏\n- **rss / external / arrayBuffers 上升，heapUsed 平穩** → Buffer、原生模組、stream 未釋放\n- 鋸齒狀但整體平穩 → 正常 GC 行為\n\n可加 `--trace-gc` 觀察 GC 後的記憶體是否回落。\n\n## 2. 用 Heap Snapshot 比對（最有效）\n```bash\nnode --inspect app.js\n```\n1. Chrome 開 `chrome://inspect` → 連到程序\n2. Memory 分頁 → 拍 **Snapshot 1**\n3. 讓程式跑一段時間（或對服務施壓）\n4. 拍 **Snapshot 2**、**Snapshot 3**\n5. 選 Snapshot 3，切到 **Comparison**，看哪些類別的 `# Delta` 與 `Size Delta` 持續變大\n6. 點開物件，看 **Retainers**，找出是誰持有它\n\n也可在不方便連 inspector 的環境直接輸出：\n```js\nrequire('v8').writeHeapSnapshot(); // 產生 .heapsnapshot 檔\n```\n或啟動時加 `--heapsnapshot-signal=SIGUSR2`，之後 `kill -USR2 <pid>` 即可拍快照。\n\n## 3. 用 Allocation Timeline / Sampling\nChrome DevTools → Memory → **Allocation instrumentation on timeline**，藍色長條沒變灰就代表那段期間配置的物件沒被釋放，可直接看到配置位置的呼叫堆疊。\n\n## 4. 常見洩漏原因檢查清單\n- **全域變數 / 模組層級的 Map、Array、物件** 只增不減（快取沒有上限或 TTL）→ 改用 LRU（如 `lru-cache`）\n- **EventEmitter 監聽器未移除**：出現 `MaxListenersExceededWarning` 就是警訊；記得 `off` / `removeListener`\n- **計時器**：`setInterval` 沒有 `clearInterval`，閉包持有大物件\n- **閉包**意外捕獲大型變數（如 request/response）\n- **Promise 永不 resolve**、或未處理的佇列不斷堆積\n- **Stream 沒有正確 `destroy` / 處理 backpressure**\n- **資料庫連線、HTTP agent、WebSocket** 沒有關閉或重用\n- **日誌 / metrics 的 label 基數爆炸**（如把 userId、URL 全路徑當 label）\n- **第三方套件**本身有洩漏，可查 issue 或升級版本\n\n## 5. 輔助工具\n- `clinic.js`（`clinic heapprofiler` / `clinic doctor`）\n- `memlab`（Meta 開源，可自動化比對快照找洩漏）\n- `heapdump`、`v8-profiler-next`\n- 生產環境：APM（Datadog、New Relic、Prometheus + `prom-client` 蒐集 heap 指標）\n\n## 6. 容器 / 設定注意\n- 在 Docker/K8s 中，V8 預設 heap 上限可能與容器限制不符，可用 `--max-old-space-size=<MB>` 設定\n- 若只是 RSS 高但 heap 正常，可能是 glibc 記憶體碎片，可試 `MALLOC_ARENA_MAX=2` 或改用 jemalloc\n\n## 建議流程\n1. 加上 `memoryUsage` 記錄，判斷是 heap 還是 external\n2. 拍 3 次快照（間隔施壓）並用 Comparison 找持續增長的類別\n3. 看 Retainers 定位持有者\n4. 修正後重跑同樣流程驗證曲線是否趨平\n\n如果你願意提供程式碼（或快照中增長最多的物件類型、`memoryUsage` 輸出），我可以幫你更具體地判斷。",
+ "finished_at": "2026-10-31T15:33:49+00:00",
+ "seconds": 18.4,
+ "cost_usd": 0.0211484
+}

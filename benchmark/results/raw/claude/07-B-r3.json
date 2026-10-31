@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？\n\n請用繁體中文回答。",
+ "answer": "# OAuth 是什麼？\n\n**OAuth（目前主流是 OAuth 2.0）是一個「授權」協定**：讓你可以允許第三方應用程式存取你在某服務上的部分資料，**而不必把帳號密碼交給它**。\n\n> 比喻：飯店的**房卡**。你不用把家裡鑰匙（密碼）給清潔人員，只給一張只能開特定房間、有時效、可隨時作廢的房卡（access token）。\n\n## 常見角色\n\n| 角色 | 說明 | 例子 |\n|---|---|---|\n| Resource Owner | 資源擁有者 | 你 |\n| Client | 想存取資料的第三方應用 | 某個網站或 App |\n| Authorization Server | 驗證你並發放 token | Google 的登入服務 |\n| Resource Server | 存放資料的 API | Google 的使用者資料 API |\n\n## 「用 Google 登入」背後的流程（Authorization Code Flow）\n\n1. **你點擊「使用 Google 登入」**\n   第三方網站（Client）把你導向 Google 的授權頁面，網址帶有：`client_id`、`redirect_uri`、`scope`（要求的權限）、`state`（防 CSRF 的隨機值）。\n\n2. **你在 Google 登入並同意授權**\n   密碼只輸入給 Google，第三方網站看不到。畫面會顯示「此網站想存取你的姓名與 Email」。\n\n3. **Google 導回第三方網站，並附上一次性的 `authorization code`**\n   例如：`https://app.com/callback?code=abc123&state=xyz`\n   網站會先檢查 `state` 是否與當初一致。\n\n4. **第三方網站的後端拿 code 去換 token**\n   後端直接向 Google 發出請求（帶上 `client_secret`），換得：\n   - **access token**：呼叫 API 用，壽命短\n   - **refresh token**（可選）：用來換新的 access token\n   - **id token**（若使用 OIDC）：證明你是誰\n\n5. **用 access token 呼叫 API**\n   網站取得你授權範圍內的資料（如姓名、Email），建立登入狀態。\n\n為什麼不直接回傳 token，而要多一步 code？因為 code 經過瀏覽器網址列，可能外洩；真正的 token 則在後端對後端的安全通道傳遞，且換取時需要 `client_secret`。\n\n## OAuth 與 OIDC 的差別\n\n- **OAuth 2.0**：處理「授權」（這個 App 能做什麼？）\n- **OpenID Connect (OIDC)**：建立在 OAuth 2.0 之上，加入 **id token**，處理「驗證身分」（你是誰？）\n\n我們說的「用 Google 登入」，嚴格來說是 **OAuth 2.0 + OIDC**。\n\n## 安全重點\n\n- **`state` 參數**：防止 CSRF 攻擊\n- **PKCE**：讓公開客戶端（手機 App、SPA）沒有 secret 也能安全使用 code flow，現在建議所有場景都使用\n- **嚴格比對 `redirect_uri`**：避免 code 被導到攻擊者網站\n- **最小權限 scope**：只要求必要的權限\n- **token 短效**，並可隨時撤銷（你可以在 Google 帳號設定中移除某個應用的授權）\n- 不建議再使用 Implicit Flow（token 直接出現在網址中）\n\n## 簡單總結\n\n> OAuth 讓你**不洩漏密碼**的情況下，**授予有限、可撤銷的權限**給第三方；背後靠的是「導向授權伺服器 → 取得 code → 後端換 token → 用 token 存取資源」這一連串流程。\n\n如果想深入，我可以進一步說明 PKCE、Refresh Token 的運作，或用程式碼示範實作一次完整流程。",
+ "finished_at": "2026-10-31T15:42:04+00:00",
+ "seconds": 15.8,
+ "cost_usd": 0.0167146
+}

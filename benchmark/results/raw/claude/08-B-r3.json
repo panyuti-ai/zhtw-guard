@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 8,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "雜湊表怎麼做到平均 O(1) 查詢？碰撞怎麼處理？\n\n請用繁體中文回答。",
+ "answer": "# 雜湊表如何做到平均 O(1) 查詢\n\n## 核心原理\n\n1. **雜湊函數**：把 key 轉成整數，再對陣列大小取模，得到索引：`index = hash(key) % capacity`。\n2. **陣列隨機存取**：陣列依索引存取是 O(1)，所以只要算出索引就能直接跳到位置，不需要逐一比對。\n3. **均勻分佈**：好的雜湊函數讓 key 平均散佈在各個桶（bucket），每個桶只有少數元素。\n4. **控制負載因子**：負載因子 α = n / capacity。當 α 超過門檻（例如 0.75）就**擴容**（通常加倍）並重新雜湊（rehash）。這樣 α 保持為常數，每個桶平均元素數是 O(1)，所以查詢平均 O(1)。擴容成本攤銷到每次插入，仍是攤銷 O(1)。\n\n最壞情況（所有 key 都碰撞到同一個桶）會退化成 O(n)，所以「O(1)」只是**平均**而非保證。\n\n## 碰撞處理\n\n碰撞指兩個不同 key 算出相同索引，主要有兩類做法：\n\n### 1. 鏈結法（Separate Chaining）\n- 每個桶存一個串列（鏈結串列或動態陣列）。\n- 碰撞的元素都放進同一個桶的串列中。\n- 查詢：算出索引 → 在該桶串列中逐個比對 key。\n- 優點：實作簡單，刪除容易，α 超過 1 也能運作。\n- 缺點：額外指標開銷，快取局部性較差。\n- 優化：Java 8 的 `HashMap` 在單一桶過長（≥8）時會把鏈結串列轉成紅黑樹，最壞情況降為 O(log n)。\n\n### 2. 開放定址法（Open Addressing）\n所有元素都存在陣列本身，碰撞時按某種**探測序列**找下一個空位：\n- **線性探測**：`(h + i) % m`。快取友善，但容易產生群聚（clustering）。\n- **二次探測**：`(h + i²) % m`。減輕主群聚。\n- **雙重雜湊**：`(h1 + i·h2) % m`。分佈最均勻。\n- 刪除需要用「墓碑」（tombstone）標記，否則會截斷探測鏈。\n- α 必須小於 1，且通常要維持在較低（約 0.5～0.7）以保持效率。\n- 現代變體：Robin Hood hashing、Cuckoo hashing（最壞 O(1) 查詢）、Swiss Table（Abseil、Rust 的 `HashMap`）。\n\n## 簡單範例（鏈結法）\n\n```python\nclass HashMap:\n    def __init__(self, cap=8):\n        self.buckets = [[] for _ in range(cap)]\n        self.size = 0\n\n    def _idx(self, key):\n        return hash(key) % len(self.buckets)\n\n    def put(self, key, val):\n        b = self.buckets[self._idx(key)]\n        for i, (k, _) in enumerate(b):\n            if k == key:\n                b[i] = (key, val)\n                return\n        b.append((key, val))\n        self.size += 1\n        if self.size / len(self.buckets) > 0.75:\n            self._resize()\n\n    def get(self, key):\n        for k, v in self.buckets[self._idx(key)]:\n            if k == key:\n                return v\n        raise KeyError(key)\n\n    def _resize(self):\n        old = self.buckets\n        self.buckets = [[] for _ in range(len(old) * 2)]\n        self.size = 0\n        for b in old:\n            for k, v in b:\n                self.put(k, v)\n```\n\n## 重點整理\n\n| 項目 | 鏈結法 | 開放定址法 |\n|---|---|---|\n| 儲存方式 | 桶內串列 | 陣列內探測 |\n| 負載因子 | 可 > 1 | 必須 < 1 |\n| 刪除 | 簡單 | 需墓碑 |\n| 快取表現 | 較差 | 較好 |\n| 平均查詢 | O(1 + α) | O(1/(1−α)) |\n\n另外，為了防範惡意構造碰撞的 DoS 攻擊，許多語言（如 Python、Rust）會使用加鹽或 SipHash 這類隨機化的雜湊函數。",
+ "finished_at": "2026-10-31T15:42:19+00:00",
+ "seconds": 15.4,
+ "cost_usd": 0.0184472
+}

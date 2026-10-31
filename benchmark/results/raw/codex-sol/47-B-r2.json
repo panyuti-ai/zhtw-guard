@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 47,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "解釋 Kubernetes 的 Pod、Deployment、Service 三者的關係。\n\n請用繁體中文回答。",
+ "answer": "在 Kubernetes 中，**Pod 負責執行應用程式，Deployment 負責管理 Pod，Service 則提供存取 Pod 的穩定入口。**\n\n| 元件 | 主要職責 | 例子 |\n|---|---|---|\n| **Pod** | Kubernetes 最小的部署單位，包含一個或多個共享網路與儲存資源的容器。 | 執行一個網站應用程式 |\n| **Deployment** | 宣告並維持 Pod 的期望狀態，管理副本數、版本更新與回滾。它透過 **ReplicaSet** 管理 Pod。 | 維持 3 個網站 Pod，故障時補建 |\n| **Service** | 提供穩定的 IP 與 DNS 名稱，將流量導向符合條件且就緒的 Pod。 | 讓其他應用程式透過固定名稱存取網站 |\n\n三者的關係可以這樣看：\n\n```text\nDeployment\n    │ 透過 ReplicaSet 建立與維持副本\n    ▼\nPod A    Pod B    Pod C\n  ▲        ▲        ▲\n  └────────┼────────┘\n           │ 將流量導向就緒的 Pod\n        Service\n           ▲\n           │\n         呼叫端\n```\n\n例如，你部署一個網站，設定 Deployment 維持 **3 個 Pod**。其中一個 Pod 故障時，Deployment 所管理的 ReplicaSet 會建立新 Pod；新 Pod 的 IP 可能不同，但呼叫端仍可使用同一個 Service 名稱存取網站。\n\n**Service 通常透過標籤選擇器（label selector）找到 Pod，而不是直接連到 Deployment。** 因此，Deployment 管理 Pod 的生命週期，Service 解決 Pod 更替時的連線問題。若要讓外部使用者存取，還需要選擇合適的 Service 類型，或搭配 Ingress 等入口。",
+ "finished_at": "2026-10-31T16:10:34+00:00",
+ "seconds": 20.1
+}

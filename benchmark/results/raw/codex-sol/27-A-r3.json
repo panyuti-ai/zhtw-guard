@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 27,
+ "category": "simplified_source",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "下面是一則產品說明，請改寫成適合台灣讀者的版本：「这款软件支持多种视频格式，默认保存在桌面的文件夹里，内存占用很低。」",
+ "answer": "這款軟體支援多種影片格式，預設會儲存在桌面的資料夾中，記憶體占用量很低。",
+ "finished_at": "2026-10-31T16:22:19+00:00",
+ "seconds": 4.8
+}

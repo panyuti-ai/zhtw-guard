@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。",
+ "answer": "可以使用 Python 內建的 `csv` 模組，不需要安裝額外套件。以下假設 CSV 第一列是欄位名稱，空白值會略過；若遇到非數字內容，會指出所在位置。\n\n```python\nimport csv\n\n\ndef column_means(file_path):\n    \"\"\"讀取 CSV，回傳各欄平均值；沒有數值的欄位回傳 None。\"\"\"\n    with open(file_path, newline=\"\", encoding=\"utf-8-sig\") as file:\n        reader = csv.reader(file)\n        headers = next(reader, None)\n\n        if headers is None:\n            return {}\n\n        if len(headers) != len(set(headers)):\n            raise ValueError(\"CSV 欄位名稱不可重複\")\n\n        totals = [0.0] * len(headers)\n        counts = [0] * len(headers)\n\n        for row_number, row in enumerate(reader, start=2):\n            if not row:  # 略過空行\n                continue\n\n            if len(row) != len(headers):\n                raise ValueError(f\"第 {row_number} 列的欄位數不一致\")\n\n            for index, cell in enumerate(row):\n                cell = cell.strip()\n                if not cell:\n                    continue\n\n                try:\n                    value = float(cell)\n                except ValueError:\n                    raise ValueError(\n                        f\"第 {row_number} 列、欄位 {headers[index]!r} \"\n                        f\"不是數字：{cell!r}\"\n                    ) from None\n\n                totals[index] += value\n                counts[index] += 1\n\n        return {\n            name: totals[index] / counts[index] if counts[index] else None\n            for index, name in enumerate(headers)\n        }\n```\n\n例如 `scores.csv` 內容為：\n\n```csv\n數學,英文,自然\n80,90,70\n100,,90\n90,80,80\n```\n\n使用方式：\n\n```python\naverages = column_means(\"scores.csv\")\nprint(averages)\n# {'數學': 90.0, '英文': 85.0, '自然': 80.0}\n```\n\n程式碼說明：\n\n- `with open(...)` 開啟檔案，結束後自動關閉；`utf-8-sig` 也能處理帶有 BOM 的 UTF-8 檔案。\n- `csv.reader` 逐列解析 CSV，`next()` 讀取第一列的欄位名稱。\n- `totals` 累計各欄總和，`counts` 記錄各欄有效數值的數量，空白不計入。\n- 最後以「總和 ÷ 有效數量」計算平均值，並回傳字典。完全沒有數值的欄位回傳 `None`。",
+ "finished_at": "2026-10-31T16:23:43+00:00",
+ "seconds": 15.2
+}

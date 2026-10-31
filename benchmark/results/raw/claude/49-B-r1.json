@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。\n\n請用繁體中文回答。",
+ "answer": "## 程式碼\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr[arr.length - 1];\n}\n```\n\n使用範例：\n\n```ts\nconst a = last([1, 2, 3]);          // number | undefined\nconst b = last([\"x\", \"y\"]);         // string | undefined\nconst c = last([1, \"a\", true]);     // string | number | boolean | undefined\nconst d = last([] as string[]);     // string | undefined\n```\n\n## 型別推導說明\n\n1. **泛型參數 `T`**：`T` 是型別變數，呼叫時由 TypeScript 根據傳入的引數自動推導，不需要手動寫 `last<number>(...)`。\n\n2. **從 `readonly T[]` 反推 `T`**：傳入 `[1, 2, 3]` 時，編譯器把 `number[]` 與 `readonly T[]` 比對，得出 `T = number`。因此回傳型別 `T | undefined` 變成 `number | undefined`。\n\n3. **混合型別陣列**：`[1, \"a\", true]` 的元素型別被推導為聯集 `string | number | boolean`，所以 `T` 就是這個聯集。\n\n4. **為什麼回傳 `T | undefined`**：空陣列沒有最後一個元素，執行時會得到 `undefined`。把它寫進回傳型別，呼叫端就必須處理這種情況，較安全。\n\n5. **為什麼用 `readonly T[]`**：函式只讀取不修改陣列，使用 `readonly` 可同時接受一般陣列與唯讀陣列（`ReadonlyArray`），彈性較大。\n\n## 進階：保留 tuple 的精確型別\n\n如果希望傳入 tuple 時得到精確型別（例如 `[1, \"a\"]` 得到 `string` 而非聯集），可以用 tuple 型別來推導：\n\n```ts\ntype Last<T extends readonly unknown[]> =\n  T extends readonly [...unknown[], infer L] ? L : T[number] | undefined;\n\nfunction lastExact<const T extends readonly unknown[]>(arr: T): Last<T> {\n  return arr[arr.length - 1] as Last<T>;\n}\n\nconst x = lastExact([1, \"a\"]);        // \"a\"\nconst y = lastExact([1, 2, 3]);       // 3\nconst z = lastExact([] as number[]);  // number | undefined\n```\n\n重點：\n\n- `const T` 型別參數（TS 5.0+）讓字面值與 tuple 結構被保留，不會被放寬成 `(string | number)[]`。\n- `T extends readonly [...unknown[], infer L]` 用 `infer` 取出 tuple 的最後一個元素型別 `L`。\n- 若 `T` 是一般陣列（長度不定），條件不成立，就退回 `T[number] | undefined`。\n\n一般情況用第一個簡單版本即可；需要精確的 tuple 型別時再用進階版。",
+ "finished_at": "2026-10-31T15:33:55+00:00",
+ "seconds": 13.2,
+ "cost_usd": 0.0153544
+}

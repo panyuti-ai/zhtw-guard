@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。",
+ "answer": "`Promise` 用來表示非同步操作未來的結果；`async/await` 則是建立在 Promise 之上的語法，讓非同步程式更容易閱讀。\n\n例如，用 Promise 的 `.then()` 取得結果：\n\n```javascript\nfunction fetchName() {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve(\"小明\"), 1000);\n  });\n}\n\nfetchName().then((name) => {\n  console.log(name); // 約 1 秒後印出「小明」\n});\n```\n\n同樣的操作可以改用 `async/await`：\n\n```javascript\nasync function greet() {\n  const name = await fetchName();\n  console.log(name); // 約 1 秒後印出「小明」\n}\n\ngreet();\n```\n\n兩者的關係有三個重點：\n\n- **`async` 函式一定回傳 Promise**。即使直接 `return` 一個值，也會被包成 Promise。\n- **`await` 等待 Promise 的結果**。它會暫停目前函式後續的執行，但不會阻塞 JavaScript 主執行緒。\n- **Promise 被拒絕時，`await` 會拋出錯誤**，可以用 `try/catch` 處理，對應 Promise 的 `.catch()`。\n\n```javascript\nasync function getNumber() {\n  return 42;\n}\n\ngetNumber().then(console.log); // 42\n\nasync function example() {\n  try {\n    await Promise.reject(new Error(\"操作失敗\"));\n  } catch (error) {\n    console.log(error.message); // 操作失敗\n  }\n}\n```\n\n因此，`async/await` 並沒有取代 Promise，而是讓你用更接近同步程式的寫法來使用 Promise。",
+ "finished_at": "2026-10-31T16:08:11+00:00",
+ "seconds": 12.4
+}

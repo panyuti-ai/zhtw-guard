@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr[arr.length - 1];\n}\n```\n\n（也可用 `arr.at(-1)`，效果相同，需 ES2022 以上。）\n\n## 型別如何推導\n\n`T` 是型別參數，TypeScript 會從呼叫時傳入的引數反推它：\n\n```ts\nlast([1, 2, 3]);            // T = number          → number | undefined\nlast([\"a\", \"b\"]);           // T = string          → string | undefined\nlast([1, \"a\"]);             // T = string | number → string | number | undefined\nlast([{ id: 1 }]);          // T = { id: number }  → { id: number } | undefined\n```\n\n推導過程：\n\n1. **比對參數型別**：參數是 `readonly T[]`，傳入 `number[]`，TypeScript 把 `T[]` 對上 `number[]`，得出 `T = number`。\n2. **多種元素取聯集**：`[1, \"a\"]` 的陣列型別是 `(string | number)[]`，所以 `T = string | number`。\n3. **字面值會被放寬**：`[1, 2, 3]` 推導為 `number` 而非 `1 | 2 | 3`。若要保留字面型別，可加約束：\n   ```ts\n   function last<const T>(arr: readonly T[]): T | undefined\n   // last([1, 2, 3]) → 1 | 2 | 3 | undefined\n   ```\n4. **回傳 `T | undefined`**：空陣列沒有最後一個元素，所以回傳型別必須包含 `undefined`，呼叫端得自行處理。\n\n## 為什麼用 `readonly T[]`\n\n`readonly T[]` 表示函式不會修改陣列，因此一般陣列和 `readonly` 陣列都能傳入；若寫成 `T[]`，傳入 `readonly` 陣列會報錯。\n\n## Tuple 的進階版本\n\n若想讓 tuple 得到精確型別（例如 `[1, \"a\"]` 回傳 `string` 而非聯集），可用條件型別：\n\n```ts\ntype Last<A extends readonly unknown[]> =\n  A extends readonly [...unknown[], infer L] ? L : undefined;\n\nfunction last<const A extends readonly unknown[]>(arr: A): Last<A> {\n  return arr[arr.length - 1] as Last<A>;\n}\n\nlast([1, \"a\"] as const);  // \"a\"\nlast([] as const);        // undefined\n```\n\n這裡 `infer L` 讓編譯器從 `[...unknown[], L]` 的模式中取出最後一個位置的型別。對一般陣列（如 `number[]`），結果會是 `number | undefined` 的近似行為；一般情況用第一個版本就夠了。",
+ "finished_at": "2026-10-31T15:47:33+00:00",
+ "seconds": 11.3,
+ "cost_usd": 0.0126772
+}

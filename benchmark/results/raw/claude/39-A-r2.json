@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。",
+ "answer": "我先把函式寫進工作目錄，再用範例資料測試。\n\n\n<invoke name=\"Write\">\n<parameter name=\"file_path\">/tmp/tmp0owbabo2/csv_column_means.py</parameter>\n<parameter name=\"content\">import csv\nimport sys\n\n\ndef column_means(path, encoding=\"utf-8-sig\"):\n    \"\"\"讀取 CSV 檔，回傳 {欄位名稱: 平均值} 的字典。\n\n    - 第一列視為標題。\n    - 空白或無法轉成數字的儲存格會被略過。\n    - 整欄都沒有數值時，平均值為 None。\n    \"\"\"\n    sums = {}\n    counts = {}\n\n    with open(path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        if reader.fieldnames is None:\n            raise ValueError(\"CSV 檔是空的，找不到標題列\")\n\n        for name in reader.fieldnames:\n            sums[name] = 0.0\n            counts[name] = 0\n\n        for row in reader:\n            for name in reader.fieldnames:\n                value = row.get(name)\n                if value is None or value.strip() == \"\":\n                    continue\n                try:\n                    sums[name] += float(value)\n                    counts[name] += 1\n                except ValueError:\n                    continue  # 非數字欄位（如姓名）直接略過\n\n    return {\n        name: (sums[name] / counts[name] if counts[name] else None)\n        for name in sums\n    }\n\n\nif __name__ == \"__main__\":\n    if len(sys.argv) != 2:\n        sys.exit(\"用法: python csv_column_means.py <檔案.csv>\")\n    for col, avg in column_means(sys.argv[1]).items():\n        print(f\"{col}: {avg if avg is None else round(avg, 4)}\")\n</parameter>\n</invoke>\n<invoke name=\"Write\">\n<parameter name=\"file_path\">/tmp/claude-0/-tmp-tmp0owbabo2/7dcced1b-269c-54f1-b09a-b30a9e544490/scratchpad/sample.csv</parameter>\n<parameter name=\"content\">name,math,english,note\nAmy,80,90,good\nBob,70,,ok\nCindy,90,85,great\n</parameter>\n</invoke>\n\n<invoke name=\"Bash\">\n<parameter name=\"command\">cd /tmp/tmp0owbabo2 && python3 csv_column_means.py /tmp/claude-0/-tmp-tmp0owbabo2/7dcced1b-269c-54f1-b09a-b30a9e544490/scratchpad/sample.csv</parameter>\n</invoke>\n\n\n\n<invoke name=\"Bash\">\n<parameter name=\"command\">cd /tmp/tmp0owbabo2 && python3 csv_column_means.py /tmp/claude-0/-tmp-tmp0owbabo2/7dcced1b-269c-54f1-b09a-b30a9e544490/scratchpad/sample.csv</parameter>\n</invoke>",
+ "finished_at": "2026-10-31T15:39:17+00:00",
+ "seconds": 12.6,
+ "cost_usd": 0.0153789
+}

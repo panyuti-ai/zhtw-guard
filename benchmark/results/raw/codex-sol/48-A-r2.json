@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "先確認 **是哪一類記憶體增加，再找「誰一直保留它」**。只看到系統記憶體上升，還不能確定是洩漏。\n\n**1. 每隔幾秒記錄記憶體**\n\n把這段加到程式入口：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  const mib = bytes => +(bytes / 1024 / 1024).toFixed(1);\n\n  console.log({\n    time: new Date().toISOString(),\n    rss: mib(m.rss),\n    heapUsed: mib(m.heapUsed),\n    heapTotal: mib(m.heapTotal),\n    external: mib(m.external),\n    arrayBuffers: mib(m.arrayBuffers),\n  });\n}, 10_000).unref();\n```\n\n數值單位是 MiB，觀察方向如下：\n\n| 觀察結果 | 優先調查 |\n|---|---|\n| `heapUsed` 上下波動，但低點大致穩定 | 通常是正常的垃圾回收 |\n| `heapUsed` 在回收後的低點仍持續上升 | JS 物件被持續保留 |\n| `external`／`arrayBuffers` 持續上升 | Buffer、二進位資料、原生套件 |\n| 只有 `rss` 上升 | 原生記憶體、配置器碎片等，需要進一步確認 |\n\n`rss` 是整個程序的實體記憶體；`arrayBuffers` 包含 Node.js Buffer，而且已包含在 `external` 中，不能重複相加。Linux 上也可能因記憶體碎片而出現 heap 穩定、RSS 增長。[官方說明](https://nodejs.org/api/process.html#processmemoryusage)\n\n**2. 用固定負載重現**\n\n先讓程式暖機，再重複同一操作，例如同一 API 呼叫 1,000 次，等待請求完成後再做下一輪。\n\n同時記錄請求數、並行數、佇列長度與快取筆數。這可以區分「物件洩漏」與「處理速度跟不上，待處理工作越堆越多」。\n\n**3. 如果是 heap 增長，比較快照**\n\n在本機或測試環境啟動：\n\n```bash\nnode --inspect=127.0.0.1:9229 app.js\n```\n\n開啟 Chrome 的 `chrome://inspect`，進入 Node DevTools 的 **Memory**：\n\n1. 暖機後拍快照 A。\n2. 執行一輪固定操作，等工作完成，拍 B。\n3. 再執行相同操作，拍 C。\n4. 用 **Comparison** 找出 B、C 都持續增加的物件。\n5. 選取物件查看 **Retainers**，追查哪個 Map、陣列、閉包或 listener 持有它。\n\n關鍵是找到「本來應該釋放，卻仍被引用」的物件。拍快照會暫停主執行緒並大量消耗記憶體，先在測試環境操作。[Node.js 快照指南](https://github.com/nodejs/learn/blob/main/pages/diagnostics/memory/using-heap-snapshot.md)\n\n**4. 優先檢查這些程式模式**\n\n- 無大小限制或過期清理的 `Map`、陣列、快取。\n- 每次請求都新增 listener，結束後沒有移除。\n- 未清除的 timer，或閉包一直保留大型物件。\n- 沒有限制並行數的非同步任務、持續累積的佇列。\n- Stream 沒有處理背壓，資料一直堆在 Buffer。\n\n修正後，用相同負載重跑，確認記憶體在暖機後趨於穩定。\n\n你目前看到增加的是 `rss` 還是 `heapUsed`？貼上 **Node.js 版本、幾筆上述紀錄，以及什麼操作會觸發增長**，就能進一步縮小範圍。",
+ "finished_at": "2026-10-31T16:11:07+00:00",
+ "seconds": 38.3
+}

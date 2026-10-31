@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 40,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "JavaScript 的 Promise 和 async/await 有什麼關係？請舉例說明。",
+ "answer": "`Promise` 用來表示非同步操作未來的結果；`async/await` 則是建立在 Promise 上的語法，讓非同步程式碼更容易閱讀。\n\n### 使用 Promise\n\n假設 `getUser()` 回傳一個 Promise，我們可以用 `.then()` 取得結果、用 `.catch()` 處理錯誤：\n\n```javascript\nfunction getUser() {\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      resolve({ name: \"小明\" });\n    }, 1000);\n  });\n}\n\ngetUser()\n  .then((user) => {\n    console.log(user.name); // 約 1 秒後印出「小明」\n  })\n  .catch((error) => {\n    console.error(error);\n  });\n```\n\n### 使用 async/await\n\n同一個操作也可以這樣寫：\n\n```javascript\nasync function showUser() {\n  try {\n    const user = await getUser();\n    console.log(user.name);\n  } catch (error) {\n    console.error(error);\n  }\n}\n\nshowUser();\n```\n\n`await` 會暫停目前 `async` 函式的後續執行，等 Promise 完成後再繼續，**不會阻塞 JavaScript 主執行緒**。如果 Promise 被拒絕（rejected），`await` 會拋出錯誤，可以用 `try/catch` 處理。\n\n### async 函式一定回傳 Promise\n\n即使直接回傳一般值，也會被包成 Promise：\n\n```javascript\nasync function getNumber() {\n  return 42;\n}\n\ngetNumber().then(console.log); // 42\n```\n\n所以兩者可以混用：**Promise 是非同步結果的表示方式，async/await 是使用它的便利語法。**",
+ "finished_at": "2026-10-31T15:51:58+00:00",
+ "seconds": 14.1
+}

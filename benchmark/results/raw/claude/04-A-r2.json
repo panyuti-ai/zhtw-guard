@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 4,
+ "category": "tech",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "Docker 容器和虛擬機器差在哪裡？",
+ "answer": "**核心差異：虛擬機器虛擬化「硬體」，容器虛擬化「作業系統」。**\n\n## 架構\n\n- **虛擬機器 (VM)**：由 Hypervisor（如 KVM、VMware、Hyper-V）模擬出一整套硬體，每台 VM 都有自己完整的 Guest OS 與 kernel。\n- **Docker 容器**：所有容器共用主機的 kernel，只是用 Linux 的 **namespace**（隔離行程、網路、檔案系統視圖）與 **cgroups**（限制 CPU、記憶體等資源）把行程隔離開來。\n\n## 比較\n\n| 項目 | 虛擬機器 | Docker 容器 |\n|---|---|---|\n| 隔離層級 | 硬體層級，隔離性強 | 行程層級，隔離性較弱 |\n| Kernel | 每台各自一個 | 共用主機 kernel |\n| 大小 | 數 GB 起 | 數十～數百 MB |\n| 啟動速度 | 數十秒到數分鐘 | 毫秒到數秒 |\n| 資源開銷 | 高（每台都跑完整 OS） | 低 |\n| 作業系統 | 可跑不同 OS（Windows、Linux 等） | 需與主機 kernel 相容（Linux 容器跑在 Linux kernel） |\n| 可攜性 | 映像檔大、搬移較慢 | 映像檔輕量，易於分發與 CI/CD |\n| 安全性 | 較高，kernel 漏洞不易跨 VM | 共用 kernel，逃逸風險較高 |\n\n## 如何選擇\n\n- **用容器**：微服務、CI/CD、快速部署與擴展、開發環境一致性。\n- **用 VM**：需要不同作業系統、強隔離（多租戶、高安全需求）、執行舊系統或需要完整 OS 控制的應用。\n\n## 補充\n\n- 兩者常**搭配使用**：在雲端，容器通常跑在 VM 裡（例如 EC2 上跑 Docker/Kubernetes），兼顧隔離與效率。\n- 在 macOS／Windows 上跑 Docker Desktop，實際上是背後起了一個輕量 Linux VM 來執行容器。\n- 也有折衷方案，如 Kata Containers、Firecracker，用輕量 VM 提供容器般的使用體驗並增強隔離。",
+ "finished_at": "2026-10-31T15:34:38+00:00",
+ "seconds": 11.6,
+ "cost_usd": 0.011714700000000002
+}

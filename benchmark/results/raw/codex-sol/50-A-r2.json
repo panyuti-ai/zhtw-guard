@@ -1,0 +1,12 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。",
+ "answer": "寫單元測試時，可以掌握以下原則：\n\n- **測試行為與結果**：確認輸入會得到什麼輸出，避免依賴內部實作，讓重構更容易。\n- **每個測試只驗證一個情境**：失敗時能快速看懂問題；同一情境可以有多個斷言。\n- **測試彼此獨立**：不依賴執行順序、共用可變狀態或其他測試的結果。\n- **結果穩定、執行快速**：避免依賴真實網路、目前時間或隨機值；必要時用 mock 控制外部依賴。\n- **涵蓋正常、邊界與錯誤情境**：不要只測試成功案例，也不要只追求覆蓋率數字。\n- **名稱清楚**：描述什麼條件下，應該發生什麼結果。\n\n例如，一個計算購物車總價的函式，空購物車回傳 `0`，數量必須是正整數：\n\n```js\n// cart.js\nfunction calculateTotal(items) {\n  return items.reduce((total, item) => {\n    if (!Number.isInteger(item.quantity) || item.quantity <= 0) {\n      throw new Error('數量必須是正整數');\n    }\n\n    return total + item.price * item.quantity;\n  }, 0);\n}\n\nmodule.exports = { calculateTotal };\n```\n\n使用 Jest 測試：\n\n```js\n// cart.test.js\nconst { calculateTotal } = require('./cart');\n\ndescribe('calculateTotal', () => {\n  test('多項商品時，回傳單價乘數量的總和', () => {\n    // Arrange：準備資料\n    const items = [\n      { price: 100, quantity: 2 },\n      { price: 50, quantity: 3 },\n    ];\n\n    // Act：執行待測行為\n    const total = calculateTotal(items);\n\n    // Assert：驗證結果\n    expect(total).toBe(350);\n  });\n\n  test('空購物車時，回傳 0', () => {\n    expect(calculateTotal([])).toBe(0);\n  });\n\n  test.each([0, -1, 1.5])('數量為 %s 時，拋出錯誤', (quantity) => {\n    const items = [{ price: 100, quantity }];\n\n    expect(() => calculateTotal(items))\n      .toThrow('數量必須是正整數');\n  });\n});\n```\n\n這個例子採用 **Arrange → Act → Assert** 結構，並涵蓋正常、邊界及錯誤情境。測試拋錯時，要把函式呼叫包在 `() => ...` 中，讓 Jest 捕捉並驗證錯誤。",
+ "finished_at": "2026-10-31T16:11:36+00:00",
+ "seconds": 17.7
+}

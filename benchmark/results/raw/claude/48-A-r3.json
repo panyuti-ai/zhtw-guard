@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-sonnet-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "# 排查 Node.js 記憶體持續增長\n\n## 1. 先確認是真的洩漏\n用 `process.memoryUsage()` 定期記錄：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1048576).toFixed(0),\n    heapUsed: (m.heapUsed / 1048576).toFixed(0),\n    external: (m.external / 1048576).toFixed(0),\n    arrayBuffers: (m.arrayBuffers / 1048576).toFixed(0),\n  });\n}, 10000).unref();\n```\n\n判讀方式：\n- **heapUsed 持續上升**（GC 後也不降）：JS 物件洩漏，用下面的 heap snapshot 查。\n- **rss / external / arrayBuffers 上升但 heapUsed 平穩**：Buffer、native addon 或串流沒釋放。\n- **只是升到某個水位就穩定**：多半是 V8 延遲 GC 或快取，不是洩漏。\n\n## 2. 用 Heap Snapshot 比對（最有效）\n```bash\nnode --inspect app.js\n```\n1. 在 Chrome 開 `chrome://inspect`，點 inspect。\n2. 到 Memory 分頁，程式啟動穩定後拍第一張 snapshot。\n3. 對程式施壓（跑一段流量）後，拍第二張、第三張。\n4. 選第三張，切到 **Comparison**（對比第一張），依 **Size Delta** 或 **# Delta** 排序，找持續增長的物件類型。\n5. 點開物件，看下方 **Retainers**，就能知道是誰一直抓著它不放。\n\n生產環境不方便接 inspector 的話，可以用：\n```js\nrequire('v8').writeHeapSnapshot(); // 產生 .heapsnapshot，再載入 Chrome DevTools\n```\n或啟動時加 `--heapsnapshot-signal=SIGUSR2`，再用 `kill -USR2 <pid>` 觸發。注意拍 snapshot 時會暫停程式且需要額外記憶體。\n\n## 3. 另一個選擇：Allocation Sampling\nDevTools Memory 分頁選 **Allocation sampling**，成本低，可以看到「哪段程式碼」配置了最多還存活的記憶體，適合線上或負載較大的情況。\n\n## 4. 常見元凶\n- **無限增長的全域 Map/Array/物件**，例如沒有上限或過期機制的快取。\n- **事件監聽器沒移除**：`emitter.on` 重複註冊，會看到 `MaxListenersExceededWarning`。\n- **閉包意外抓住大物件**，例如 callback 裡引用了整個 request/response。\n- **計時器沒清**：`setInterval` 沒有 `clearInterval`。\n- **Promise 或請求堆積**：下游變慢，未完成的請求越積越多。\n- **串流沒消費完或沒 destroy**、連線池或 socket 沒關閉。\n- **日誌、metrics 的 label 基數爆炸**，例如把 userId 或 URL 當 label。\n\n## 5. 輔助工具\n- `node --trace-gc app.js`：觀察 GC 頻率與回收量。\n- `clinic doctor` / `clinic heapprofiler`：自動分析並視覺化。\n- `memlab`（Meta 開源）：自動化比對 snapshot 找洩漏。\n\n## 6. 確認修好了\n修改後在相同負載下再跑一次，heapUsed 在 GC 後應該呈現穩定的鋸齒狀而不是持續爬升。\n\n---\n\n如果你願意貼出以下任何一項，我可以幫你更具體地定位：\n- `memoryUsage()` 的輸出趨勢\n- 專案程式碼（我可以直接在目前目錄搜尋可疑的快取、事件監聽、計時器）\n- Heap snapshot 比對中增長最多的物件類型",
+ "finished_at": "2026-10-31T15:47:32+00:00",
+ "seconds": 18.3,
+ "cost_usd": 0.017629600000000002
+}
