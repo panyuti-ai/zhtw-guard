@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？",
+ "answer": "React 元件重複 render 通常是以下幾類原因。你可以對照看看是哪一種。\n\n## 1. 父層重新 render，子元件沒有擋住\n\n父元件更新時，所有子元件預設會跟著 render，即使 props 沒變。\n\n- 用 `React.memo` 包住子元件，讓 props 沒變時跳過 render。\n- 注意 `memo` 只做淺比較。如果 props 是每次都新建的物件、陣列或函式，`memo` 還是會失效。\n\n## 2. 每次 render 都建立新的參考\n\n```jsx\n// 每次 render 都是新物件，會打破 memo\n<Child style={{ color: 'red' }} onClick={() => doSomething()} />\n```\n\n- 物件、陣列、函式用 `useMemo`、`useCallback` 保持參考穩定。\n- 但不要為了所有東西都加上它們，只針對真的被 `memo` 子元件或 `useEffect` 依賴的值。\n\n## 3. `useEffect` 依賴陣列有問題\n\n這是最常見的無限迴圈來源。\n\n```jsx\nuseEffect(() => {\n  setData(fetchSomething());\n}); // 沒有依賴陣列：每次 render 都執行，setState 又觸發 render\n\nuseEffect(() => {\n  setCount(count + 1);\n}, [count]); // effect 改變自己的依賴，形成迴圈\n```\n\n- 依賴陣列裡放入 effect 用到的所有值。\n- 物件或陣列放在依賴中時，每次 render 都是新參考，effect 會一直執行。\n\n## 4. 在 render 期間呼叫 setState\n\n```jsx\nfunction App() {\n  const [x, setX] = useState(0);\n  setX(x + 1); // 每次 render 都 setState，直接無限迴圈\n}\n```\n\nsetState 應該放在事件處理函式或 effect 中，不能直接放在 render 流程裡。\n\n## 5. Context 值每次都是新的\n\n```jsx\n<MyContext.Provider value={{ user, logout }}> // 每次父層 render 都是新物件\n```\n\n所有使用此 Context 的消費者都會重新 render。改用 `useMemo` 包住 value。\n\n## 6. 狀態放得太高\n\n狀態放在頂層元件，任何一次更新都會讓整棵樹重新 render。把狀態下移到真正使用它的元件。\n\n## 7. Strict Mode 造成的「假重複」\n\n開發環境中，React 18+ 的 `StrictMode` 會故意讓元件和 effect 執行兩次來檢查副作用。只在開發環境出現，正式版不會。\n\n## 排查方法\n\n1. **React DevTools Profiler**：開啟 \"Record\"，操作一次，查看哪些元件被 render 以及原因（\"Why did this render?\" 選項要開啟）。\n2. **加 log**：在元件函式開頭 `console.log('render', 元件名)`，觀察頻率。\n3. **`why-did-you-render`** 套件：自動提示不必要的 re-render。\n\n---\n\n如果你貼上出問題的元件程式碼（特別是 `useEffect`、props 傳遞、Context 的部分），我可以幫你具體找出原因。也可以告訴我你看到的現象，例如是無限迴圈（瀏覽器卡住），還是每次操作多 render 幾次。",
+ "finished_at": "2026-10-31T17:30:05+00:00",
+ "seconds": 11.2,
+ "cost_usd": 0.00086662
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？",
+ "answer": "先确认是不是真的内存泄漏。Node.js（V8）的 GC 是惰性的，RSS 长期上升不一定是泄漏。真正的泄漏是：**每次 GC 后，堆的「存活对象」仍持续增加，而且不会回落。**\n\n## 1. 先观察数据\n\n在程序中定期输出内存数据：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1024 / 1024).toFixed(1) + ' MB',\n    heapUsed: (m.heapUsed / 1024 / 1024).toFixed(1) + ' MB',\n    external: (m.external / 1024 / 1024).toFixed(1) + ' MB',\n    arrayBuffers: (m.arrayBuffers / 1024 / 1024).toFixed(1) + ' MB',\n  });\n}, 10_000);\n```\n\n- **`heapUsed` 持续上升且 GC 后不回落** → JS 堆泄漏，用下面第 2、3 步。\n- **`external` / `arrayBuffers` 上升** → Buffer、原生模块或流的问题，堆快照看不到，需要检查 Buffer 的使用。\n- **`rss` 上升但 `heapUsed` 稳定** → 可能是原生内存碎片或原生模块，不是 JS 对象。\n\n若想强制 GC 对比，可以用 `node --expose-gc app.js`，在代码中调用 `global.gc()` 后再读数值。\n\n## 2. 用 Heap Snapshot 找泄漏对象\n\n最常用的方法是 **三快照法**：\n\n1. 启动程序，`node --inspect app.js`，在 Chrome 打开 `chrome://inspect`，点击 \"inspect\" 进入 DevTools。\n2. 进入 **Memory** 面板，在程序运行一段时间（或执行可疑操作很多次）后，拍第一个快照（Take snapshot）。\n3. 再重复同样的操作若干次，拍第二个快照。\n4. 切换到第二个快照，选择 **Comparison**（与第一个比较），按 **Size Delta** 排序。\n5. 展开增长最多的构造函数（如 `Array`、`Object`、`(string)`、`Closure`、你自己的 class 名），查看 **Retainers**（保留路径），它会告诉你是谁持有这些对象，从而找到泄漏源头。\n\n也可以在代码中直接生成快照：\n\n```js\nconst v8 = require('v8');\nconst fs = require('fs');\n// 在怀疑的时间点调用\nv8.writeHeapSnapshot();  // 生成 .heapsnapshot 文件，之后用 DevTools 载入\n```\n\n## 3. 用 CPU/堆分析工具辅助\n\n- `node --heap-prof app.js`：退出时生成堆分配的采样记录。\n- `clinic heapprofiler`（clinic.js）：图形化分析，对新手较友好。\n- `0x` 或 `clinic flame`：找到哪些代码路径在大量分配内存。\n\n## 4. 常见泄漏原因（对照检查）\n\n| 症状 | 常见原因 |\n|---|---|\n| 数组、Map、Object 只增不减 | 用作缓存但没有过期或上限，例如 `const cache = {}` 没有清理 |\n| 大量 `(closure)` 或 Listener | `emitter.on()` 没有对应的 `removeListener` / `off`；每个请求都注册监听 |\n| `MaxListenersExceededWarning` 警告 | 同上，监听器未释放 |\n| 定时器持续增加 | `setInterval` 没有 `clearInterval`，或在循环中不断 `setTimeout` |\n| 请求后内存不释放 | 请求对象被闭包或全局变量引用，例如存在 `res`、`req` 的全局数组中 |\n| 流（stream）内存增长 | 读取流没有消费或没有处理背压（backpressure），数据堆积在内存中 |\n| Promise 堆积 | 大量未完成的 Promise 或 `await` 永远不返回，相关上下文一直被持有 |\n| 字符串拼接 | 长时间累加大字符串，或 `JSON.parse` / 正则处理大数据 |\n| 第三方库 | 某些 ORM、日志库或 HTTP agent 的连接池或缓存未正确释放 |\n\n## 5. 实用建议\n\n- **先缩小范围**：逐段注释掉功能模块，看哪一段内存停止增长。\n- **用压力测试复现**：用 `autocannon` 或 `k6` 持续发请求，让泄漏加速，更容易在快照中看出差异。\n- **检查 `setInterval`、`on(...)`、全局 Map/数组**，这些是最常见的原因。\n\n如果你愿意，可以把程序的入口代码、运行方式（框架、是否是 HTTP 服务、有没有用到 Redis/数据库等）以及 `memoryUsage()` 的输出贴给我，我可以帮你更具体地判断可能的泄漏点。",
+ "finished_at": "2026-10-31T17:36:54+00:00",
+ "seconds": 15.8,
+ "cost_usd": 0.00117728
+}

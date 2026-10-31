@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 41,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "我的 React 元件一直重複 render，可能是什麼原因？\n\n請用繁體中文回答。",
+ "answer": "我可以直接回答這個問題,不過目前工作目錄 `/tmp/tmp0ge_4ii9` 不是 git repo,也沒有可以讀取的程式碼。如果你能貼上元件程式碼,我可以幫你精確定位。在那之前,以下是 React 元件重複 render 最常見的原因,按發生頻率排序:\n\n## 1. 在 render 期間建立新的物件、陣列或函式\n\n```jsx\nfunction Parent() {\n  return <Child style={{ color: 'red' }} onClick={() => {}} items={[1, 2]} />;\n}\n```\n\n每次 render 都會產生新的參考。即使 `Child` 用了 `React.memo`,props 比較仍會失敗,導致它跟著重新 render。\n\n**解法**:用 `useMemo`、`useCallback` 包住,或把常數移到元件外面。\n\n## 2. `useEffect` 依賴陣列有問題\n\n```jsx\nconst [data, setData] = useState({});\nuseEffect(() => {\n  setData({ ...data, x: 1 }); // 每次都改 state\n}, [data]);                   // data 每次都是新物件 → 無限迴圈\n```\n\neffect 內 `setState` 又觸發 render,而依賴的值每次都是新參考,就會形成死循環。\n\n**解法**:檢查依賴是否包含每次都會變的物件/函式;用函式式更新 `setData(prev => ...)`。\n\n## 3. 在 render 中直接呼叫 setState\n\n```jsx\nfunction C() {\n  const [n, setN] = useState(0);\n  setN(n + 1); // 直接在 render 中呼叫 → 無限 render\n}\n```\n\n**解法**:把 setState 移到事件處理或 `useEffect` 內,並加上正確的條件判斷。\n\n## 4. Context 值每次都是新的\n\n```jsx\n<MyContext.Provider value={{ user, setUser }}>\n```\n\nProvider 每次 render 都傳入新物件,所有使用該 Context 的元件都會重新 render。\n\n**解法**:用 `useMemo` 包住 value。\n\n## 5. 狀態放得太高\n\n狀態放在上層元件,任何一次更新都會帶動整棵子樹重新 render。\n\n**解法**:把狀態下放到真正需要它的元件,或用 `children` 傳遞元素來隔離更新。\n\n## 6. 父元件重新 render 連帶子元件重新 render\n\n沒用 `React.memo` 的子元件,只要父元件 render 就會跟著 render,這本身是正常行為,不一定是 bug。\n\n---\n\n## 如何診斷\n\n1. **React DevTools Profiler**:錄製一次操作,查看哪些元件被重新 render,以及原因(「props changed」、「hooks changed」等)。\n2. **\"Highlight updates when components render\"**:在 DevTools 設定中開啟,直接在畫面上看到哪裡在閃。\n3. **加入 log**:在元件內 `console.log('render: ComponentName')`,觀察觸發頻率。\n4. **React StrictMode**:開發模式下會故意 render 兩次,這是正常的,不要誤以為是問題。\n\n---\n\n如果你貼上:\n- 出問題的元件程式碼\n- 它的父元件或使用的 Context\n- 是「無限迴圈」還是「頻繁但有限次數的重繪」\n\n我可以幫你找出確切原因並給出修正方式。",
+ "finished_at": "2026-10-31T17:30:05+00:00",
+ "seconds": 9.9,
+ "cost_usd": 0.00076763
+}

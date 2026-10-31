@@ -10,6 +10,7 @@ Measured on 50 Traditional Chinese prompts, 3 runs each ([benchmark/](benchmark/
 
 - Given a Simplified Chinese text to summarize or rewrite, and no explicit 「請用繁體中文回答」, Claude Code (Sonnet 5.5) answered entirely in Simplified 7 times in 150 answers. Codex (GPT-6.1-Sol): 0.
 - On those failing prompts, with zhtw-guard loaded: Claude's first reply was Simplified in 6 of 9 runs; zhtw-guard asked for a rewrite each time and **all 9 final answers had no Simplified characters**.
+- Full 300-answer run with Claude Haiku 5.5: without zhtw-guard, 15 answers were written in Simplified and 7 mixed in a Simplified version (some even on code and tech prompts). With zhtw-guard: **0 and 0**. It asked for a rewrite 48 times (46 replies had Simplified characters; 2 had Japanese phrases in a Japan travel answer), and average time per answer did not go up (11.8 s vs 12.2 s).
 
 All prompts, raw answers and scoring code are in [benchmark/](benchmark/).
 

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？",
+ "answer": "# Git rebase 與 merge 的差異與適用情境\n\n## 基本概念\n\n**Merge（合併）**：把兩條分支的歷史「接」在一起，產生一個新的 **merge commit**，有兩個父節點。\n\n**Rebase（變基）**：把你的分支上的提交「搬」到另一個基底（通常是最新的 main）之上，重新產生新的提交（新的 hash），歷史看起來是一條直線。\n\n```\nmerge 之前：\n      A---B---C  feature\n     /\nD---E---F---G  main\n\ngit merge（在 main 上執行 merge feature）：\n      A---B---C\n     /         \\\nD---E---F---G---M  main   ← M 是 merge commit\n\ngit rebase（在 feature 上執行 rebase main）：\n                  A'---B'---C'  feature\n                 /\nD---E---F---G  main         ← 歷史是直線\n```\n\n## 比較\n\n| 面向 | Merge | Rebase |\n|---|---|---|\n| 歷史樣貌 | 保留真實分叉，有 merge commit | 線性、乾淨 |\n| 提交 hash | 不變 | 會改寫（產生新 commit） |\n| 衝突處理 | 一次解決 | 可能逐個提交解決，次數較多 |\n| 安全性 | 高，不改寫既有歷史 | 需小心，會改寫歷史 |\n| 可追溯性 | 能看出何時、如何合併 | 較難看出分支原本的脈絡 |\n| `git bisect`、`git log` | 歷史較雜 | 較好讀 |\n\n## 各自適合的情境\n\n**適合用 Merge：**\n- 把功能分支合併回 `main` / `develop` 等共享分支（例如 GitHub 的 \"Merge pull request\"）。\n- 分支已經被他人拉下來或推上遠端共享，**不能改寫歷史**時。\n- 想保留完整的開發脈絡，例如多人協作的長期分支。\n- 要合併 release 分支或 hotfix 回主線。\n\n**適合用 Rebase：**\n- 在自己的功能分支上，**把最新的 main 同步進來**，讓分支保持最新、減少日後衝突（`git rebase main`）。\n- 提 PR 前，**整理自己的提交**（`git rebase -i`）：合併 `fixup`、改寫訊息、刪除雜訊提交，讓歷史更清楚。\n- 想要線性歷史，方便 review 或使用 `git bisect` 找 bug。\n- 只存在於本地、尚未推送的分支。\n\n## 黃金守則\n\n> **不要 rebase 已經推送到共享遠端、且別人可能基於它工作的提交。**\n\n因為 rebase 會產生新 hash，其他人的歷史會與你的分歧，造成混亂。若真的必須改寫已推送的分支，請用 `git push --force-with-lease`，而不是 `--force`，以免覆蓋他人的推送。\n\n## 常見工作流程範例\n\n```bash\n# 方式一：用 rebase 同步、再用 merge 進主線（很常見）\ngit switch feature\ngit rebase main          # 把 feature 接到最新的 main 上\ngit switch main\ngit merge --ff-only feature   # 因為已是線性，可 fast-forward，歷史乾淨\n\n# 方式二：保留分支結構\ngit switch main\ngit merge --no-ff feature    # 強制產生 merge commit，明確記錄這次合併\n```\n\n## 簡單結論\n\n- **公開、共享的歷史 → merge**\n- **私有、還在開發中的分支 → rebase 來保持同步與整潔**\n- 兩者並非互斥，很多團隊採用「**本地用 rebase 整理，合併進主線時用 merge**」的混合策略。",
+ "finished_at": "2026-10-31T17:17:59+00:00",
+ "seconds": 11.1,
+ "cost_usd": 0.00091927
+}

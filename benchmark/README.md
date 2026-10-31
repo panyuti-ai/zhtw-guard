@@ -21,6 +21,17 @@ The three prompts where Claude answered in Simplified (30, 31, 36, variant A) we
 
 Claude's first reply was in Simplified in 6 of 9 runs; the hook asked for a rewrite each time, and all 9 final answers contain no Simplified characters.
 
+### Claude Haiku 5.5, full run
+
+All 300 prompts/variants/reps were run with `CLAUDE_MODEL=claude-haiku-5-5`, once without the plugin (`results/raw/claude-haiku`) and once with it (`results/raw/claude_guard-haiku`).
+
+| | written in Simplified | mixed | quotes Simplified | kana/Hangul |
+|---|---|---|---|---|
+| Haiku 5.5 | 15 | 7 | 16 | 3 |
+| Haiku 5.5 + zhtw-guard | 0 | 0 | 5 | 0 |
+
+zhtw-guard asked for a rewrite in 48 of 300 answers: 46 first replies contained Simplified characters, 2 contained Japanese phrases (prompt 14, a Japan travel question). Average time per answer: 11.8 s with the plugin, 12.2 s without.
+
 ## Run
 
 ```

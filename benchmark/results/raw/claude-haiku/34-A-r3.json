@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 34,
+ "category": "simplified_source",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "請解釋這段話在說什麼：「人工智能的发展给教育行业带来了很大的变化，老师需要学习新的技能。」",
+ "answer": "這段話的意思是：\n\n**「人工智能的发展给教育行业带来了很大的变化，老师需要学习新的技能。」**\n\n- **人工智能的发展**：AI（人工智能）技术快速进步。\n- **给教育行业带来了很大的变化**：AI 正在改变教学、学习、管理等各方面，例如出现智能备课工具、自动批改、个性化学习系统等。\n- **老师需要学习新的技能**：因此教师必须跟上变化，学习如何使用 AI 工具、设计 AI 辅助的教学活动，并了解相关的伦理和应用问题。\n\n**整句话的重点**：AI 技术正在深刻改变教育，所以老师也要不断学习新能力，才能适应这种变化。\n\n**English summary:** Advances in AI are significantly transforming education, so teachers need to learn new skills to adapt.",
+ "finished_at": "2026-10-31T17:35:12+00:00",
+ "seconds": 5.5,
+ "cost_usd": 0.00033826000000000006
+}

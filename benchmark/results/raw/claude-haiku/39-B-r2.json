@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。\n\n請用繁體中文回答。",
+ "answer": "## 程式碼\n\n```python\nimport csv\n\n\ndef column_means(csv_path, encoding=\"utf-8\"):\n    \"\"\"讀取 CSV 檔，計算每一個數值欄位的平均值。\n\n    回傳 dict：{欄位名稱: 平均值}。\n    無法轉成數字的儲存格（例如空白或文字）會被略過。\n    完全沒有數值的欄位不會出現在結果中。\n    \"\"\"\n    with open(csv_path, newline=\"\", encoding=encoding) as f:\n        reader = csv.reader(f)\n\n        try:\n            header = next(reader)  # 第一列為欄位名稱\n        except StopIteration:\n            return {}  # 空檔案\n\n        totals = [0.0] * len(header)  # 每欄的數值總和\n        counts = [0] * len(header)    # 每欄的有效數值個數\n\n        for row in reader:\n            # row[:len(header)] 忽略多出來的欄位\n            for i, cell in enumerate(row[:len(header)]):\n                try:\n                    totals[i] += float(cell)\n                    counts[i] += 1\n                except ValueError:\n                    pass  # 空白或非數字，略過\n\n    return {\n        name: totals[i] / counts[i]\n        for i, name in enumerate(header)\n        if counts[i] > 0\n    }\n\n\nif __name__ == \"__main__\":\n    means = column_means(\"data.csv\")\n    for name, mean in means.items():\n        print(f\"{name}: {mean:.4f}\")\n```\n\n假設 `data.csv` 內容如下：\n\n```csv\nname,math,score\nA,80,90\nB,70,\nC,abc,60\n```\n\n執行結果：\n\n```\nmath: 75.0000\nscore: 75.0000\n```\n\n## 程式說明\n\n1. **開啟檔案**：`open(..., newline=\"\", encoding=...)` 中的 `newline=\"\"` 是 `csv` 模組官方建議的寫法，可以正確處理儲存格中含換行的情況。`encoding` 參數可依檔案編碼調整，例如 Windows 上的 Excel 匯出檔常用 `\"utf-8-sig\"` 或 `\"big5\"`。\n\n2. **讀取標題列**：`next(reader)` 取出第一列作為欄位名稱。若檔案是空的會拋出 `StopIteration`，此時直接回傳空的 dict。\n\n3. **累加與計數**：用兩個與欄位數相同長度的 list，`totals` 記錄總和、`counts` 記錄有效數值的個數。用索引而非欄位名稱，可以避免標題重複時發生衝突。\n\n4. **略過非數值**：`float(cell)` 能轉換就累加，轉換失敗（空字串或文字）就跳過。因此平均值只依有效數值計算，例如上例中 `B` 的 score 為空白，score 的平均是 (90+60)/2 = 75。\n\n5. **處理不規則列**：`row[:len(header)]` 會忽略超出標題數量的多餘欄位；列的欄位比標題少時，迴圈自然只處理現有的儲存格。\n\n6. **組出結果**：最後用 dict comprehension 把欄位名稱與平均值配對，並排除沒有任何數值的欄位（如上例的 `name`）。\n\n## 注意事項\n\n- `float()` 也會接受 `\"nan\"`、`\"inf\"` 等字串，若資料可能含這些值，需要額外過濾。\n- 若標題有重複名稱，回傳的 dict 會因鍵重複而只保留後面那一欄的結果。\n- 若資料量大或需要更多分析功能，可以改用 pandas，兩行就能完成相同工作：\n\n```python\nimport pandas as pd\n\nmeans = pd.read_csv(\"data.csv\").mean(numeric_only=True)\nprint(means)\n```\n\npandas 會自動處理缺值（預設略過 `NaN`），但需要安裝額外套件。上面的標準函式庫版本則不需任何依賴。",
+ "finished_at": "2026-10-31T17:29:55+00:00",
+ "seconds": 14.8,
+ "cost_usd": 0.0014318199999999999
+}

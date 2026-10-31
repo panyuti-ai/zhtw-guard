@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 8,
+ "category": "tech",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "雜湊表怎麼做到平均 O(1) 查詢？碰撞怎麼處理？",
+ "answer": "## 基本想法：把 key 直接換算成陣列索引\n\n雜湊表用一個**雜湊函數** `h(key)` 把 key 映射到陣列的某個位置（桶，bucket）：\n\n```\nindex = h(key) mod m    # m 是桶的數量\n```\n\n查詢時只要計算一次 `h(key)`，再直接讀該位置，不需要像二元搜尋樹那樣逐層比較，所以單次查詢的成本是常數時間。\n\n## 為什麼是「平均」O(1)，而不是最壞 O(1)\n\n查詢成本其實取決於**同一個桶裡有幾個元素**。設 n 為元素數、m 為桶數，定義**負載因子** α = n/m。\n\n- **負載因子被控制住**：當 α 超過門檻（例如 0.75）時，雜湊表會擴容（通常加倍），並把所有元素重新雜湊到新陣列。這讓 α 維持在常數以內。\n- **雜湊函數分散得夠均勻**：在「簡單均勻雜湊」的假設下，每個桶期望只有約 α 個元素。\n- 因此一次查詢的期望成本是 O(1 + α) = O(1)。\n\n**最壞情況仍是 O(n)**：如果所有 key 都碰撞到同一個桶，就退化成線性搜尋。所以「平均 O(1)」是期望值的說法，依賴雜湊函數分散得好。\n\n**擴容的攤銷成本**：單次擴容是 O(n)，但因為每次擴容後容量加倍，攤到每次插入上仍是 O(1)（攤銷分析）。\n\n## 碰撞為什麼無法避免\n\n鴿籠原理：不同的 key 數量可以遠大於桶數，所以兩個 key 映射到同一個桶是必然的。問題不在「要不要處理碰撞」，而在「怎麼處理」。主要有兩大類方法。\n\n### 1. 分離鏈結法（Separate Chaining）\n\n每個桶存一個鏈結串列（或其他容器），碰撞的元素都掛在同一條鏈上。\n\n```python\nclass ChainedHashMap:\n    def __init__(self, capacity=8):\n        self.buckets = [[] for _ in range(capacity)]\n        self.size = 0\n\n    def _index(self, key):\n        return hash(key) % len(self.buckets)\n\n    def put(self, key, value):\n        bucket = self.buckets[self._index(key)]\n        for i, (k, _) in enumerate(bucket):\n            if k == key:              # key 已存在，更新\n                bucket[i] = (key, value)\n                return\n        bucket.append((key, value))   # 碰撞：掛到鏈尾\n        self.size += 1\n        if self.size / len(self.buckets) > 0.75:\n            self._resize()\n\n    def get(self, key):\n        for k, v in self.buckets[self._index(key)]:\n            if k == key:\n                return v\n        raise KeyError(key)\n```\n\n- 刪除簡單，直接從鏈上移除。\n- 負載因子可以大於 1。\n- 缺點是指標跳躍，快取不友善。\n- Java 8 以後的 `HashMap`：鏈長超過 8 時改成紅黑樹，把最壞情況從 O(n) 降到 O(log n)。\n\n### 2. 開放定址法（Open Addressing）\n\n所有元素都存在陣列本身，碰撞時依照探測序列往後找空位：\n\n- **線性探測**：`h(key)+1, h(key)+2, ...`。實作簡單、快取友善，但容易產生「群聚」。\n- **二次探測**：`h(key)+1², +2², ...`，減少群聚。\n- **雙重雜湊**：用第二個雜湊函數決定步長。\n\n**刪除的特殊處理**：不能直接清空位置，否則會切斷後續元素的探測路徑。一般用**墓碑標記（tombstone）**，標示「此處曾有元素，查詢要繼續往後找」。\n\n**負載因子要更低**：通常要保持在 0.5～0.7 左右，否則探測次數會急遽增加。\n\nPython 的 `dict` 採用開放定址法，並用基於雜湊值的擾動（perturbation）探測序列，減少群聚。\n\n## 實務上的補充\n\n- **雜湊函數品質**：好的雜湊函數要讓輸入的小變化造成輸出的大變化（雪崩效應）。\n- **防範雜湊洪水攻擊**：攻擊者可以構造大量碰撞的 key，把查詢拖成 O(n)。Python、Rust 等語言使用帶隨機種子的雜湊（如 SipHash）來防範。\n\n## 總結\n\n| 面向 | 分離鏈結 | 開放定址 |\n|---|---|---|\n| 碰撞處理 | 桶內掛鏈結串列 | 往後探測找空位 |\n| 負載因子 | 可以大於 1 | 必須較低（約 < 0.7） |\n| 刪除 | 直接移除 | 需要墓碑標記 |\n| 快取友善度 | 較差 | 較好 |\n| 代表實作 | Java `HashMap`、C++ `unordered_map`（多數實作） | Python `dict`、Go `map`（bucket 版本） |\n\n這樣的設計在「負載因子有界」與「雜湊分散均勻」兩個前提下，讓平均查詢、插入、刪除都是 O(1)。",
+ "finished_at": "2026-10-31T17:24:53+00:00",
+ "seconds": 16.3,
+ "cost_usd": 0.00145113
+}

@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。",
+ "answer": "## 程式碼\n\n```python\nimport csv\n\n\ndef calculate_column_averages(file_path: str, encoding: str = \"utf-8\") -> dict[str, float | None]:\n    \"\"\"\n    讀取 CSV 檔案，計算每一欄的平均值。\n\n    非數值的儲存格（例如文字、空白）會被略過；\n    若某欄完全沒有數值，該欄平均值為 None。\n    \"\"\"\n    sums: dict[str, float] = {}\n    counts: dict[str, int] = {}\n\n    with open(file_path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)  # 第一列當作標題\n\n        for row in reader:\n            for col, value in row.items():\n                if col is None:  # 資料列比標題多出的欄位\n                    continue\n                try:\n                    num = float(value)\n                except (TypeError, ValueError):  # 空字串、None 或非數字\n                    continue\n                sums[col] = sums.get(col, 0.0) + num\n                counts[col] = counts.get(col, 0) + 1\n\n        headers = reader.fieldnames or []\n\n    return {\n        col: (sums[col] / counts[col]) if counts.get(col) else None\n        for col in headers\n    }\n\n\nif __name__ == \"__main__\":\n    result = calculate_column_averages(\"data.csv\")\n    for col, avg in result.items():\n        print(f\"{col}: {avg:.2f}\" if avg is not None else f\"{col}: 無數值資料\")\n```\n\n## 範例\n\n假設 `data.csv` 內容如下：\n\n```csv\nname,math,english\nAlice,90,85\nBob,78,88\nCarol,,92\n```\n\n執行結果：\n\n```python\n{'name': None, 'math': 84.0, 'english': 88.33333333333333}\n```\n\n- `name` 全是文字，所以沒有平均值。\n- `math` 的 Carol 是空白，會被略過，因此是 (90 + 78) / 2 = 84.0。\n- `english` 是 (85 + 88 + 92) / 3 ≈ 88.33。\n\n## 程式說明\n\n1. **`csv.DictReader`**：把每一列轉成字典，鍵是標題名稱，例如 `{'name': 'Alice', 'math': '90', ...}`。這樣可以用欄位名稱存取，不必依賴欄位位置。`newline=\"\"` 是 `csv` 模組建議的寫法，可以正確處理內含換行的欄位。\n\n2. **`sums` 與 `counts`**：兩個字典分別記錄每一欄的數值總和與有效筆數。只有成功轉成數字的值才會計入，因此平均值的分母是實際有效的筆數，而不是總列數。\n\n3. **`float(value)` 與例外處理**：嘗試把字串轉成浮點數。遇到空字串、文字或缺值時會丟出例外，這裡捕捉後直接略過，不讓程式中斷。\n\n4. **`row.items()` 中的 `None` 鍵**：如果某列的欄位比標題多，多出的值會以 `None` 為鍵存放，因此要先跳過。\n\n5. **`reader.fieldnames`**：標題列的欄位順序。最後用它來產生結果，確保輸出順序與原檔案一致，也能正確處理全是文字、沒有任何數值的欄位（回傳 `None`）。\n\n6. **除以零的防護**：`counts.get(col)` 為 0 或不存在時回傳 `None`，避免 `ZeroDivisionError`。\n\n## 替代方案\n\n如果資料量大或需要更多統計功能，可以使用 pandas：\n\n```python\nimport pandas as pd\n\nmeans = pd.read_csv(\"data.csv\").mean(numeric_only=True)\nprint(means)\n```\n\n`numeric_only=True` 會自動忽略非數值欄位。標準函式庫版本不需要安裝套件，適合小型任務或不想引入相依性的情況。",
+ "finished_at": "2026-10-31T17:35:38+00:00",
+ "seconds": 12.9,
+ "cost_usd": 0.00125531
+}

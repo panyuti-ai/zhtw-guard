@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 6,
+ "category": "tech",
+ "variant": "B",
+ "rep": 2,
+ "prompt": "解釋 Git 的 rebase 和 merge，各適合什麼情況？\n\n請用繁體中文回答。",
+ "answer": "# Git 的 merge 與 rebase\n\n兩者都是把一條分支的變更整合到另一條分支，差別在於**提交歷史的樣子**。\n\n## merge（合併）\n\n`merge` 會建立一個新的合併提交（merge commit），把兩條分支的歷史接在一起，保留原本的分支結構。\n\n```bash\ngit checkout main\ngit merge feature\n```\n\n```\nA---B---C---M   (main)\n     \\     /\n      D---E     (feature)\n```\n\n- **優點**：保留完整的歷史，能看出功能分支何時開始、何時合併。不改寫任何既有提交，對已推送的分支很安全。\n- **缺點**：歷史可能因為大量合併提交而變得複雜、難以閱讀。\n\n## rebase（變基）\n\n`rebase` 會把你的分支提交「搬到」目標分支的最新提交之上，重新套用每一個提交，產生新的提交（雜湊值會改變）。\n\n```bash\ngit checkout feature\ngit rebase main\n```\n\n```\nA---B---C---D'---E'   (feature，整理成一直線)\n```\n\n- **優點**：歷史呈線性、乾淨，像是一連串有序的更新，方便用 `git log`、`git bisect` 追蹤問題。\n- **缺點**：會改寫提交歷史。**不要對已經推送給別人使用的分支做 rebase**，否則別人的本地歷史會與遠端衝突，需要額外處理。\n\n## 各適合什麼情況\n\n| 情況 | 建議 |\n|---|---|\n| 要把功能分支合併回 `main`，且該分支只有你使用 | merge 或 rebase 後快進合併（fast-forward）皆可 |\n| 公開分支、多人共用、已推送 | **用 merge**，避免改寫共用歷史 |\n| 同步自己的功能分支與最新的 `main`（更新本地工作） | **用 rebase**，讓自己的提交接在最新進度之後 |\n| 想保留完整的合併脈絡與時間點 | **用 merge** |\n| 想要線性、整潔的歷史（例如發布前整理） | **用 rebase**，搭配 `git rebase -i` 整理提交 |\n| 合併衝突很多，不確定如何處理 | 兩者都會遇到衝突，rebase 會逐個提交解決，步驟較多；merge 則一次解決 |\n\n## 一個實用的經驗法則\n\n> **在自己的本地分支上，用 rebase 保持整潔；在共享分支上，用 merge 保持安全。**\n\n常見工作流程是：\n1. 開發功能時，定期 `git rebase main` 把最新變更拉進自己的分支。\n2. 完成後，用 `git merge` 或 Pull Request 合併回 `main`，保留功能的整體脈絡。\n\n如果你已經把某個分支推送出去又做了 rebase，之後需要用 `git push --force-with-lease` 覆寫遠端，並且提前和團隊溝通，避免覆蓋他人的工作。",
+ "finished_at": "2026-10-31T17:24:27+00:00",
+ "seconds": 10.0,
+ "cost_usd": 0.0007401700000000001
+}

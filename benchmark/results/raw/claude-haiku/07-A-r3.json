@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "A",
+ "rep": 3,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？",
+ "answer": "# OAuth 是什麼？\n\n**OAuth 2.0** 是一個**授權（authorization）框架**，讓使用者可以在不把密碼交給第三方的情況下，授權第三方應用程式存取自己在某個服務上的資料。\n\n例如，你讓某個記事 App 讀取你的 Google 日曆，OAuth 讓你只授予「讀日曆」這個權限，而 App 完全不會知道你的 Google 密碼。\n\n常見的四個角色：\n\n| 角色 | 例子 |\n|---|---|\n| 資源擁有者（Resource Owner） | 你自己 |\n| 客戶端（Client） | 要登入的第三方網站或 App |\n| 授權伺服器（Authorization Server） | Google、GitHub 的登入與授權服務 |\n| 資源伺服器（Resource Server） | 存放資料的 API，例如 Google Calendar API |\n\n---\n\n## 點「使用 Google 登入」後發生了什麼？\n\n以最常見的 **Authorization Code Flow（授權碼流程）** 為例：\n\n1. **導向授權伺服器**\n   網站把你的瀏覽器導向 Google，網址帶有參數，例如 `client_id`（網站的身分）、`redirect_uri`（授權後要回到哪裡）、`scope`（要求的權限）、`state`（防 CSRF 的隨機字串）。\n\n2. **使用者在 Google 上登入並同意**\n   密碼只輸入在 Google 的頁面上。Google 會顯示「此應用程式要求存取你的電子郵件與基本資料，是否同意？」\n\n3. **Google 帶著授權碼轉回網站**\n   Google 把瀏覽器導回 `redirect_uri`，並附上一個**短效的授權碼（code）**。網站會檢查 `state` 是否與步驟 1 相符。\n\n4. **網站後端用授權碼換取 Token**\n   網站伺服器拿 `code` 加上自己的 `client_secret` 向 Google 的 token endpoint 請求，取得：\n   - **Access Token**：呼叫 API 的憑證，通常有效期很短（如 1 小時）\n   - **Refresh Token**：用來在 Access Token 過期後換新的，有效期較長\n   - **ID Token**（若使用 OIDC）：包含使用者身分資訊的 JWT\n\n5. **用 Access Token 呼叫 API**\n   網站在請求標頭加上 `Authorization: Bearer <access_token>`，取得你的基本資料，然後建立你的登入狀態。\n\n整個過程中，**網站從未看見你的密碼**。\n\n---\n\n## OAuth 與「登入」的關係\n\n- OAuth 2.0 本身主要解決**授權**（「這個 App 能做什麼」），並不規定如何確認「你是誰」。\n- 實際的「登入」通常是 **OpenID Connect（OIDC）**，它建構在 OAuth 2.0 之上，多了 **ID Token**，用來告訴應用程式使用者的身分。「使用 Google/GitHub 登入」大多是 OIDC。\n\n---\n\n## 幾個重要的安全概念\n\n- **redirect_uri 必須預先登記**，避免授權碼被導向惡意網址。\n- **state 參數**用來防止跨站請求偽造（CSRF）。\n- **PKCE**（Proof Key for Code Exchange）用來防止授權碼被攔截，行動 App 與單頁應用程式應該使用。\n- **Access Token 應短效**，並只授予必要的 scope（最小權限原則）。\n- 舊的 **Implicit Flow** 已不建議使用，因為 Token 直接暴露在瀏覽器網址中。\n\n簡單比喻：OAuth 像是飯店的房卡。房卡只能開特定的房間、只在特定期間有效，而你不需要把身分證（密碼）交給櫃台。",
+ "finished_at": "2026-10-31T17:32:14+00:00",
+ "seconds": 14.6,
+ "cost_usd": 0.00120867
+}

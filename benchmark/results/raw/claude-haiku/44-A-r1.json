@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。",
+ "answer": "下面是一个会把指定资料夹（预设为当前目录）里所有 `.log` 檔各自压缩成 `.gz` 的脚本。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\ndir=\"${1:-.}\"\nshopt -s nullglob\nfiles=(\"$dir\"/*.log)\n\nif [ ${#files[@]} -eq 0 ]; then\n    echo \"在 '$dir' 中找不到 .log 檔\" >&2\n    exit 1\nfi\n\nfor f in \"${files[@]}\"; do\n    gzip -k \"$f\"\n    echo \"已压缩：$f -> $f.gz\"\ndone\n```\n\n儲存为 `compress_logs.sh`，执行 `chmod +x compress_logs.sh`，然后 `./compress_logs.sh /路径/到/资料夹`。\n\n## 逐行解释\n\n| 行 | 说明 |\n|---|---|\n| `#!/usr/bin/env bash` | **Shebang**。告诉系统用 `bash` 执行此檔。`env` 会在 PATH 中寻找 bash，比写死 `/bin/bash` 更可移植。 |\n| `set -euo pipefail` | 严格模式：`-e` 指令失败即停止；`-u` 使用未定义变数时报错；`pipefail` 让管道中任一指令失败都视为失败。 |\n| `dir=\"${1:-.}\"` | 把第一个参数存入 `dir`。若未提供参数，则预设为 `.`（当前目录）。 |\n| `shopt -s nullglob` | 开启 `nullglob`：若萬用字元 `*.log` 没有匹配任何档案，展开结果为空，而不是保留字面字串 `*.log`。 |\n| `files=(\"$dir\"/*.log)` | 建立阵列 `files`，内容是该目录下所有以 `.log` 结尾的路径。阵列写法可正确处理含空白的档名。 |\n| `if [ ${#files[@]} -eq 0 ]; then` | `${#files[@]}` 取得阵列元素个数；若为 0 表示没有找到任何 `.log` 檔。 |\n| `echo \"...\" >&2` | 把错误讯息输出到 stderr（标准错误），而非 stdout。 |\n| `exit 1` | 以非零状态码结束，表示执行失败，方便其他脚本判断。 |\n| `fi` | 结束 `if` 区块。 |\n| `for f in \"${files[@]}\"; do` | 逐一遍历阵列中的每个档案路径。`\"${files[@]}\"` 加引号可保留含空白的档名。 |\n| `gzip -k \"$f\"` | 用 gzip 压缩该档，产生 `档名.log.gz`。`-k`（keep）保留原始档案；若省略，gzip 会删除原檔。 |\n| `echo \"已压缩：...\"` | 输出进度讯息。 |\n| `done` | 结束 `for` 循环。 |\n\n## 注意事项\n\n- **原檔保留**：使用了 `-k`，所以原始 `.log` 仍在。确认无误后可自行删除，或改成不带 `-k` 让 gzip 直接替换原檔。\n- **覆盖问题**：若已存在同名 `.log.gz`，gzip 会拒绝覆盖并使脚本因 `set -e` 而停止。如需覆盖，可加上 `-f`，但要留意会丢失旧的压缩檔。\n- **另一种做法**：若想把所有 `.log` 打包成**单一**档案，可以用：\n  ```bash\n  tar -czf logs_$(date +%Y%m%d).tar.gz -C \"$dir\" --wildcards '*.log'\n  ```\n\n我没有在这个环境中实际执行脚本测试；如果需要，我可以在暂存目录里建立示例 `.log` 档来验证。",
+ "finished_at": "2026-10-31T17:22:05+00:00",
+ "seconds": 14.0,
+ "cost_usd": 0.0013583699999999998
+}

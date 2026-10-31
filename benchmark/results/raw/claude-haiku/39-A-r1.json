@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。",
+ "answer": "## 程式碼\n\n```python\nimport csv\n\n\ndef calculate_column_averages(csv_path, encoding=\"utf-8-sig\"):\n    \"\"\"\n    讀取 CSV 檔，計算每一欄數值的平均值。\n\n    參數:\n        csv_path: CSV 檔案路徑\n        encoding: 檔案編碼，預設 utf-8-sig，可處理 Excel 存出的 BOM\n\n    回傳:\n        dict，格式為 {欄位名稱: 平均值}。\n        若某欄沒有任何可轉成數字的值，該欄平均值為 None。\n    \"\"\"\n    with open(csv_path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        fieldnames = reader.fieldnames or []\n\n        totals = {name: 0.0 for name in fieldnames}  # 每欄的總和\n        counts = {name: 0 for name in fieldnames}    # 每欄有效數值的個數\n\n        for row in reader:\n            for name in fieldnames:\n                try:\n                    value = float(row[name])\n                except (TypeError, ValueError):\n                    # 空字串、None（列資料不足）或非數字文字都略過\n                    continue\n                totals[name] += value\n                counts[name] += 1\n\n    return {\n        name: (totals[name] / counts[name] if counts[name] else None)\n        for name in fieldnames\n    }\n\n\nif __name__ == \"__main__\":\n    # 範例：假設 data.csv 內容如下\n    # 姓名,數學,英文,體重\n    # 小明,90,85,60.5\n    # 小華,78,,55\n    # 小美,88,92,\n    averages = calculate_column_averages(\"data.csv\")\n    for col, avg in averages.items():\n        if avg is None:\n            print(f\"{col}: 無可計算的數值\")\n        else:\n            print(f\"{col}: {avg:.2f}\")\n```\n\n執行結果（以上面的範例資料為例）：\n\n```\n姓名: 無可計算的數值\n數學: 85.33\n英文: 88.50\n體重: 57.75\n```\n\n## 程式說明\n\n1. **`import csv`**：使用標準函式庫的 `csv` 模組，不需要安裝額外套件。\n\n2. **`open(..., newline=\"\", encoding=...)`**\n   - `newline=\"\"` 是 `csv` 模組官方建議的寫法，可避免在 Windows 上多出空行。\n   - `encoding=\"utf-8-sig\"` 會自動去掉 Excel 存檔時在開頭加的 BOM（位元組順序標記），否則第一個欄位名稱可能會多出看不見的字元。\n\n3. **`csv.DictReader(f)`**：把每一列讀成字典，鍵是標題列的欄位名稱。`reader.fieldnames` 則保存所有欄位名稱，用來保持欄位順序。\n\n4. **`totals` 與 `counts`**：分別記錄每欄的總和與有效數值的筆數。`counts` 很重要，因為有缺值時不能直接用總列數當除數。\n\n5. **錯誤處理**：`float(value)` 遇到空字串會拋出 `ValueError`，列資料不足時 `row[name]` 會是 `None`，會拋出 `TypeError`。兩者都用 `try/except` 略過，讓缺值不會讓程式崩潰。\n\n6. **計算平均**：`totals[name] / counts[name]`，若該欄沒有任何有效數值（`counts` 為 0）則回傳 `None`，避免除以零。\n\n7. **`if __name__ == \"__main__\":`**：只有直接執行這個檔案時才會執行範例，被其他模組 `import` 時則不會執行。\n\n## 注意事項\n\n- 「姓名」這類文字欄位會被略過，結果為 `None`，這是預期的行為。\n- `float()` 也會接受 `\"nan\"` 與 `\"inf\"`，若資料中可能出現這些字串，需要另外過濾。\n- 若資料量很大或需要更多統計功能，可以改用 `pandas`：`pd.read_csv(path).mean(numeric_only=True)`，一行就能完成。",
+ "finished_at": "2026-10-31T17:21:31+00:00",
+ "seconds": 15.3,
+ "cost_usd": 0.0016017699999999998
+}

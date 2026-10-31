@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。",
+ "answer": "# 單元測試的原則\n\n1. **測行為，不測實作**：測試輸入與輸出，不要綁死內部細節。重構後行為不變，測試就不該壞。\n2. **AAA 結構**：每個測試分成三段，Arrange（準備）、Act（執行）、Assert（驗證）。\n3. **獨立性**：測試之間不共享狀態，執行順序不影響結果。\n4. **確定性**：同樣的程式碼每次結果都一樣。時間、亂數、網路等外部依賴要用測試替身（mock）隔離。\n5. **一個測試一個概念**：失敗時能立刻看出是哪個行為出問題。\n6. **名稱即規格**：測試名稱應描述「在什麼情況下，會發生什麼」。\n7. **涵蓋邊界條件**：正常路徑、空值、0、負數、極大值、錯誤處理都要想到。\n8. **快速**：單元測試應該毫秒級完成，否則開發者會不願意執行。\n9. **避免過度測試**：不必測框架本身或純粹的 getter/setter，把精力放在有邏輯的地方。\n\n# Jest 範例\n\n假設有一個購物車模組：\n\n```js\n// cart.js\nfunction applyDiscount(price, percent) {\n  if (price < 0) throw new Error('價格不可為負數');\n  if (percent < 0 || percent > 100) throw new Error('折扣必須介於 0 到 100');\n  return Math.round(price * (1 - percent / 100));\n}\n\nmodule.exports = { applyDiscount };\n```\n\n```js\n// cart.test.js\nconst { applyDiscount } = require('./cart');\n\ndescribe('applyDiscount', () => {\n  // 正常路徑：一個測試一個概念\n  test('打 8 折時，價格會變為原來的 80%', () => {\n    // Arrange\n    const price = 1000;\n    const percent = 20;\n\n    // Act\n    const result = applyDiscount(price, percent);\n\n    // Assert\n    expect(result).toBe(800);\n  });\n\n  // 邊界條件：0% 與 100%\n  test('折扣為 0% 時，價格不變', () => {\n    expect(applyDiscount(500, 0)).toBe(500);\n  });\n\n  test('折扣為 100% 時，價格為 0', () => {\n    expect(applyDiscount(500, 100)).toBe(0);\n  });\n\n  // 多組資料用 test.each 減少重複\n  test.each([\n    [999, 10, 899],   // 四捨五入的情況\n    [100, 33, 67],\n  ])('價格 %i 打 %i%% 折後應為 %i', (price, percent, expected) => {\n    expect(applyDiscount(price, percent)).toBe(expected);\n  });\n\n  // 錯誤處理：確認會拋出例外\n  test('價格為負數時拋出錯誤', () => {\n    expect(() => applyDiscount(-1, 10)).toThrow('價格不可為負數');\n  });\n\n  test('折扣超過 100 時拋出錯誤', () => {\n    expect(() => applyDiscount(100, 101)).toThrow('折扣必須介於 0 到 100');\n  });\n});\n```\n\n執行方式：\n\n```bash\nnpx jest cart.test.js\n```\n\n## 重點說明\n\n- **`describe` 分組**，`test`（或 `it`）描述單一情境。\n- **`test.each`** 用表格式資料驅動測試，避免複製貼上。\n- **錯誤測試**要包在箭頭函式裡，因為 `expect` 需要拿到會拋錯的函式本身。\n- 測試的斷言針對的是**公開的輸入輸出**，而不是 `applyDiscount` 內部用了哪些步驟，所以之後改寫實作只要行為不變，測試都不需要修改。",
+ "finished_at": "2026-10-31T17:23:14+00:00",
+ "seconds": 12.1,
+ "cost_usd": 0.00105447
+}

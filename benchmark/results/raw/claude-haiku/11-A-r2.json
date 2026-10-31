@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 11,
+ "category": "tech",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "什麼是負載平衡？常見的分配演算法有哪些？",
+ "answer": "# 負載平衡（Load Balancing）\n\n**負載平衡**是把進來的請求或工作量，分散到多個後端伺服器（或資源）上的技術。目的是：\n\n- **提高吞吐量與效能**：避免單一節點過載，充分利用所有資源。\n- **提高可用性與容錯**：某台節點故障時，流量自動導向健康的節點。\n- **支援水平擴展**：可以透過增加節點來因應流量成長。\n- **降低延遲**：分散請求，減少排隊等待。\n\n負載平衡器可以位於不同層級，例如：\n- **L4（傳輸層）**：依 IP 與 port 轉發，如 AWS NLB、LVS。\n- **L7（應用層）**：可讀取 HTTP 標頭、URL、Cookie 等做路由決策，如 Nginx、HAProxy、AWS ALB、Envoy。\n- **DNS 層**：透過 DNS 回傳不同 IP 達到分散，如 Route 53 的加權記錄。\n\n---\n\n## 常見的分配演算法\n\n### 1. Round Robin（輪詢）\n依序將請求輪流分配給每台伺服器。\n- **優點**：實作簡單，各節點分配均勻。\n- **缺點**：未考慮伺服器實際負載或效能差異。\n- **適用**：後端規格相同、請求成本相近的情境。\n\n### 2. Weighted Round Robin（加權輪詢）\n依照每台伺服器的權重（如 CPU、記憶體規格）按比例分配，權重高的伺服器接收更多請求。\n- **適用**：後端機器規格不一致。\n\n### 3. Least Connections（最少連線）\n將新請求分配給目前連線數最少的伺服器。\n- **優點**：能適應請求處理時間差異大的情況。\n- **缺點**：需要持續追蹤各節點的連線狀態。\n\n### 4. Weighted Least Connections（加權最少連線）\n結合權重與連線數，以「連線數 ÷ 權重」較小者優先。\n\n### 5. Least Response Time（最短回應時間）\n選擇平均回應時間最短、或「回應時間 × 連線數」最小的伺服器。\n- **適用**：對延遲敏感的服務。\n\n### 6. IP Hash（來源 IP 雜湊）\n對客戶端 IP 做雜湊，固定映射到同一台伺服器。\n- **優點**：同一客戶端的請求總是到同一台，適合需要會話黏性（session affinity）的情況。\n- **缺點**：客戶端分佈不均時可能造成負載不均；節點增減時映射會大量改變。\n\n### 7. URL / Header Hash（雜湊一致性）\n依請求的 URL、Cookie 或其他欄位做雜湊。常見於快取系統。\n\n### 8. Consistent Hashing（一致性雜湊）\n將節點與鍵值映射到一個雜湊環上，新增或移除節點時，只有少量鍵需要重新分配。\n- **適用**：分散式快取（如 Memcached、Redis Cluster 的變體）、分散式儲存。\n- **改良**：虛擬節點（virtual nodes）可讓分布更均勻。\n\n### 9. Random（隨機）\n隨機選擇一台伺服器。實作最簡單，當節點數量多時，統計上也能接近均勻分布。\n- 變形：**Power of Two Choices**，隨機抽兩台，選連線數較少者，效果通常遠優於純隨機，且實作成本低。\n\n### 10. Resource-based / Adaptive（基於資源的自適應）\n根據伺服器回報的 CPU、記憶體、佇列長度等指標動態決定分配。\n- **適用**：複雜的微服務或異質環境。\n\n---\n\n## 快速選擇建議\n\n| 情境 | 推薦演算法 |\n|---|---|\n| 無狀態服務、規格相同 | Round Robin |\n| 機器規格不一 | Weighted Round Robin |\n| 請求處理時間差異大 | Least Connections |\n| 需要會話黏性 | IP Hash 或 Cookie-based sticky session |\n| 分散式快取 / 儲存 | Consistent Hashing |\n| 大規模、需低成本的近似最佳 | Power of Two Choices |\n\n---\n\n另外，實務上還需搭配**健康檢查（Health Check）**，才能把流量從故障節點上移除。若需要，我可以進一步說明某個演算法的實作範例（例如用 Nginx 或 Go 實作）。",
+ "finished_at": "2026-10-31T17:25:26+00:00",
+ "seconds": 11.5,
+ "cost_usd": 0.00096272
+}

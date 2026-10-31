@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 28,
+ "category": "simplified_source",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "請摘要這段新聞：「据报道，该市地铁将在下个月开通新线路，预计每天可以运送十万名乘客，缓解交通压力。」",
+ "answer": "該市將於下個月開通一條新地鐵線路，預計開通後每天可運送約十萬名乘客，有助於緩解當地的交通壓力。",
+ "finished_at": "2026-10-31T17:28:43+00:00",
+ "seconds": 4.9,
+ "cost_usd": 0.00021774
+}

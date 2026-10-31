@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 44,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "寫一個 Bash 腳本，把資料夾裡所有 .log 檔壓縮起來，並解釋每一行。",
+ "answer": "以下腳本會把指定資料夾（預設為目前資料夾）中的所有 `.log` 檔打包成一個帶時間戳記的 `tar.gz` 壓縮檔。原始 `.log` 檔保留不動。\n\n```bash\n#!/usr/bin/env bash\nset -euo pipefail\n\ntarget_dir=\"${1:-.}\"\ntimestamp=\"$(date +%Y%m%d_%H%M%S)\"\narchive=\"$target_dir/logs_${timestamp}.tar.gz\"\n\nif [[ ! -d \"$target_dir\" ]]; then\n  echo \"錯誤：找不到資料夾 '$target_dir'\" >&2\n  exit 1\nfi\n\nmapfile -d '' -t files < <(find \"$target_dir\" -maxdepth 1 -type f -name '*.log' -print0)\n\nif (( ${#files[@]} == 0 )); then\n  echo \"在 '$target_dir' 中找不到 .log 檔\"\n  exit 0\nfi\n\nnames=(\"${files[@]##*/}\")\ntar -czf \"$archive\" -C \"$target_dir\" -- \"${names[@]}\"\n\necho \"已壓縮 ${#names[@]} 個檔案 -> $archive\"\n```\n\n## 逐行解釋\n\n| 行 | 程式碼 | 說明 |\n|---|---|---|\n| 1 | `#!/usr/bin/env bash` | Shebang，告訴系統用 bash 執行此檔，`env` 會在 PATH 中尋找 bash，比寫死 `/bin/bash` 更可攜。 |\n| 2 | `set -euo pipefail` | `-e`：指令失敗就立即結束；`-u`：使用未定義變數時報錯；`pipefail`：管線中任一段失敗即視為失敗。 |\n| 4 | `target_dir=\"${1:-.}\"` | 取第一個命令列參數作為資料夾；若未提供則使用 `.`（目前資料夾）。 |\n| 5 | `timestamp=\"$(date +%Y%m%d_%H%M%S)\"` | 產生如 `20261031_143005` 的時間戳記，避免覆蓋舊的壓縮檔。 |\n| 6 | `archive=\"$target_dir/logs_${timestamp}.tar.gz\"` | 組合出壓縮檔的完整路徑。 |\n| 8–11 | `if [[ ! -d ... ]]; then ... fi` | 檢查資料夾是否存在。錯誤訊息用 `>&2` 輸出到標準錯誤，並以 `exit 1` 結束。 |\n| 13 | `mapfile -d '' -t files < <(find ...)` | 把 `find` 的結果讀入陣列 `files`。`-d ''` 以 NULL 字元分隔，因此能正確處理含空白或換行的檔名。`< <(...)` 是程序替換，把 `find` 的輸出餵給 `mapfile`。 |\n| 14 | `find \"$target_dir\" -maxdepth 1 -type f -name '*.log' -print0` | 只在該資料夾第一層（`-maxdepth 1`）找一般檔案（`-type f`），檔名符合 `*.log`，並以 NULL 字元輸出。 |\n| 16–19 | `if (( ${#files[@]} == 0 )) ...` | `${#files[@]}` 是陣列元素數量。若為 0 代表沒有找到，印出訊息後正常結束。 |\n| 21 | `names=(\"${files[@]##*/}\")` | `${files[@]}` 展開所有路徑，`##*/` 移除每個路徑最後一個 `/` 之前的部分，只留下檔名。配合下一行的 `-C` 使用。 |\n| 22 | `tar -czf \"$archive\" -C \"$target_dir\" -- \"${names[@]}\"` | `-c` 建立歸檔、`-z` 用 gzip 壓縮、`-f` 指定輸出檔名；`-C` 先切換到目標資料夾，讓壓縮檔內只有檔名、沒有完整路徑；`--` 表示之後的都是檔名，避免以 `-` 開頭的檔名被當成選項。 |\n| 24 | `echo \"已壓縮 ...\"` | 顯示壓縮的檔案數量與輸出位置。 |\n\n## 使用方式\n\n```bash\nchmod +x compress_logs.sh\n./compress_logs.sh              # 壓縮目前資料夾的 .log\n./compress_logs.sh /var/log/myapp   # 壓縮指定資料夾\n```\n\n解壓縮：\n\n```bash\ntar -xzf logs_20261031_143005.tar.gz\n```\n\n## 注意事項\n\n- 本腳本**不會**遞迴處理子資料夾。若要包含子資料夾，移除 `-maxdepth 1` 即可。\n- 壓縮檔會放在來源資料夾內。若想放到別處，修改第 6 行的 `archive` 路徑。\n- 我沒有實際執行這個腳本來測試，以上為根據 bash 與 tar 的語法撰寫。建議先在測試資料夾試跑一次。",
+ "finished_at": "2026-10-31T17:30:31+00:00",
+ "seconds": 18.4,
+ "cost_usd": 0.00193122
+}

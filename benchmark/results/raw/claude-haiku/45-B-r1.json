@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 45,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "什麼是 REST API？設計 API 時有哪些好習慣？\n\n請用繁體中文回答。",
+ "answer": "# 什麼是 REST API？\n\n**REST**（Representational State Transfer，表現層狀態轉移）是一種軟體架構風格，由 Roy Fielding 在 2000 年的博士論文中提出。**REST API** 則是依照 REST 原則設計的應用程式介面，讓用戶端（如瀏覽器、手機 App）與伺服器之間透過 HTTP 協定溝通資料。\n\n### 核心概念\n\n- **資源（Resource）**：一切皆可視為資源，例如使用者、文章、訂單。每個資源都有唯一的 URI 識別，如 `/users/42`。\n- **HTTP 方法（動詞）**：用標準方法表示操作\n  - `GET`：讀取資源\n  - `POST`：建立資源\n  - `PUT`：整體更新資源\n  - `PATCH`：部分更新資源\n  - `DELETE`：刪除資源\n- **表現形式（Representation）**：資料通常以 JSON 或 XML 格式傳遞。\n- **無狀態（Stateless）**：每個請求都要包含處理所需的全部資訊，伺服器不保存用戶端的會話狀態。\n- **統一介面**：透過一致的規則與結構，降低用戶端與伺服器的耦合。\n\n### 範例\n\n| 操作 | 方法 | 路徑 |\n|------|------|------|\n| 列出所有使用者 | `GET` | `/users` |\n| 取得特定使用者 | `GET` | `/users/42` |\n| 建立使用者 | `POST` | `/users` |\n| 更新使用者 | `PATCH` | `/users/42` |\n| 刪除使用者 | `DELETE` | `/users/42` |\n\n---\n\n# 設計 REST API 的好習慣\n\n### 1. 使用名詞而非動詞命名資源\n- ✅ `GET /orders`、`POST /orders`\n- ❌ `GET /getOrders`、`POST /createOrder`\n\n資源用複數名詞，動作由 HTTP 方法表達。\n\n### 2. 正確使用 HTTP 方法與狀態碼\n- `200 OK`：成功\n- `201 Created`：建立成功\n- `204 No Content`：成功但無回傳內容（常用於刪除）\n- `400 Bad Request`：請求格式錯誤\n- `401 Unauthorized` / `403 Forbidden`：未認證 / 無權限\n- `404 Not Found`：資源不存在\n- `409 Conflict`：資源衝突\n- `500 Internal Server Error`：伺服器錯誤\n\n### 3. 版本控制\nAPI 變動難免，建議在路徑或標頭中標示版本，例如 `/api/v1/users`，避免破壞既有客戶端。\n\n### 4. 統一的錯誤格式\n錯誤回應應有一致結構，方便用戶端處理：\n\n```json\n{\n  \"error\": {\n    \"code\": \"USER_NOT_FOUND\",\n    \"message\": \"找不到使用者 ID 42\",\n    \"details\": []\n  }\n}\n```\n\n### 5. 支援分頁、排序與篩選\n資料量大時避免一次回傳全部：\n- 分頁：`GET /users?page=2&limit=20`（或使用 cursor 機制）\n- 排序：`GET /users?sort=-created_at`\n- 篩選：`GET /users?status=active`\n\n### 6. 安全性\n- 所有傳輸使用 **HTTPS**\n- 以 **OAuth 2.0**、**JWT** 或 API Key 進行認證與授權\n- 對敏感資料做最小化回傳，不暴露不必要的欄位\n- 實作**速率限制（Rate Limiting）**防止濫用\n\n### 7. 冪等性（Idempotency）\n- `GET`、`PUT`、`DELETE` 應為冪等操作：重複執行結果相同\n- `POST` 建立資源時，可提供 `Idempotency-Key` 標頭，避免網路重試造成重複建立\n\n### 8. 文件與可發現性\n- 使用 **OpenAPI（Swagger）** 撰寫規格文件\n- 回應中可提供超連結（HATEOAS），引導用戶端瀏覽相關資源（進階做法，視需求採用）\n\n### 9. 一致的命名與格式\n- 統一使用 `snake_case` 或 `camelCase`，全專案保持一致\n- 時間統一使用 ISO 8601 格式，如 `2026-10-31T12:00:00Z`\n- 網址使用小寫、以連字號 `-` 分隔單字，例如 `/order-items`\n\n### 10. 善用快取\n- 利用 `ETag`、`Last-Modified`、`Cache-Control` 標頭減少重複傳輸\n- 對於唯讀資源，合理設定快取時間\n\n---\n\n### 小結\n好的 REST API 應該**直覺、一致、安全、可擴充**。設計時從資源建模出發，搭配正確的 HTTP 語意與清楚的文件，能大幅降低開發者的學習與整合成本。",
+ "finished_at": "2026-10-31T17:22:16+00:00",
+ "seconds": 11.0,
+ "cost_usd": 0.00113767
+}

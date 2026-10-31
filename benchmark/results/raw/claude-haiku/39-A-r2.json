@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。",
+ "answer": "## 程式碼\n\n```python\nimport csv\nfrom typing import Dict, Optional\n\n\ndef column_averages(path: str, encoding: str = \"utf-8\") -> Dict[str, Optional[float]]:\n    \"\"\"讀取 CSV 檔，計算每一欄數值的平均值。\n\n    第一列視為標題列。無法轉成數字的儲存格會被略過；\n    若某欄沒有任何有效數字，其平均值為 None。\n    \"\"\"\n    with open(path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        fieldnames = reader.fieldnames or []\n\n        sums = {name: 0.0 for name in fieldnames}\n        counts = {name: 0 for name in fieldnames}\n\n        for row in reader:\n            for name in fieldnames:\n                try:\n                    value = float(row[name])\n                except (TypeError, ValueError):\n                    continue  # 空值、非數字或缺少的欄位直接略過\n                sums[name] += value\n                counts[name] += 1\n\n    return {\n        name: (sums[name] / counts[name] if counts[name] else None)\n        for name in fieldnames\n    }\n\n\nif __name__ == \"__main__\":\n    result = column_averages(\"data.csv\")\n    for col, avg in result.items():\n        print(f\"{col}: {avg if avg is not None else '無有效數值'}\")\n```\n\n### 使用範例\n\n假設 `data.csv` 內容如下：\n\n```csv\nname,score,age\nAlice,90,20\nBob,80,22\nCarol,,21\n```\n\n執行結果：\n\n```\nname: 無有效數值\nscore: 85.0\nage: 21.0\n```\n\n## 程式碼說明\n\n1. **`import csv`**：使用標準函式庫的 `csv` 模組，不需要額外安裝套件。\n\n2. **`open(..., newline=\"\", encoding=...)`**：\n   - `newline=\"\"` 是 `csv` 模組官方建議的寫法，可避免在 Windows 上多出空行。\n   - `encoding` 預設為 UTF-8，若檔案是其他編碼（如 Big5 或 cp950）可以傳入對應參數。\n\n3. **`csv.DictReader(f)`**：以第一列為標題，每一列讀成字典（`{欄名: 值}`），用欄名存取比用索引更直觀。\n\n4. **`reader.fieldnames`**：取得標題列的所有欄名。用 `or []` 處理空檔案的情況（此時 `fieldnames` 為 `None`）。\n\n5. **`sums` 與 `counts` 字典**：\n   - `sums` 記錄每欄數值的總和。\n   - `counts` 記錄每欄有效數值的筆數。\n   - 分開記錄是為了讓缺值不會被當成 0 拉低平均。\n\n6. **逐列、逐欄累加**：\n   - `float(row[name])` 嘗試將字串轉為浮點數。\n   - 轉換失敗（`ValueError`）代表是空字串或文字，就略過；`TypeError` 則處理列的欄位比標題少的情況（`row[name]` 會是 `None`）。\n\n7. **計算平均值**：`sums / counts` 得到平均。若某欄沒有任何有效數值（`counts` 為 0），回傳 `None`，避免除以零的錯誤。\n\n8. **`if __name__ == \"__main__\":`**：只有直接執行此檔案時才會執行示範程式碼，若被其他模組 `import` 則不會執行。\n\n## 補充\n\n如果已經安裝 pandas，也可以用更簡潔的寫法：\n\n```python\nimport pandas as pd\n\nmeans = pd.read_csv(\"data.csv\").mean(numeric_only=True)\nprint(means)\n```\n\n手寫版本的優點是不需要外部套件，並且能清楚控制錯誤處理；pandas 版本則適合處理大型或複雜的資料。",
+ "finished_at": "2026-10-31T17:29:54+00:00",
+ "seconds": 13.3,
+ "cost_usd": 0.00139921
+}

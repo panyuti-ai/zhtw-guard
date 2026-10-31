@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 46,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "Python 的 list 和 tuple 差在哪裡？什麼時候用哪個？\n\n請用繁體中文回答。",
+ "answer": "# Python 的 list 與 tuple\n\n## 主要差異\n\n| 比較項目 | list | tuple |\n|---|---|---|\n| 語法 | `[1, 2, 3]` | `(1, 2, 3)` |\n| 可變性 | 可變（mutable），能新增、刪除、修改元素 | 不可變（immutable），建立後內容不能改 |\n| 方法 | 較多，如 `append`、`insert`、`remove`、`sort` | 較少，只有 `count`、`index` |\n| 效能 | 較佔空間，操作稍慢 | 較省記憶體，建立與迭代較快 |\n| 可作為 dict 的 key | 不行（不可雜湊） | 可以（若元素都可雜湊） |\n| 可放入 set | 不行 | 可以 |\n\n## 範例\n\n```python\nnums = [1, 2, 3]\nnums.append(4)      # 正常\nnums[0] = 10        # 正常\n\npoint = (1, 2, 3)\npoint[0] = 10       # TypeError: 'tuple' object does not support item assignment\n\nd = {(1, 2): \"座標A\"}   # tuple 可作為 key\n# d = {[1, 2]: \"x\"}     # TypeError: unhashable type: 'list'\n```\n\n## 注意：tuple 的「不可變」是淺層的\n\ntuple 本身不能改，但若內含可變物件，該物件仍可修改：\n\n```python\nt = (1, [2, 3])\nt[1].append(4)   # 合法，t 變成 (1, [2, 3, 4])\n# t[1] = 5       # 仍會報錯\n```\n\n因此，只有元素全部都是不可雜湊的不可變型別時，tuple 才能作為 dict key 或 set 元素。\n\n## 什麼時候用哪個？\n\n**用 list 的情況**\n- 元素數量會變動，需要增刪改，例如待辦清單、收集的結果。\n- 同類型元素的序列，例如一批使用者名稱、一串數值。\n- 需要用 `sort()`、`append()` 等原地操作。\n\n**用 tuple 的情況**\n- 資料結構固定，順序有意義，例如座標 `(x, y)`、RGB 顏色 `(r, g, b)`、日期 `(年, 月, 日)`。\n- 需要當作 dict 的 key 或放進 set。\n- 希望資料不被意外修改，例如函式回傳多個值時（`return a, b`）。\n- 函式參數或設定值想保證不會被更動。\n- 追求略好的效能或較少的記憶體佔用（資料量大時較明顯）。\n\n## 慣用判斷原則\n\n- **list 偏向「一串同類、數量不固定的項目」**。\n- **tuple 偏向「一組固定結構、位置代表意義的記錄」**。\n\n另外，tuple 也常用於**解包（unpacking）**：\n\n```python\nx, y = (3, 4)\nfirst, *rest = [1, 2, 3, 4]   # rest 會是 list [2, 3, 4]\n```",
+ "finished_at": "2026-10-31T17:22:25+00:00",
+ "seconds": 8.2,
+ "cost_usd": 0.00079507
+}

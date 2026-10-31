@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 7,
+ "category": "tech",
+ "variant": "A",
+ "rep": 1,
+ "prompt": "什麼是 OAuth？登入第三方網站時背後發生了什麼事？",
+ "answer": "OAuth 是一種**授權（Authorization）框架**，讓使用者可以在不把密碼交給第三方應用程式的情況下，授權該應用程式存取自己在其他服務上的資料。目前最常見的版本是 OAuth 2.0。\n\n## 核心概念\n\n- **資源擁有者（Resource Owner）**：你，也就是使用者。\n- **客戶端（Client）**：想要存取你資料的第三方應用程式。\n- **授權伺服器（Authorization Server）**：負責驗證你並發出存取憑證的服務，例如 Google、Facebook、GitHub 的登入系統。\n- **資源伺服器（Resource Server）**：實際存放資料的 API，例如 Google Calendar API。\n- **存取權杖（Access Token）**：客戶端拿來呼叫 API 的憑證，通常有效期短。\n- **更新權杖（Refresh Token）**：用來在存取權杖過期後換取新的存取權杖。\n\n## 登入第三方網站時發生了什麼事？\n\n以「用 Google 帳號登入某網站」為例，典型的流程（Authorization Code Flow）如下：\n\n1. **點擊「使用 Google 登入」**\n   網站（Client）把你導向 Google 的授權頁面，網址中帶有：\n   - `client_id`：網站在 Google 註冊的身分識別\n   - `redirect_uri`：授權完成後要回傳的網址\n   - `scope`：要求的權限範圍，例如 `email profile`\n   - `state`：隨機字串，用來防止 CSRF 攻擊\n   - `code_challenge`（PKCE，行動 App 與單頁應用常用）\n\n2. **在 Google 登入並同意授權**\n   你在 Google 網域上輸入帳密（網站本身看不到你的密碼），並確認「此網站要求存取你的電子郵件與基本資料」。\n\n3. **Google 導回網站並附上授權碼**\n   Google 把你導回 `redirect_uri`，網址附帶一次性的 `code`（授權碼）以及原本的 `state`。網站會檢查 `state` 是否與先前產生的相同。\n\n4. **網站後端換取權杖**\n   網站的伺服器拿著 `code`、`client_secret`（或 PKCE 的 `code_verifier`）向 Google 的 token endpoint 請求，取得 `access_token`（以及可能的 `id_token`、`refresh_token`）。\n   這一步是在伺服器之間進行，所以權杖不會經過你的瀏覽器暴露。\n\n5. **取得使用者資料並建立登入狀態**\n   - 若使用 OpenID Connect（OIDC，OAuth 之上的身分層），`id_token` 是一個 JWT，內含你的身分資訊（如 `sub`、`email`），網站可驗證簽章後直接使用。\n   - 網站據此在自己的系統中建立或找到對應帳號，並發出自家的 session cookie 或 token，讓你保持登入。\n\n## 為什麼要這樣設計？\n\n- **不分享密碼**：網站只拿到有限權限的權杖，而不是你的 Google 密碼。\n- **權限可限縮**：`scope` 決定能做什麼，例如只讀取信箱。\n- **可撤銷**：你可以在 Google 帳號設定中隨時撤銷某應用程式的授權。\n- **權杖有期限**：即使外洩，風險也有限。\n\n## 常見誤解\n\n- **OAuth ≠ 登入**：OAuth 本身是授權協定，「登入」通常是 OAuth 加上 OpenID Connect（OIDC）的組合。\n- **網站不會看到你的密碼**：密碼只在授權伺服器（如 Google）輸入。\n\n如果你想，我可以用程式碼示範一個簡單的 OAuth 2.0 授權碼流程（例如 Python 或 Node.js 的實作），或是進一步說明 PKCE 為什麼能防止授權碼被竊取。",
+ "finished_at": "2026-10-31T17:18:10+00:00",
+ "seconds": 10.7,
+ "cost_usd": 0.00096547
+}

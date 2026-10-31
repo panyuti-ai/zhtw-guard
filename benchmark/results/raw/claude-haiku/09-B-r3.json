@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？\n\n請用繁體中文回答。",
+ "answer": "## 什麼是 DNS？\n\n**DNS（Domain Name System，網域名稱系統）**是網際網路的「電話簿」。人類習慣記住像 `www.example.com` 這樣的網域名稱，但電腦之間實際是靠 IP 位址（如 `93.184.216.34`）來找到彼此。DNS 的工作就是把好記的網域名稱轉換成對應的 IP 位址。\n\n## 在瀏覽器輸入網址後，網域名稱如何變成 IP？\n\n以在瀏覽器輸入 `www.example.com` 為例，大致流程如下：\n\n1. **檢查瀏覽器快取**\n   瀏覽器會先查看自己是否已經記住這個網域的 IP，若有且未過期就直接使用。\n\n2. **檢查作業系統快取與 hosts 檔**\n   若瀏覽器沒有，會詢問作業系統。作業系統會先查本機的 `hosts` 檔案（Linux/macOS 為 `/etc/hosts`，Windows 為 `C:\\Windows\\System32\\drivers\\etc\\hosts`），裡面可以手動指定網域對應的 IP。\n\n3. **詢問本地 DNS 解析器（Recursive Resolver）**\n   若仍找不到，系統會把查詢請求送給設定的 DNS 伺服器，通常是 ISP 提供的，或是 Google `8.8.8.8`、Cloudflare `1.1.1.1` 等公共 DNS。這台伺服器會代替你完成整個查詢過程。若它有快取結果，就直接回傳。\n\n4. **向根名稱伺服器查詢（Root Name Server）**\n   若沒有快取，解析器會先問根伺服器（Root）：「`.com` 的伺服器在哪？」根伺服器會回覆頂級網域（TLD）伺服器的位址。\n\n5. **向頂級網域伺服器查詢（TLD Server）**\n   解析器再問 `.com` 的 TLD 伺服器：「`example.com` 的權威伺服器是誰？」TLD 伺服器回覆該網域的權威名稱伺服器（Authoritative DNS）位址。\n\n6. **向權威名稱伺服器查詢（Authoritative Server）**\n   最後解析器問 `example.com` 的權威伺服器：「`www.example.com` 的 IP 是多少？」權威伺服器回傳正確的 A 記錄（IPv4）或 AAAA 記錄（IPv6）。\n\n7. **回傳結果並快取**\n   解析器把 IP 回傳給瀏覽器，同時依照 TTL（存活時間）將結果快取起來，之後的查詢就能更快完成。\n\n8. **瀏覽器開始連線**\n   拿到 IP 後，瀏覽器就能與該伺服器建立 TCP 連線（或 QUIC），接著進行 TLS 加密握手（HTTPS），最後發出 HTTP 請求取得網頁內容。\n\n### 流程簡圖\n\n```\n瀏覽器 → 瀏覽器快取 → OS 快取/hosts → 本地 DNS 解析器\n                                          │\n                 ┌────────────────────────┼─────────────────────┐\n                 ▼                        ▼                     ▼\n            根伺服器 (.)           TLD 伺服器 (.com)     權威伺服器 (example.com)\n            回覆 .com 位址    →    回覆權威伺服器位址   →    回覆 www 的 IP\n```\n\n### 補充重點\n- **遞迴查詢 vs. 迭代查詢**：本地解析器對客戶端是「遞迴」（代為完成全部查詢），對根、TLD、權威伺服器則是「迭代」（每台只指路，不代查）。\n- **傳輸協定**：DNS 通常使用 UDP 53 埠，回應過大或需要區域傳輸時會使用 TCP 53。近年也有 DoH（DNS over HTTPS）、DoT（DNS over TLS）等加密方式。\n- **TTL**：每筆記錄都有存活時間，決定快取能保存多久，例如 300 秒。",
+ "finished_at": "2026-10-31T17:32:33+00:00",
+ "seconds": 10.5,
+ "cost_usd": 0.00089578
+}

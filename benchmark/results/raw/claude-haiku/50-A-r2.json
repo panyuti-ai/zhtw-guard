@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 50,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "寫單元測試有什麼原則？請用 Jest 舉一個例子。",
+ "answer": "# 單元測試的基本原則\n\n1. **測試行為，而非實作細節**：測試應描述函式「做什麼」，而不是「怎麼做」。內部重構後，只要行為不變，測試就不該失敗。\n2. **每個測試只驗證一件事**：一個測試失敗時，能直接看出是哪個行為出了問題。\n3. **獨立且可重複**：測試之間不共享狀態，執行順序不影響結果，每次執行結果都一致。\n4. **遵循 AAA 結構**：Arrange（準備資料）、Act（執行）、Assert（斷言），讓測試易讀。\n5. **名稱要像規格**：從名稱就能看出情境與預期結果。\n6. **涵蓋正常路徑、邊界與錯誤情況**：空值、0、極大值、非法輸入都值得測試。\n7. **隔離外部依賴**：資料庫、網路、時間等用 mock 或 stub 替代，讓測試快速且穩定。\n8. **快速且有意義**：不要為了覆蓋率而測試過於瑣碎的程式碼。\n\n# Jest 範例\n\n假設有一個計算購物車總額的函式：\n\n```js\n// cart.js\nfunction calculateTotal(items, discountRate = 0) {\n  if (!Array.isArray(items)) throw new TypeError('items must be an array');\n  if (discountRate < 0 || discountRate > 1) {\n    throw new RangeError('discountRate must be between 0 and 1');\n  }\n  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);\n  return Math.round(subtotal * (1 - discountRate) * 100) / 100;\n}\n\nmodule.exports = { calculateTotal };\n```\n\n對應的測試：\n\n```js\n// cart.test.js\nconst { calculateTotal } = require('./cart');\n\ndescribe('calculateTotal', () => {\n  test('空購物車的總額為 0', () => {\n    // Arrange & Act\n    const total = calculateTotal([]);\n    // Assert\n    expect(total).toBe(0);\n  });\n\n  test('沒有折扣時回傳所有商品小計的總和', () => {\n    const items = [\n      { price: 100, quantity: 2 },\n      { price: 50, quantity: 1 },\n    ];\n    expect(calculateTotal(items)).toBe(250);\n  });\n\n  test('套用 10% 折扣後金額正確', () => {\n    const items = [{ price: 200, quantity: 1 }];\n    expect(calculateTotal(items, 0.1)).toBe(180);\n  });\n\n  test('折扣率超出 0–1 範圍時拋出 RangeError', () => {\n    expect(() => calculateTotal([], 1.5)).toThrow(RangeError);\n  });\n\n  test('items 不是陣列時拋出 TypeError', () => {\n    expect(() => calculateTotal('not an array')).toThrow(TypeError);\n  });\n});\n```\n\n執行方式：\n\n```bash\nnpx jest\n```\n\n## 補充：多組輸入可用 `test.each`\n\n當同一邏輯有許多輸入組合時，用表格式寫法可以減少重複：\n\n```js\ntest.each([\n  [[], 0, 0],\n  [[{ price: 100, quantity: 1 }], 0, 100],\n  [[{ price: 100, quantity: 1 }], 0.5, 50],\n])('items=%j, discount=%p 時總額應為 %p', (items, discount, expected) => {\n  expect(calculateTotal(items, discount)).toBe(expected);\n});\n```\n\n## 好的測試 vs. 不好的測試\n\n- ❌ `expect(calculateTotal).toHaveBeenCalledWith(...)`：測的是內部呼叫方式，容易因重構而壞掉。\n- ✅ `expect(calculateTotal(items, 0.1)).toBe(180)`：測的是輸入與輸出的結果。\n\n如果你有想測試的具體程式碼，可以貼給我，我幫你設計測試案例。",
+ "finished_at": "2026-10-31T17:31:21+00:00",
+ "seconds": 13.2,
+ "cost_usd": 0.0013591599999999999
+}

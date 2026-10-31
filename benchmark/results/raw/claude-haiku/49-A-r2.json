@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。",
+ "answer": "## 實作\n\n```ts\ntype Last<T extends readonly unknown[]> =\n  T extends readonly [...unknown[], infer L] ? L : T[number] | undefined;\n\nfunction last<const T extends readonly unknown[]>(arr: T): Last<T> {\n  return arr[arr.length - 1] as Last<T>;\n}\n\n// 元組：能推導出精確的最後一個元素型別\nconst t = last([1, 2, \"three\"] as const); // 型別: \"three\"\nconst u = last([\"a\", \"b\", 42]);           // 型別: 42\n\n// 一般陣列：元素型別不確定，回傳 T[number] | undefined\nconst nums: number[] = [1, 2, 3];\nconst n = last(nums);                     // 型別: number | undefined\n\n// 空元組\nconst e = last([] as const);              // 型別: undefined\n```\n\n## 型別怎麼推導\n\n**1. 泛型參數 `T` 從引數推導出來**\n呼叫 `last([1, 2, \"three\"] as const)` 時，TypeScript 會把傳入的型別當作 `T`，也就是 `readonly [1, 2, \"three\"]`。`as const` 讓陣列變成唯讀元組，並保留字面值型別。若不想每次都寫 `as const`，可以用 TypeScript 5.0 之後支援的 `const` 型別參數修飾詞（即上面的 `<const T ...>`），它會讓推導時自動保留字面值。\n\n**2. 約束 `T extends readonly unknown[]`**\n這限制 `T` 必須是陣列或唯讀陣列，同時讓 `arr.length` 和索引存取可以通過型別檢查。\n\n**3. 條件型別 `Last<T>` 用 `infer` 取出最後一個元素**\n```ts\nT extends readonly [...unknown[], infer L] ? L : ...\n```\n- `[...unknown[], infer L]` 是「任意多個元素，後面接一個元素」的樣式。\n- 若 `T` 符合此樣式，`infer L` 會捕獲最後一個元素的型別，例如 `\"three\"`。\n- 若 `T` 不符合（例如一般的 `number[]`，因為它不保證至少有一個元素），就走 `false` 分支 `T[number] | undefined`，也就是「所有元素型別的聯集，加上可能為 `undefined`」。\n- 空元組 `[]` 不符合樣式，`T[number]` 為 `never`，結果是 `undefined`。\n\n**4. 實作中的 `as Last<T>`**\n`arr[arr.length - 1]` 在 TypeScript 中無法被條件型別推導出精確型別，所以需要斷言。這是實作內部的取捨，對外的回傳型別仍由 `Last<T>` 精確描述。\n\n**補充：** 若開啟 `noUncheckedIndexedAccess`，一般陣列的索引存取本身就會帶上 `| undefined`，此時實作內的斷言仍然正確。",
+ "finished_at": "2026-10-31T17:31:07+00:00",
+ "seconds": 12.4,
+ "cost_usd": 0.00118744
+}

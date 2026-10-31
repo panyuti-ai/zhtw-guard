@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 27,
+ "category": "simplified_source",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "下面是一則產品說明，請改寫成適合台灣讀者的版本：「这款软件支持多种视频格式，默认保存在桌面的文件夹里，内存占用很低。」",
+ "answer": "本軟體支援多種影片格式，預設會將檔案儲存在桌面的資料夾中，且記憶體佔用極低。",
+ "finished_at": "2026-10-31T17:28:38+00:00",
+ "seconds": 6.0,
+ "cost_usd": 0.00036303
+}

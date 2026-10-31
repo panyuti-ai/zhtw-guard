@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 9,
+ "category": "tech",
+ "variant": "A",
+ "rep": 2,
+ "prompt": "什麼是 DNS？在瀏覽器輸入網址後，網域名稱怎麼變成 IP？",
+ "answer": "# DNS 是什麼？\n\n**DNS（Domain Name System，網域名稱系統）** 是網際網路的「電話簿」。人類容易記住 `www.example.com` 這類網域名稱，但電腦之間實際用 IP 位址（如 `93.184.216.34`）來找到彼此。DNS 負責把網域名稱轉換成 IP 位址。\n\n## DNS 的階層結構\n\nDNS 是一個分層的分散式資料庫，以 `www.example.com.` 為例，由右往左查詢：\n\n- **根網域（Root）**：最上層，`.`，全球有 13 組根伺服器（以 a 到 m 命名）。\n- **頂級網域（TLD）**：如 `.com`、`.tw`、`.org`，由各自的 TLD 伺服器管理。\n- **權威名稱伺服器（Authoritative）**：某個網域的最終答案來源，例如 `example.com` 的 NS 紀錄指向它的 DNS 伺服器。\n\n## 在瀏覽器輸入網址後發生什麼事\n\n以輸入 `https://www.example.com` 為例：\n\n**1. 檢查快取（由近到遠）**\n- 瀏覽器自己的 DNS 快取\n- 作業系統的 DNS 快取（另外也會檢查 `/etc/hosts` 或 Windows 的 `hosts` 檔）\n\n如果找到，就直接使用，流程結束。\n\n**2. 向遞迴解析器（Recursive Resolver）發出查詢**\n作業系統會把請求交給設定好的 DNS 伺服器，通常是 ISP 提供的，或是 Google `8.8.8.8`、Cloudflare `1.1.1.1` 等公共 DNS。遞迴解析器負責代替你走完整個查詢過程。\n\n**3. 遞迴解析器逐層查詢（若它也沒有快取）**\n1. 問**根伺服器**：「`www.example.com` 的 IP 是多少？」根伺服器回覆：「我不知道，但 `.com` 的 TLD 伺服器在這裡。」\n2. 問 **`.com` TLD 伺服器**：「`www.example.com` 的 IP 是多少？」它回覆：「我不知道，但 `example.com` 的權威伺服器是 `ns1.example.com`。」\n3. 問 **權威伺服器**：「`www.example.com` 的 IP 是多少？」它回覆 A 紀錄：`93.184.216.34`。\n\n**4. 回傳結果並快取**\n解析器把 IP 回傳給你的電腦，並依照紀錄中的 **TTL（存活時間）** 把結果快取起來，之後同樣的查詢就不必重走一遍。\n\n**5. 建立連線**\n拿到 IP 後，瀏覽器才真正開始連線：\n- **TCP 三向交握**，建立傳輸連線（連到該 IP 的 443 埠）\n- **TLS 交握**，建立加密通道，並驗證憑證是否符合 `www.example.com`\n- 送出 **HTTP 請求**（`GET / HTTP/1.1`，並帶上 `Host: www.example.com` 標頭，讓同一台伺服器能服務多個網站）\n- 伺服器回應，瀏覽器渲染頁面\n\n## 流程簡圖\n\n```\n瀏覽器 → 作業系統快取 → 遞迴解析器（ISP / 8.8.8.8）\n                              │\n                              ├→ 根伺服器        → 「問 .com」\n                              ├→ .com TLD 伺服器  → 「問 example.com 的 NS」\n                              └→ example.com 權威  → 「93.184.216.34」\n                              │\n瀏覽器 ←─────── IP 位址 ──────┘\n   │\n   └→ TCP → TLS → HTTP 請求 → 網頁\n```\n\n## 補充\n\n- **實際上多半有快取**：大部分查詢在遞迴解析器就能直接回答，不需要每次都從根開始。\n- **DNS 預設使用 UDP 53 埠**（回應較大或需要時也會用 TCP）。\n- **加密 DNS**：DoH（DNS over HTTPS）與 DoT（DNS over TLS）可避免查詢內容被中間人窺探或竄改。\n- **CDN 與負載平衡**：同一個網域可能回傳不同 IP，讓使用者連到較近或較空閒的伺服器。",
+ "finished_at": "2026-10-31T17:25:07+00:00",
+ "seconds": 13.1,
+ "cost_usd": 0.00105747
+}

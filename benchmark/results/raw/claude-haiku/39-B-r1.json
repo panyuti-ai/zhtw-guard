@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 39,
+ "category": "code",
+ "variant": "B",
+ "rep": 1,
+ "prompt": "用 Python 寫一個函式，讀取 CSV 檔並計算每一欄的平均值，並說明程式碼。\n\n請用繁體中文回答。",
+ "answer": "## 程式碼\n\n```python\nimport csv\n\n\ndef column_averages(csv_path, encoding=\"utf-8-sig\"):\n    \"\"\"讀取 CSV 檔，計算每一欄的平均值。\n\n    回傳 dict：{欄位名稱: 平均值}。\n    空白或非數字的儲存格會被略過；若某欄沒有任何有效數值，該欄的值為 None。\n    \"\"\"\n    with open(csv_path, newline=\"\", encoding=encoding) as f:\n        reader = csv.DictReader(f)\n        columns = reader.fieldnames or []\n\n        sums = {col: 0.0 for col in columns}\n        counts = {col: 0 for col in columns}\n\n        for row in reader:\n            for col in columns:\n                try:\n                    sums[col] += float(row[col])\n                    counts[col] += 1\n                except (TypeError, ValueError):\n                    pass  # 空白或非數字，略過\n\n    return {\n        col: (sums[col] / counts[col] if counts[col] else None)\n        for col in columns\n    }\n\n\nif __name__ == \"__main__\":\n    averages = column_averages(\"data.csv\")\n    for col, avg in averages.items():\n        if avg is None:\n            print(f\"{col}: 無有效數值\")\n        else:\n            print(f\"{col}: {avg:.2f}\")\n```\n\n假設 `data.csv` 內容如下：\n\n```csv\nname,score,height\nAlice,90,160\nBob,80,\nCarol,,170\n```\n\n執行結果會是：\n\n```\nname: 無有效數值\nscore: 85.00\nheight: 165.00\n```\n\n## 程式說明\n\n1. **`csv.DictReader`**：把每一列讀成字典，鍵是標題列的欄位名稱，所以可以用 `row[col]` 直接取值，不必自己用索引切分。\n\n2. **`encoding=\"utf-8-sig\"`**：Excel 存成 UTF-8 時常會在檔案開頭加上 BOM（位元組順序標記）。若用一般的 `utf-8` 讀取，第一個欄位名稱前面會多出不可見的字元，導致 `row[col]` 找不到欄位。`utf-8-sig` 會自動去掉這個標記。\n\n3. **`newline=\"\"`**：這是 `csv` 模組官方建議的寫法，可以正確處理欄位內的換行符號，避免在 Windows 上出現多餘的空行。\n\n4. **累加與計數**：對每一欄分別累加數值（`sums`）並記錄有效筆數（`counts`），最後用「總和 ÷ 筆數」求平均。空白或文字會讓 `float()` 拋出 `ValueError`（`float(None)` 則拋出 `TypeError`），用 `try/except` 捕捉後略過，因此不會因為一個壞值而整個程式崩潰。\n\n5. **無有效數值的欄位**：回傳 `None`，而不是 `0` 或拋出錯誤。這樣可以區分「平均值是 0」與「根本沒有數據」兩種情況。例如上面的 `name` 欄是文字，所以顯示「無有效數值」。\n\n6. **只使用標準函式庫**：不需要安裝 pandas。若資料量大或需要更多統計功能，也可以改用 `pandas.read_csv(path).mean(numeric_only=True)`，一行就能完成同樣的工作。\n\n注意：我沒有實際執行這段程式碼，以上輸出是根據邏輯推導的結果。`float()` 也會接受 `\"nan\"` 和 `\"inf\"` 這類字串，若你的資料可能包含這些值，需要另外過濾。",
+ "finished_at": "2026-10-31T17:21:30+00:00",
+ "seconds": 13.3,
+ "cost_usd": 0.00140917
+}

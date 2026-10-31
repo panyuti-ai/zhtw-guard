@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 48,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "我的 Node.js 程式記憶體一直增加，該怎麼找出原因？\n\n請用繁體中文回答。",
+ "answer": "# 找出 Node.js 記憶體持續增加的原因\n\n## 1. 先確認是真的洩漏\n\n有時記憶體升高只是正常的快取或 GC 延遲。先觀察：\n\n```js\nsetInterval(() => {\n  const m = process.memoryUsage();\n  console.log({\n    rss: (m.rss / 1024 / 1024).toFixed(1) + ' MB',        // 進程實際佔用\n    heapUsed: (m.heapUsed / 1024 / 1024).toFixed(1) + ' MB', // JS 物件\n    external: (m.external / 1024 / 1024).toFixed(1) + ' MB', // C++ 綁定物件、Buffer\n  });\n}, 10_000);\n```\n\n- **heapUsed 持續上升，且多次 Full GC 後也不下降**：典型的 JS 物件洩漏，往下做步驟 2–3。\n- **external 或 rss 上升，heapUsed 穩定**：通常是 Buffer、原生模組或串流沒釋放，要檢查 `Buffer`、檔案/網路串流與 native addon。\n- **只有 rss 上升**：可能是碎片化或 V8 尚未回收，可觀察較長時間再判斷。\n\n若要強制 GC 以排除假象，可用 `node --expose-gc app.js`，然後在程式中呼叫 `global.gc()` 再測量。\n\n## 2. 抓取 Heap Snapshot 並比對\n\n**方法 A：用 Chrome DevTools（最常用）**\n\n```bash\nnode --inspect app.js\n```\n\n1. 在 Chrome 開啟 `chrome://inspect`，點選 Inspect。\n2. 到 **Memory** 分頁，讓程式跑一段時間（例如負載測試 5 分鐘）。\n3. 拍三次 Heap Snapshot：第一次在啟動穩定後，第二次與第三次間隔一段負載。\n4. 在第三個 snapshot 選 **Comparison**，依 `# Delta`（新增數量）或 `Size Delta` 排序。\n5. 展開數量增加最多的物件，看 **Retainers**（保留路徑）找出是誰持有它們的參考。\n\n**方法 B：程式內觸發快照**\n\n```js\nconst v8 = require('v8');\nprocess.on('SIGUSR2', () => {\n  const file = v8.writeHeapSnapshot();\n  console.log('快照已寫入：', file);\n});\n```\n\n用 `kill -USR2 <pid>` 在不同時間點觸發，再用 DevTools 載入比對。\n\n**方法 C：自動產生 CPU/記憶體剖析報告**\n\n```bash\nnode --heap-prof app.js   # 結束時產生 .heapprofile\n```\n\n或使用 `clinic heapprofiler -- node app.js`（需 `npm i -g clinic`），會提供視覺化火焰圖，方便看哪個函式配置最多記憶體。\n\n## 3. 常見的洩漏來源\n\n| 類型 | 典型情況 | 檢查重點 |\n|---|---|---|\n| **無上限的快取** | 用 `Map`/物件當快取，從未刪除 | 是否有 TTL 或大小限制（可用 `lru-cache`） |\n| **事件監聽器** | `emitter.on()` 每次請求都加，從未 `off()` | 出現 `MaxListenersExceededWarning` 就是警訊 |\n| **定時器** | `setInterval` 沒有 `clearInterval` | 元件銷毀時是否清除 |\n| **閉包** | 回呼函式持有大型物件的參考 | Retainers 中看到 closure 或 context |\n| **無限增長的陣列/字串** | 日誌、訊息陣列持續 `push`，或字串不斷 `+=` | 搜尋 `.push(`、全域陣列 |\n| **Promise 或請求未完成** | 請求 pending 無 timeout，物件無法釋放 | 加上 timeout 與 `AbortController` |\n| **串流/Buffer 未消費** | `readable` 沒讀取完、未處理 `error` | 確認 `pipeline()` 用法與錯誤處理 |\n| **全域變數意外洩漏** | 忘記宣告變數變成全域 | 使用 `'use strict'` 或 ESLint |\n\n## 4. 建議的排查順序\n\n1. 用步驟 1 確認 heapUsed 是否真的持續成長。\n2. 在相同負載下，拍三次 heap snapshot 做 Comparison。\n3. 找出增長最快的物件類型，順著 Retainers 找到持有它的程式碼。\n4. 修正後重複測試，確認曲線趨於平穩。\n\n---\n\n如果你能提供以下資訊，我可以更具體地幫你判斷：\n- 程式類型（HTTP 服務、排程、WebSocket、CLI 等）與 Node.js 版本\n- `memoryUsage()` 中哪個數值在增加（heapUsed、external 或 rss）\n- 是否有使用特定套件或快取機制\n- 若方便，可以貼上可疑的程式碼片段",
+ "finished_at": "2026-10-31T17:37:01+00:00",
+ "seconds": 15.2,
+ "cost_usd": 0.00129539
+}

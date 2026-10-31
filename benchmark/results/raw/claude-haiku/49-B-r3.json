@@ -1,0 +1,13 @@
+{
+ "provider": "claude",
+ "model": "claude-haiku-5-5",
+ "prompt_id": 49,
+ "category": "code",
+ "variant": "B",
+ "rep": 3,
+ "prompt": "用 TypeScript 寫一個泛型函式，回傳陣列中的最後一個元素，並說明型別怎麼推導。\n\n請用繁體中文回答。",
+ "answer": "## 基本版本\n\n```ts\nfunction last<T>(arr: readonly T[]): T | undefined {\n  return arr.length > 0 ? arr[arr.length - 1] : undefined;\n}\n\nconst n = last([1, 2, 3]);       // number | undefined\nconst s = last([\"a\", \"b\"]);      // string | undefined\nconst e = last<number>([]);      // number | undefined（空陣列回傳 undefined）\n```\n\nES2022 之後也可以直接用 `arr.at(-1)`，它的回傳型別同樣是 `T | undefined`。\n\n## 型別推導說明\n\n1. **推導 `T`**：呼叫 `last([1, 2, 3])` 時，TypeScript 比對參數型別 `number[]` 與形式參數 `readonly T[]`，推得 `T = number`。`readonly T[]` 同時接受可變與唯讀陣列，所以 `number[]` 與 `readonly number[]` 都能傳入。\n\n2. **回傳型別是 `T | undefined`**：陣列可能為空，此時沒有最後一個元素，所以函式必須回傳 `undefined`。型別系統會強迫呼叫端處理這種情況。\n\n3. **索引存取的型別**：一般情況下 `arr[i]` 的型別是 `T`，不會自動加上 `undefined`，即使 `i` 超出範圍。因此即使在 `length > 0` 的分支中，我們仍需明確地在回傳型別中標示 `undefined`。若開啟 `noUncheckedIndexedAccess`，`arr[i]` 本身就會被推為 `T | undefined`。\n\n## 進階版：依 tuple 精確推導\n\n若輸入是具體的 tuple，可以讓回傳型別更精確（需要 TypeScript 5.0+，為了推得字面 tuple 使用 `const` 型別參數）：\n\n```ts\ntype Last<T extends readonly unknown[]> =\n  T extends readonly [...unknown[], infer L] ? L : T[number] | undefined;\n\nfunction last<const T extends readonly unknown[]>(arr: T): Last<T> {\n  return (arr.length > 0 ? arr[arr.length - 1] : undefined) as Last<T>;\n}\n\nconst a = last([1, \"x\", true]);   // boolean（tuple 的最後一個元素）\nconst b = last([] as const);      // undefined\nconst c = last([1, 2, 3]);        // number | undefined（非 tuple 時退回 T[number] | undefined）\n```\n\n這裡的關鍵是條件型別 `T extends readonly [...unknown[], infer L]`：\n\n- `infer L` 會把尾端元素的型別捕捉到 `L`。\n- 若 `T` 是非空 tuple，就能匹配並回傳 `L`。\n- 若 `T` 是空 tuple 或一般陣列（如 `number[]`），無法匹配，就走 `else` 分支 `T[number] | undefined`。\n\n`as Last<T>` 是必要的，因為編譯器無法證明條件型別在執行時期會成立，所以需要以型別斷言告知。",
+ "finished_at": "2026-10-31T17:37:14+00:00",
+ "seconds": 13.1,
+ "cost_usd": 0.00114235
+}
